@@ -41,7 +41,7 @@ if (process.env.NODE_ENV === "production") {
 
   app.use(express.static(webClientDist));
 
-  app.get("*", (_req, res) => {
+  app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path.join(webClientDist, "index.html"));
   });
 }

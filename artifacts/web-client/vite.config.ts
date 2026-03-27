@@ -5,13 +5,9 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 const rawPort = process.env.PORT;
-const port = rawPort ? Number(rawPort) : undefined;
+const port = rawPort !== undefined ? Number(rawPort) : undefined;
 
 if (port !== undefined && (Number.isNaN(port) || port <= 0)) {
-  throw new Error(`Invalid PORT value: "${rawPort}"`);
-}
-
-if (rawPort && !port) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
