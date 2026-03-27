@@ -85,13 +85,13 @@ export default function BrowsePage() {
   const files = (data?.entries ?? []).filter(e => e.type === "file");
   const dirs = (data?.entries ?? []).filter(e => e.type === "directory");
   const hasEntries = (data?.entries?.length ?? 0) > 0;
-  const noLibraries = !isLoading && !isError && currentPath === "/" && !hasEntries && (data as any)?.noLibraries;
+  const noLibraries = !isLoading && !isError && currentPath === "/" && !hasEntries && data?.noLibraries === true;
 
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto min-h-full pb-20">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-display font-bold">Files</h1>
-        {files.length > 1 && (
+        {files.length >= 1 && (
           <button
             onClick={handlePlayAll}
             className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-sm font-medium shadow-lg shadow-primary/20 transition-all"

@@ -46274,6 +46274,9 @@ var BrowseFolderResponse = objectType({
       trackId: numberType().nullish(),
       mimeType: stringType().nullish()
     })
+  ),
+  noLibraries: booleanType().optional().describe(
+    "True when no libraries are configured and the root was requested"
   )
 });
 var StreamTrackParams = objectType({

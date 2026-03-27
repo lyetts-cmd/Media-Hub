@@ -373,6 +373,12 @@ export const BrowseFolderResponse = zod.object({
       mimeType: zod.string().nullish(),
     }),
   ),
+  noLibraries: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True when no libraries are configured and the root was requested",
+    ),
 });
 
 /**

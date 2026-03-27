@@ -140,6 +140,8 @@ export interface FolderEntry {
 export interface FolderContents {
   path: string;
   entries: FolderEntry[];
+  /** True when no libraries are configured and the root was requested */
+  noLibraries?: boolean;
 }
 
 export type ListLibraries200 = {
