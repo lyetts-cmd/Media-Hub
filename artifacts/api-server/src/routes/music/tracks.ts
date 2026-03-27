@@ -158,11 +158,22 @@ router.get("/stream/:id", async (req, res) => {
   const range = req.headers.range;
 
   if (range) {
-    const parts = range.replace(/bytes=/, "").split("-");
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-    const chunkSize = end - start + 1;
+    const match = range.match(/^bytes=(\d*)-(\d*)$/);
+    if (!match) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+    const rawStart = match[1];
+    const rawEnd = match[2];
+    const start = rawStart !== "" ? parseInt(rawStart, 10) : fileSize - parseInt(rawEnd, 10);
+    const end = rawEnd !== "" ? Math.min(parseInt(rawEnd, 10), fileSize - 1) : fileSize - 1;
 
+    if (isNaN(start) || isNaN(end) || start < 0 || end < start || start >= fileSize) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+
+    const chunkSize = end - start + 1;
     res.status(206);
     res.setHeader("Content-Range", `bytes ${start}-${end}/${fileSize}`);
     res.setHeader("Accept-Ranges", "bytes");
