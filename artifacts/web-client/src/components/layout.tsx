@@ -113,6 +113,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         ))}
+        <Link
+          href="/settings"
+          className={cn(
+            "flex flex-col items-center p-2 rounded-lg gap-1",
+            location.startsWith("/settings") ? "text-primary" : "text-muted-foreground"
+          )}
+        >
+          <Settings className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Settings</span>
+        </Link>
       </nav>
     </div>
   );
