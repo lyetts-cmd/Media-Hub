@@ -165,8 +165,9 @@ router.get("/stream/:id", async (req, res) => {
     }
     const rawStart = match[1];
     const rawEnd = match[2];
-    const start = rawStart !== "" ? parseInt(rawStart, 10) : fileSize - parseInt(rawEnd, 10);
-    const end = rawEnd !== "" ? Math.min(parseInt(rawEnd, 10), fileSize - 1) : fileSize - 1;
+    const isSuffix = rawStart === "" && rawEnd !== "";
+    const start = isSuffix ? fileSize - parseInt(rawEnd, 10) : parseInt(rawStart, 10);
+    const end = isSuffix || rawEnd === "" ? fileSize - 1 : Math.min(parseInt(rawEnd, 10), fileSize - 1);
 
     if (isNaN(start) || isNaN(end) || start < 0 || end < start || start >= fileSize) {
       res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
