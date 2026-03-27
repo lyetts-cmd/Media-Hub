@@ -4,6 +4,7 @@ import { z } from "zod/v4";
 import { albumsTable } from "./albums";
 import { artistsTable } from "./artists";
 import { librariesTable } from "./libraries";
+import { genresTable } from "./genres";
 
 export const tracksTable = pgTable(
   "tracks",
@@ -17,6 +18,7 @@ export const tracksTable = pgTable(
     discNumber: integer("disc_number"),
     durationSeconds: real("duration_seconds"),
     genre: text("genre"),
+    genreId: integer("genre_id").references(() => genresTable.id, { onDelete: "set null" }),
     year: integer("year"),
     filePath: text("file_path").notNull().unique(),
     mimeType: text("mime_type").notNull(),

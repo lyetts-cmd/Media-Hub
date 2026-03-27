@@ -1,25 +1,23 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
-import { tracksTable, artistsTable, albumsTable } from "@workspace/db/schema";
-import { eq, sql, count, isNotNull } from "drizzle-orm";
+import { genresTable, tracksTable, artistsTable, albumsTable } from "@workspace/db/schema";
+import { eq, sql, count } from "drizzle-orm";
 
 const router: IRouter = Router();
 
 router.get("/genres", async (_req, res) => {
   const genres = await db
     .select({
-      name: tracksTable.genre,
-      trackCount: sql<number>`cast(count(*) as int)`,
+      name: genresTable.name,
+      trackCount: sql<number>`cast(count(${tracksTable.id}) as int)`,
     })
-    .from(tracksTable)
-    .where(isNotNull(tracksTable.genre))
-    .groupBy(tracksTable.genre)
-    .orderBy(tracksTable.genre);
+    .from(genresTable)
+    .leftJoin(tracksTable, eq(tracksTable.genreId, genresTable.id))
+    .groupBy(genresTable.id, genresTable.name)
+    .orderBy(genresTable.name);
 
   res.json({
-    genres: genres
-      .filter((g) => g.name !== null)
-      .map((g) => ({ name: g.name!, trackCount: g.trackCount })),
+    genres: genres.map((g) => ({ name: g.name, trackCount: g.trackCount })),
   });
 });
 
@@ -29,8 +27,21 @@ router.get("/genres/:name/tracks", async (req, res) => {
   const pageSize = Math.min(500, Math.max(1, Number(req.query.pageSize) || 100));
   const offset = (page - 1) * pageSize;
 
+  const genre = await db
+    .select({ id: genresTable.id })
+    .from(genresTable)
+    .where(eq(genresTable.name, genreName))
+    .limit(1);
+
+  if (genre.length === 0) {
+    res.json({ tracks: [], total: 0, page, pageSize });
+    return;
+  }
+
+  const genreId = genre[0].id;
+
   const [totalResult, tracks] = await Promise.all([
-    db.select({ count: count() }).from(tracksTable).where(eq(tracksTable.genre, genreName)),
+    db.select({ count: count() }).from(tracksTable).where(eq(tracksTable.genreId, genreId)),
     db
       .select({
         id: tracksTable.id,
@@ -51,7 +62,7 @@ router.get("/genres/:name/tracks", async (req, res) => {
       .from(tracksTable)
       .leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId))
       .leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId))
-      .where(eq(tracksTable.genre, genreName))
+      .where(eq(tracksTable.genreId, genreId))
       .orderBy(sql`lower(${tracksTable.title})`)
       .limit(pageSize)
       .offset(offset),

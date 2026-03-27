@@ -7,6 +7,7 @@ import {
   artistsTable,
   albumsTable,
   albumArtTable,
+  genresTable,
   tracksTable,
 } from "@workspace/db/schema";
 import { eq, sql } from "drizzle-orm";
@@ -77,6 +78,22 @@ async function collectAudioFiles(dirPath: string): Promise<string[]> {
     logger.warn({ err, dirPath }, "Error reading directory");
   }
   return files;
+}
+
+async function upsertGenre(name: string): Promise<number> {
+  const trimmed = name.trim();
+  const result = await db
+    .insert(genresTable)
+    .values({ name: trimmed })
+    .onConflictDoNothing()
+    .returning({ id: genresTable.id });
+  if (result.length > 0) return result[0].id;
+  const existing = await db
+    .select({ id: genresTable.id })
+    .from(genresTable)
+    .where(eq(genresTable.name, trimmed))
+    .limit(1);
+  return existing[0].id;
 }
 
 async function upsertArtist(name: string): Promise<number> {
@@ -176,13 +193,19 @@ async function processFile(filePath: string, libraryId: number): Promise<"added"
     artistId = await upsertArtist(artistName);
   }
 
+  const genreName = common.genre?.[0] ?? null;
+  let genreId: number | null = null;
+  if (genreName) {
+    genreId = await upsertGenre(genreName);
+  }
+
   let albumId: number | null = null;
   if (albumTitle) {
     albumId = await upsertAlbum(
       albumTitle,
       artistId,
       common.year ?? null,
-      common.genre?.[0] ?? null,
+      genreName,
     );
 
     if (albumId && common.picture && common.picture.length > 0) {
@@ -207,7 +230,8 @@ async function processFile(filePath: string, libraryId: number): Promise<"added"
     trackNumber: common.track?.no ?? null,
     discNumber: common.disk?.no ?? null,
     durationSeconds: format.duration ?? null,
-    genre: common.genre?.[0] ?? null,
+    genre: genreName,
+    genreId,
     year: common.year ?? null,
     filePath,
     mimeType: getMimeType(ext),
