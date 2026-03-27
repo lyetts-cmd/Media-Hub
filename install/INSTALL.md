@@ -1,14 +1,13 @@
 # Installing Cadence Music on a Raspberry Pi
 
-Cadence Music is a single Node.js process that serves both the API and the web UI. This guide sets it up as a background service that starts automatically on boot.
+Cadence Music is a single Node.js process that serves both the API and the web UI. The repository includes pre-built binaries, so **no compilation is needed on the Pi** — just clone, configure, and run.
 
 ## Requirements
 
 - Raspberry Pi running Raspberry Pi OS (64-bit recommended) or any Debian-based Linux
 - Node.js 20 LTS or later
 - PostgreSQL 14 or later
-- pnpm 9 or later
-- At least 256 MB of free RAM; 512 MB+ recommended
+- A GitHub account (to clone the repository)
 
 ---
 
@@ -20,14 +19,7 @@ sudo apt-get install -y nodejs
 node --version   # should print v20.x.x or later
 ```
 
-## Step 2 — Install pnpm
-
-```bash
-sudo npm install -g pnpm
-pnpm --version
-```
-
-## Step 3 — Install PostgreSQL
+## Step 2 — Install PostgreSQL
 
 ```bash
 sudo apt-get install -y postgresql postgresql-contrib
@@ -46,9 +38,9 @@ SQL
 
 ---
 
-## Step 4 — Get the code
+## Step 3 — Get the code
 
-Clone the repository (or copy the project folder) to `/opt/cadence-music`:
+Clone the repository to `/opt/cadence-music`. The pre-built server and web UI are included, so no build step is needed.
 
 ```bash
 sudo mkdir -p /opt/cadence-music
@@ -57,13 +49,7 @@ git clone https://github.com/your-org/cadence-music.git /opt/cadence-music
 cd /opt/cadence-music
 ```
 
-## Step 5 — Install dependencies
-
-```bash
-pnpm install --frozen-lockfile
-```
-
-## Step 6 — Configure environment
+## Step 4 — Configure environment
 
 ```bash
 cp install/config.example.env .env
@@ -78,34 +64,50 @@ Edit the values:
 | `PORT` | Port the server listens on (default: `4000`) |
 | `NODE_ENV` | Must be `production` |
 
-## Step 7 — Build the application
+Example `.env`:
 
-```bash
-pnpm run build:prod
+```
+DATABASE_URL=postgres://cadence:yourpassword@localhost:5432/cadence_music
+PORT=4000
+NODE_ENV=production
 ```
 
-This compiles the API server and builds the web UI. It only needs to be re-run after updating the code.
+## Step 5 — Set up the database
 
-## Step 8 — Set up the database
+This creates all the required tables. It is safe to run again after updates — it only adds what is missing.
 
 ```bash
 source .env
-pnpm run db:migrate
+node artifacts/api-server/dist/migrate.mjs
 ```
 
-This applies the schema to your PostgreSQL database. It is safe to run again after updates — it only adds missing tables/columns.
+You should see output like:
 
-## Step 9 — Test the server
+```
+Running Cadence Music database migrations...
+
+  ok  libraries
+  ok  artists
+  ok  genres
+  ok  albums
+  ok  album_art
+  ok  tracks
+  ok  indexes
+
+Migration complete. Your database is ready.
+```
+
+## Step 6 — Test the server
 
 ```bash
-source .env && pnpm run start:prod
+source .env && node artifacts/api-server/dist/index.mjs
 ```
 
 Open `http://<raspberry-pi-ip>:4000` in your browser. You should see Cadence Music. Press Ctrl+C to stop before setting up the service.
 
 ---
 
-## Step 10 — Install as a system service
+## Step 7 — Install as a system service
 
 Create a dedicated user:
 
@@ -134,12 +136,26 @@ sudo journalctl -u cadence-music -f
 
 ## Updating
 
+Whenever you make code changes in Replit, run this **once on Replit** to build and push:
+
+```bash
+pnpm run deploy
+```
+
+Then on the Pi, update is just two commands:
+
 ```bash
 cd /opt/cadence-music
 git pull
-pnpm install --frozen-lockfile
-pnpm run build:prod
-pnpm run db:migrate
+sudo systemctl restart cadence-music
+```
+
+If the update included database schema changes, also run the migration before restarting:
+
+```bash
+cd /opt/cadence-music
+git pull
+source .env && node artifacts/api-server/dist/migrate.mjs
 sudo systemctl restart cadence-music
 ```
 
@@ -162,3 +178,26 @@ http://192.168.1.xx:4000
 ```
 
 To find your Pi's IP: `hostname -I`
+
+---
+
+## Advanced: Building from Source
+
+If you want to build the application yourself (e.g. on a different architecture, or you prefer not to use pre-built binaries), you will need:
+
+- Node.js 20 LTS or later
+- pnpm 9 or later (`sudo npm install -g pnpm`)
+
+Then:
+
+```bash
+cd /opt/cadence-music
+pnpm install
+pnpm run build:prod
+source .env && node artifacts/api-server/dist/migrate.mjs
+node artifacts/api-server/dist/index.mjs
+```
+
+> **Note for ARM64 (Raspberry Pi):** If `pnpm run build:prod` fails with a Rollup native module error, run `pnpm install --force` first, then retry the build.
+
+The normal workflow is to build in Replit (x86_64) and use `pnpm run deploy` to commit and push the built files, so the Pi only ever needs `git pull`.

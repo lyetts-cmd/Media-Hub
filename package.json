@@ -6,6 +6,7 @@
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "build:prod": "BASE_PATH=/ NODE_ENV=production pnpm --filter @workspace/api-server run build && BASE_PATH=/ NODE_ENV=production pnpm --filter @workspace/web-client run build",
+    "deploy": "pnpm run build:prod && git add artifacts/api-server/dist artifacts/web-client/dist/public && (git diff --cached --quiet || git commit -m 'chore: release build') && git push",
     "db:migrate": "pnpm --filter @workspace/db run push",
     "start:prod": "NODE_ENV=production node --enable-source-maps artifacts/api-server/dist/index.mjs",
     "typecheck:libs": "tsc --build",
