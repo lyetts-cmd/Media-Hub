@@ -1,0 +1,16 @@
+[Unit]
+Description=Cadence Music Server
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=cadence
+WorkingDirectory=/opt/cadence-music
+EnvironmentFile=/opt/cadence-music/.env
+ExecStart=/usr/bin/node --enable-source-maps artifacts/api-server/dist/index.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
