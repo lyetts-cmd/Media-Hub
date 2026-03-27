@@ -33,6 +33,8 @@ export interface ScanStatus {
   tracksAdded: number;
   tracksUpdated: number;
   tracksRemoved: number;
+  hadErrors: boolean;
+  errorCount: number;
   startedAt?: string | null;
 }
 

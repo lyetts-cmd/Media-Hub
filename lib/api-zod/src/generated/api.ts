@@ -62,6 +62,8 @@ export const GetScanStatusResponse = zod.object({
   tracksAdded: zod.number(),
   tracksUpdated: zod.number(),
   tracksRemoved: zod.number(),
+  hadErrors: zod.boolean(),
+  errorCount: zod.number(),
   startedAt: zod.date().nullish(),
 });
 

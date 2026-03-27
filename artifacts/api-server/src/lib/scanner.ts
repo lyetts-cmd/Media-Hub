@@ -39,6 +39,8 @@ interface ScanState {
   tracksAdded: number;
   tracksUpdated: number;
   tracksRemoved: number;
+  hadErrors: boolean;
+  errorCount: number;
   startedAt: Date | null;
 }
 
@@ -49,6 +51,8 @@ const scanState: ScanState = {
   tracksAdded: 0,
   tracksUpdated: 0,
   tracksRemoved: 0,
+  hadErrors: false,
+  errorCount: 0,
   startedAt: null,
 };
 
@@ -56,7 +60,13 @@ export function getScanStatus(): ScanState {
   return { ...scanState };
 }
 
-async function collectAudioFiles(dirPath: string): Promise<string[]> {
+interface CollectResult {
+  files: string[];
+  directoryErrors: number;
+}
+
+async function collectAudioFiles(dirPath: string, isRoot = false): Promise<CollectResult> {
+  let directoryErrors = 0;
   const files: string[] = [];
   try {
     const entries = await readdir(dirPath, { withFileTypes: true });
@@ -64,8 +74,9 @@ async function collectAudioFiles(dirPath: string): Promise<string[]> {
       entries.map(async (entry) => {
         const fullPath = path.join(dirPath, entry.name);
         if (entry.isDirectory()) {
-          const sub = await collectAudioFiles(fullPath);
-          files.push(...sub);
+          const sub = await collectAudioFiles(fullPath, false);
+          files.push(...sub.files);
+          directoryErrors += sub.directoryErrors;
         } else if (entry.isFile()) {
           const ext = path.extname(entry.name).toLowerCase();
           if (AUDIO_EXTENSIONS.has(ext)) {
@@ -75,9 +86,13 @@ async function collectAudioFiles(dirPath: string): Promise<string[]> {
       }),
     );
   } catch (err) {
-    logger.warn({ err, dirPath }, "Error reading directory");
+    if (isRoot) {
+      throw err;
+    }
+    logger.warn({ err, dirPath }, "Error reading subdirectory during scan");
+    directoryErrors++;
   }
-  return files;
+  return { files, directoryErrors };
 }
 
 async function upsertGenre(name: string): Promise<number> {
@@ -273,12 +288,30 @@ export async function scanLibrary(libraryId: number): Promise<void> {
   scanState.tracksAdded = 0;
   scanState.tracksUpdated = 0;
   scanState.tracksRemoved = 0;
+  scanState.hadErrors = false;
+  scanState.errorCount = 0;
   scanState.startedAt = new Date();
 
   logger.info({ libraryId, path: library.path }, "Starting library scan");
 
   try {
-    const files = await collectAudioFiles(library.path);
+    let collectResult: CollectResult;
+    try {
+      collectResult = await collectAudioFiles(library.path, true);
+    } catch (err) {
+      logger.error({ err, libraryPath: library.path }, "Cannot read library root directory — aborting scan without deletions");
+      scanState.hadErrors = true;
+      scanState.errorCount++;
+      return;
+    }
+
+    const { files, directoryErrors } = collectResult;
+    if (directoryErrors > 0) {
+      scanState.hadErrors = true;
+      scanState.errorCount += directoryErrors;
+      logger.warn({ directoryErrors, libraryId }, "Scan encountered subdirectory errors; deletion pass will be skipped");
+    }
+
     const fileSet = new Set(files);
 
     for (const filePath of files) {
@@ -289,18 +322,22 @@ export async function scanLibrary(libraryId: number): Promise<void> {
         if (result === "updated") scanState.tracksUpdated++;
       } catch (err) {
         logger.warn({ err, filePath }, "Error processing file");
+        scanState.hadErrors = true;
+        scanState.errorCount++;
       }
     }
 
-    const existingTracks = await db
-      .select({ id: tracksTable.id, filePath: tracksTable.filePath })
-      .from(tracksTable)
-      .where(eq(tracksTable.libraryId, libraryId));
+    if (directoryErrors === 0) {
+      const existingTracks = await db
+        .select({ id: tracksTable.id, filePath: tracksTable.filePath })
+        .from(tracksTable)
+        .where(eq(tracksTable.libraryId, libraryId));
 
-    for (const track of existingTracks) {
-      if (!fileSet.has(track.filePath)) {
-        await db.delete(tracksTable).where(eq(tracksTable.id, track.id));
-        scanState.tracksRemoved++;
+      for (const track of existingTracks) {
+        if (!fileSet.has(track.filePath)) {
+          await db.delete(tracksTable).where(eq(tracksTable.id, track.id));
+          scanState.tracksRemoved++;
+        }
       }
     }
 

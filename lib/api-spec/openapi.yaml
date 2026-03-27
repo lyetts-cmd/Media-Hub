@@ -556,6 +556,10 @@ components:
           type: integer
         tracksRemoved:
           type: integer
+        hadErrors:
+          type: boolean
+        errorCount:
+          type: integer
         startedAt:
           type: string
           format: date-time
@@ -566,6 +570,8 @@ components:
         - tracksAdded
         - tracksUpdated
         - tracksRemoved
+        - hadErrors
+        - errorCount
 
     Artist:
       type: object
