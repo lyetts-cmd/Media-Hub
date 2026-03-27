@@ -70549,7 +70549,7 @@ router8.get("/search", async (req, res) => {
       id: artistsTable.id,
       name: artistsTable.name,
       albumCount: sql`cast(count(distinct ${albumsTable.id}) as int)`,
-      trackCount: sql`cast(count(${tracksTable.id}) as int)`,
+      trackCount: sql`cast(count(distinct ${tracksTable.id}) as int)`,
       representativeAlbumId: sql`min(${albumsTable.id})`
     }).from(artistsTable).leftJoin(albumsTable, eq(albumsTable.artistId, artistsTable.id)).leftJoin(tracksTable, eq(tracksTable.artistId, artistsTable.id)).where(ilike(artistsTable.name, pattern)).groupBy(artistsTable.id, artistsTable.name).orderBy(sql`lower(${artistsTable.name})`).limit(LIMIT),
     db.select({

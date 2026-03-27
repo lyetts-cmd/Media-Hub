@@ -42,7 +42,7 @@ router.get("/search", async (req, res) => {
         id: artistsTable.id,
         name: artistsTable.name,
         albumCount: sql<number>`cast(count(distinct ${albumsTable.id}) as int)`,
-        trackCount: sql<number>`cast(count(${tracksTable.id}) as int)`,
+        trackCount: sql<number>`cast(count(distinct ${tracksTable.id}) as int)`,
         representativeAlbumId: sql<number | null>`min(${albumsTable.id})`,
       })
       .from(artistsTable)
