@@ -578,6 +578,10 @@ components:
           type: integer
         trackCount:
           type: integer
+        representativeAlbumId:
+          type: integer
+          nullable: true
+          description: ID of a representative album for artwork display
       required:
         - id
         - name

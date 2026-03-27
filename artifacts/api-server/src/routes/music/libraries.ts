@@ -44,6 +44,11 @@ router.post("/libraries", async (req, res) => {
     return;
   }
 
+  // Automatically trigger a scan for the newly added library
+  scanLibrary(library.id).catch((err) => {
+    req.log?.error?.({ err }, "Auto-scan error after library add");
+  });
+
   res.status(201).json({
     id: library.id,
     name: library.name,

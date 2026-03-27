@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useBrowseFolder } from "@workspace/api-client-react";
+import { useBrowseFolder, FolderEntry } from "@workspace/api-client-react";
 import { Loader2, Folder, FileAudio, ChevronRight, Home, Play } from "lucide-react";
 import { usePlayer } from "@/hooks/use-player";
 import { Track } from "@workspace/api-client-react";
@@ -13,7 +13,7 @@ export default function BrowsePage() {
     setCurrentPath(path);
   };
 
-  const handleFileClick = (entry: any) => {
+  const handleFileClick = (entry: FolderEntry) => {
     if (entry.trackId) {
       // Create a partial track object enough for playback
       const track: Track = {

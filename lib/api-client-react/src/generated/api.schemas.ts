@@ -41,6 +41,8 @@ export interface Artist {
   name: string;
   albumCount: number;
   trackCount: number;
+  /** ID of a representative album for artwork display */
+  representativeAlbumId?: number | null;
 }
 
 export interface Album {

@@ -84,6 +84,10 @@ export const ListArtistsResponse = zod.object({
       name: zod.string(),
       albumCount: zod.number(),
       trackCount: zod.number(),
+      representativeAlbumId: zod
+        .number()
+        .nullish()
+        .describe("ID of a representative album for artwork display"),
     }),
   ),
   total: zod.number(),

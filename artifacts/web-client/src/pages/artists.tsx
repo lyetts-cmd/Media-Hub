@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "wouter";
-import { useListArtists } from "@workspace/api-client-react";
+import { useListArtists, getGetAlbumArtUrl } from "@workspace/api-client-react";
 import { Loader2, Search, Mic2 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -39,7 +39,25 @@ export default function ArtistsPage() {
                 className="group cursor-pointer flex flex-col items-center gap-4"
               >
                 <div className="relative w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden shadow-lg border-2 border-border/50 hover:border-primary transition-all duration-300 bg-secondary flex items-center justify-center group-hover:shadow-primary/20 group-hover:shadow-2xl">
-                  <Mic2 className="w-12 h-12 text-muted-foreground group-hover:scale-110 transition-transform duration-500" />
+                  {artist.representativeAlbumId ? (
+                    <img
+                      src={getGetAlbumArtUrl(artist.representativeAlbumId)}
+                      alt={artist.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = "none";
+                        const icon = target.nextElementSibling as HTMLElement | null;
+                        if (icon) icon.style.display = "flex";
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ display: artist.representativeAlbumId ? "none" : "flex" }}
+                  >
+                    <Mic2 className="w-12 h-12 text-muted-foreground group-hover:scale-110 transition-transform duration-500" />
+                  </div>
                 </div>
                 <div className="text-center px-2 w-full">
                   <h3 className="font-semibold text-base truncate group-hover:text-primary transition-colors">{artist.name}</h3>

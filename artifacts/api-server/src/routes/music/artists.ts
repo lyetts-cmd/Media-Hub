@@ -24,6 +24,12 @@ router.get("/artists", async (req, res) => {
         name: artistsTable.name,
         albumCount: sql<number>`cast(count(distinct ${albumsTable.id}) as int)`,
         trackCount: sql<number>`cast(count(distinct ${tracksTable.id}) as int)`,
+        representativeAlbumId: sql<number | null>`(
+          select id from albums
+          where artist_id = ${artistsTable.id} and has_art = true
+          order by id asc
+          limit 1
+        )`,
       })
       .from(artistsTable)
       .leftJoin(albumsTable, eq(albumsTable.artistId, artistsTable.id))
@@ -36,7 +42,7 @@ router.get("/artists", async (req, res) => {
   ]);
 
   res.json({
-    artists,
+    artists: artists.map(a => ({ ...a, representativeAlbumId: a.representativeAlbumId ?? null })),
     total: Number(totalResult[0].count),
     page,
     pageSize,
