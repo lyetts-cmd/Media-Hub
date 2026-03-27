@@ -1,9 +1,10 @@
 import { Router, type IRouter } from "express";
+import { createReadStream } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { db } from "@workspace/db";
 import { librariesTable, tracksTable } from "@workspace/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -34,6 +35,79 @@ function isPathSafe(requestedPath: string, libraryPaths: string[]): boolean {
   });
 }
 
+async function streamFileByPath(
+  filePath: string,
+  mimeType: string,
+  req: Parameters<Parameters<IRouter["get"]>[1]>[0],
+  res: Parameters<Parameters<IRouter["get"]>[1]>[1]
+) {
+  let fileStat;
+  try {
+    fileStat = await stat(filePath);
+  } catch {
+    res.status(404).json({ error: "File not found on disk" });
+    return;
+  }
+
+  const fileSize = fileStat.size;
+  const range = req.headers.range;
+
+  if (range) {
+    const match = range.match(/^bytes=(\d*)-(\d*)$/);
+    if (!match) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+    const rawStart = match[1];
+    const rawEnd = match[2];
+    const isSuffix = rawStart === "" && rawEnd !== "";
+    const start = isSuffix ? fileSize - parseInt(rawEnd, 10) : parseInt(rawStart, 10);
+    const end = isSuffix || rawEnd === "" ? fileSize - 1 : Math.min(parseInt(rawEnd, 10), fileSize - 1);
+
+    if (isNaN(start) || isNaN(end) || start < 0 || end < start || start >= fileSize) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+
+    const chunkSize = end - start + 1;
+    res.status(206);
+    res.setHeader("Content-Range", `bytes ${start}-${end}/${fileSize}`);
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Content-Length", chunkSize);
+    res.setHeader("Content-Type", mimeType);
+    createReadStream(filePath, { start, end }).pipe(res);
+  } else {
+    res.setHeader("Content-Length", fileSize);
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Accept-Ranges", "bytes");
+    createReadStream(filePath).pipe(res);
+  }
+}
+
+router.get("/browse/stream", async (req, res) => {
+  const requestedPath = req.query.path as string;
+  if (!requestedPath) {
+    res.status(400).json({ error: "path query parameter is required" });
+    return;
+  }
+
+  const libraries = await db.select({ path: librariesTable.path }).from(librariesTable);
+  const libraryPaths = libraries.map((l) => l.path);
+
+  if (!isPathSafe(requestedPath, libraryPaths)) {
+    res.status(403).json({ error: "Path is outside configured libraries" });
+    return;
+  }
+
+  const ext = path.extname(requestedPath).toLowerCase();
+  if (!AUDIO_EXTENSIONS.has(ext)) {
+    res.status(400).json({ error: "Not an audio file" });
+    return;
+  }
+
+  await streamFileByPath(requestedPath, getMimeType(ext), req, res);
+});
+
 router.get("/browse", async (req, res) => {
   const requestedPath = (req.query.path as string) || "/";
   const libraries = await db.select({ path: librariesTable.path }).from(librariesTable);
@@ -43,7 +117,7 @@ router.get("/browse", async (req, res) => {
 
   if (requestedPath === "/" || requestedPath === "") {
     if (libraryPaths.length === 0) {
-      res.json({ path: "/", entries: [] });
+      res.json({ path: "/", entries: [], noLibraries: true });
       return;
     }
     if (libraryPaths.length === 1) {
@@ -118,16 +192,20 @@ router.get("/browse", async (req, res) => {
   }
 
   if (audioFiles.length > 0) {
-    const trackRows = await db
-      .select({ id: tracksTable.id, filePath: tracksTable.filePath })
-      .from(tracksTable)
-      .where(sql`${tracksTable.filePath} = ANY(${audioFiles})`);
+    try {
+      const trackRows = await db
+        .select({ id: tracksTable.id, filePath: tracksTable.filePath })
+        .from(tracksTable)
+        .where(inArray(tracksTable.filePath, audioFiles));
 
-    const trackMap = new Map(trackRows.map((t) => [t.filePath, t.id]));
-    for (const entry of result) {
-      if (entry.type === "file") {
-        entry.trackId = trackMap.get(entry.path) ?? null;
+      const trackMap = new Map(trackRows.map((t) => [t.filePath, t.id]));
+      for (const entry of result) {
+        if (entry.type === "file") {
+          entry.trackId = trackMap.get(entry.path) ?? null;
+        }
       }
+    } catch {
+      // Non-fatal: trackIds just won't be resolved; files still appear and stream via path
     }
   }
 

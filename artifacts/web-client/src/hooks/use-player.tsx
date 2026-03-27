@@ -65,7 +65,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (currentTrack && audioRef.current) {
-      audioRef.current.src = getStreamTrackUrl(currentTrack.id);
+      const url = (currentTrack as Track & { streamUrl?: string }).streamUrl
+        ?? getStreamTrackUrl(currentTrack.id);
+      audioRef.current.src = url;
       audioRef.current.play().catch(console.error);
     }
   }, [currentIndex, currentTrack]);

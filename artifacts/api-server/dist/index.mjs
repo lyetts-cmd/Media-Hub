@@ -70291,6 +70291,7 @@ var genres_default = router6;
 
 // src/routes/music/browse.ts
 var import_express7 = __toESM(require_express2(), 1);
+import { createReadStream as createReadStream2 } from "node:fs";
 import { readdir as readdir2, stat as stat3 } from "node:fs/promises";
 import path2 from "node:path";
 var router7 = (0, import_express7.Router)();
@@ -70326,6 +70327,64 @@ function isPathSafe(requestedPath, libraryPaths) {
     return normalized === normalizedLib || normalized.startsWith(normalizedLib + path2.sep);
   });
 }
+async function streamFileByPath(filePath, mimeType, req, res) {
+  let fileStat;
+  try {
+    fileStat = await stat3(filePath);
+  } catch {
+    res.status(404).json({ error: "File not found on disk" });
+    return;
+  }
+  const fileSize = fileStat.size;
+  const range = req.headers.range;
+  if (range) {
+    const match = range.match(/^bytes=(\d*)-(\d*)$/);
+    if (!match) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+    const rawStart = match[1];
+    const rawEnd = match[2];
+    const isSuffix = rawStart === "" && rawEnd !== "";
+    const start = isSuffix ? fileSize - parseInt(rawEnd, 10) : parseInt(rawStart, 10);
+    const end = isSuffix || rawEnd === "" ? fileSize - 1 : Math.min(parseInt(rawEnd, 10), fileSize - 1);
+    if (isNaN(start) || isNaN(end) || start < 0 || end < start || start >= fileSize) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+    const chunkSize = end - start + 1;
+    res.status(206);
+    res.setHeader("Content-Range", `bytes ${start}-${end}/${fileSize}`);
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Content-Length", chunkSize);
+    res.setHeader("Content-Type", mimeType);
+    createReadStream2(filePath, { start, end }).pipe(res);
+  } else {
+    res.setHeader("Content-Length", fileSize);
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Accept-Ranges", "bytes");
+    createReadStream2(filePath).pipe(res);
+  }
+}
+router7.get("/browse/stream", async (req, res) => {
+  const requestedPath = req.query.path;
+  if (!requestedPath) {
+    res.status(400).json({ error: "path query parameter is required" });
+    return;
+  }
+  const libraries = await db.select({ path: librariesTable.path }).from(librariesTable);
+  const libraryPaths = libraries.map((l) => l.path);
+  if (!isPathSafe(requestedPath, libraryPaths)) {
+    res.status(403).json({ error: "Path is outside configured libraries" });
+    return;
+  }
+  const ext = path2.extname(requestedPath).toLowerCase();
+  if (!AUDIO_EXTENSIONS2.has(ext)) {
+    res.status(400).json({ error: "Not an audio file" });
+    return;
+  }
+  await streamFileByPath(requestedPath, getMimeType2(ext), req, res);
+});
 router7.get("/browse", async (req, res) => {
   const requestedPath = req.query.path || "/";
   const libraries = await db.select({ path: librariesTable.path }).from(librariesTable);
@@ -70333,7 +70392,7 @@ router7.get("/browse", async (req, res) => {
   let browsePath;
   if (requestedPath === "/" || requestedPath === "") {
     if (libraryPaths.length === 0) {
-      res.json({ path: "/", entries: [] });
+      res.json({ path: "/", entries: [], noLibraries: true });
       return;
     }
     if (libraryPaths.length === 1) {
@@ -70396,12 +70455,15 @@ router7.get("/browse", async (req, res) => {
     }
   }
   if (audioFiles.length > 0) {
-    const trackRows = await db.select({ id: tracksTable.id, filePath: tracksTable.filePath }).from(tracksTable).where(sql`${tracksTable.filePath} = ANY(${audioFiles})`);
-    const trackMap = new Map(trackRows.map((t) => [t.filePath, t.id]));
-    for (const entry of result) {
-      if (entry.type === "file") {
-        entry.trackId = trackMap.get(entry.path) ?? null;
+    try {
+      const trackRows = await db.select({ id: tracksTable.id, filePath: tracksTable.filePath }).from(tracksTable).where(inArray(tracksTable.filePath, audioFiles));
+      const trackMap = new Map(trackRows.map((t) => [t.filePath, t.id]));
+      for (const entry of result) {
+        if (entry.type === "file") {
+          entry.trackId = trackMap.get(entry.path) ?? null;
+        }
       }
+    } catch {
     }
   }
   result.sort((a, b) => {
