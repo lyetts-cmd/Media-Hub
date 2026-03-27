@@ -430,6 +430,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /music/search:
+    get:
+      operationId: searchMusic
+      tags: [tracks]
+      summary: Search tracks, artists, and albums
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search query (case-insensitive partial match)
+      responses:
+        "200":
+          description: Search results grouped by category
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SearchResult"
+
   /music/stream/{id}:
     get:
       operationId: streamTrack
@@ -830,3 +850,23 @@ components:
       required:
         - path
         - entries
+
+    SearchResult:
+      type: object
+      properties:
+        tracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Track"
+        artists:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artist"
+        albums:
+          type: array
+          items:
+            $ref: "#/components/schemas/Album"
+      required:
+        - tracks
+        - artists
+        - albums

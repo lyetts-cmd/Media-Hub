@@ -144,6 +144,12 @@ export interface FolderContents {
   noLibraries?: boolean;
 }
 
+export interface SearchResult {
+  tracks: Track[];
+  artists: Artist[];
+  albums: Album[];
+}
+
 export type ListLibraries200 = {
   libraries: Library[];
 };
@@ -188,4 +194,11 @@ export type GetGenreTracksParams = {
 
 export type BrowseFolderParams = {
   path?: string;
+};
+
+export type SearchMusicParams = {
+  /**
+   * Search query (case-insensitive partial match)
+   */
+  q?: string;
 };

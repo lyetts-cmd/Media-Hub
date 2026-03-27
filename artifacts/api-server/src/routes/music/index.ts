@@ -5,6 +5,7 @@ import albumsRouter from "./albums";
 import tracksRouter from "./tracks";
 import genresRouter from "./genres";
 import browseRouter from "./browse";
+import searchRouter from "./search";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(albumsRouter);
 router.use(tracksRouter);
 router.use(genresRouter);
 router.use(browseRouter);
+router.use(searchRouter);
 
 export default router;

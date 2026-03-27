@@ -30,5 +30,7 @@ export * from "./listGenres200";
 export * from "./listLibraries200";
 export * from "./listTracksParams";
 export * from "./scanStatus";
+export * from "./searchMusicParams";
+export * from "./searchResult";
 export * from "./track";
 export * from "./trackListResponse";

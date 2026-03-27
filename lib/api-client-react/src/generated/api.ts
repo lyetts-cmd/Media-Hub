@@ -36,6 +36,8 @@ import type {
   ListLibraries200,
   ListTracksParams,
   ScanStatus,
+  SearchMusicParams,
+  SearchResult,
   Track,
   TrackListResponse,
 } from "./api.schemas";
@@ -1513,6 +1515,100 @@ export function useBrowseFolder<
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getBrowseFolderQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Search tracks, artists, and albums
+ */
+export const getSearchMusicUrl = (params?: SearchMusicParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/music/search?${stringifiedParams}`
+    : `/api/music/search`;
+};
+
+export const searchMusic = async (
+  params?: SearchMusicParams,
+  options?: RequestInit,
+): Promise<SearchResult> => {
+  return customFetch<SearchResult>(getSearchMusicUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getSearchMusicQueryKey = (params?: SearchMusicParams) => {
+  return [`/api/music/search`, ...(params ? [params] : [])] as const;
+};
+
+export const getSearchMusicQueryOptions = <
+  TData = Awaited<ReturnType<typeof searchMusic>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: SearchMusicParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof searchMusic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getSearchMusicQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof searchMusic>>> = ({
+    signal,
+  }) => searchMusic(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof searchMusic>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type SearchMusicQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchMusic>>
+>;
+export type SearchMusicQueryError = ErrorType<unknown>;
+
+/**
+ * @summary Search tracks, artists, and albums
+ */
+
+export function useSearchMusic<
+  TData = Awaited<ReturnType<typeof searchMusic>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: SearchMusicParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof searchMusic>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getSearchMusicQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

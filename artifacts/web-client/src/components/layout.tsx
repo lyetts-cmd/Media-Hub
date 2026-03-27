@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Library, Music2, Disc3, Mic2, FolderTree, Settings, Home } from "lucide-react";
 import { motion } from "framer-motion";
 import Player from "./player";
+import SearchBar from "./search-bar";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -29,6 +30,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Music2 className="w-5 h-5 text-white" />
           </div>
           <h1 className="text-xl font-display font-bold text-gradient">Cadence</h1>
+        </div>
+
+        {/* Search in sidebar */}
+        <div className="px-4 py-3 border-b border-border/50">
+          <SearchBar />
         </div>
         
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
@@ -74,10 +80,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Main Content Area */}
       <main className="flex-1 relative flex flex-col overflow-hidden pb-24">
         {/* Mobile Header */}
-        <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-card shrink-0">
-          <div className="flex items-center gap-2">
-            <Music2 className="w-6 h-6 text-primary" />
-            <h1 className="text-lg font-display font-bold">Cadence</h1>
+        <header className="md:hidden flex items-center gap-3 p-3 border-b border-border bg-card shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
+            <Music2 className="w-5 h-5 text-primary" />
+            <h1 className="text-base font-display font-bold">Cadence</h1>
+          </div>
+          <div className="flex-1 min-w-0">
+            <SearchBar />
           </div>
         </header>
         

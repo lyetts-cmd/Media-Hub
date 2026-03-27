@@ -20488,27 +20488,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router10;
+    module.exports = Router11;
     module.exports.Route = Route;
-    function Router10(options) {
-      if (!(this instanceof Router10)) {
-        return new Router10(options);
+    function Router11(options) {
+      if (!(this instanceof Router11)) {
+        return new Router11(options);
       }
       const opts = options || {};
-      function router10(req, res, next) {
-        router10.handle(req, res, next);
+      function router11(req, res, next) {
+        router11.handle(req, res, next);
       }
-      Object.setPrototypeOf(router10, this);
-      router10.caseSensitive = opts.caseSensitive;
-      router10.mergeParams = opts.mergeParams;
-      router10.params = {};
-      router10.strict = opts.strict;
-      router10.stack = [];
-      return router10;
+      Object.setPrototypeOf(router11, this);
+      router11.caseSensitive = opts.caseSensitive;
+      router11.mergeParams = opts.mergeParams;
+      router11.params = {};
+      router11.strict = opts.strict;
+      router11.stack = [];
+      return router11;
     }
-    Router10.prototype = function() {
+    Router11.prototype = function() {
     };
-    Router10.prototype.param = function param(name, fn) {
+    Router11.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20528,7 +20528,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router10.prototype.handle = function handle(req, res, callback) {
+    Router11.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20655,7 +20655,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router10.prototype.use = function use(handler) {
+    Router11.prototype.use = function use(handler) {
       let offset = 0;
       let path4 = "/";
       if (typeof handler !== "function") {
@@ -20688,7 +20688,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router10.prototype.route = function route(path4) {
+    Router11.prototype.route = function route(path4) {
       const route2 = new Route(path4);
       const layer = new Layer(path4, {
         sensitive: this.caseSensitive,
@@ -20703,7 +20703,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router10.prototype[method] = function(path4) {
+      Router11.prototype[method] = function(path4) {
         const route = this.route(path4);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -20886,13 +20886,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router10 = null;
+      var router11 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20901,13 +20901,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router10 === null) {
-            router10 = new Router10({
+          if (router11 === null) {
+            router11 = new Router11({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router10;
+          return router11;
         }
       });
     };
@@ -20978,15 +20978,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router10 = this.router;
+      var router11 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router10.use(path4, fn2);
+          return router11.use(path4, fn2);
         }
         debug31(".use app under %s", path4);
         fn2.mountpath = path4;
         fn2.parent = this;
-        router10.use(path4, function mounted_app(req, res, next) {
+        router11.use(path4, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23513,7 +23513,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23535,8 +23535,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router10.Route;
-    exports.Router = Router10;
+    exports.Route = Router11.Route;
+    exports.Router = Router11;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -42097,14 +42097,14 @@ var init_WaveParser = __esm({
 });
 
 // src/app.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 import path3 from "node:path";
 import { fileURLToPath } from "node:url";
 
 // src/routes/index.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -46279,6 +46279,50 @@ var BrowseFolderResponse = objectType({
     "True when no libraries are configured and the root was requested"
   )
 });
+var SearchMusicQueryParams = objectType({
+  q: coerce.string().optional().describe("Search query (case-insensitive partial match)")
+});
+var SearchMusicResponse = objectType({
+  tracks: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      albumId: numberType().nullish(),
+      albumTitle: stringType().nullish(),
+      trackNumber: numberType().nullish(),
+      discNumber: numberType().nullish(),
+      durationSeconds: numberType().nullish(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      filePath: stringType(),
+      mimeType: stringType(),
+      hasArt: booleanType()
+    })
+  ),
+  artists: arrayType(
+    objectType({
+      id: numberType(),
+      name: stringType(),
+      albumCount: numberType(),
+      trackCount: numberType(),
+      representativeAlbumId: numberType().nullish().describe("ID of a representative album for artwork display")
+    })
+  ),
+  albums: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      year: numberType().nullish(),
+      trackCount: numberType(),
+      hasArt: booleanType(),
+      genre: stringType().nullish()
+    })
+  )
+});
 var StreamTrackParams = objectType({
   id: coerce.number()
 });
@@ -46295,7 +46339,7 @@ router.get("/healthz", (_req, res) => {
 var health_default = router;
 
 // src/routes/music/index.ts
-var import_express8 = __toESM(require_express2(), 1);
+var import_express9 = __toESM(require_express2(), 1);
 
 // src/routes/music/libraries.ts
 var import_express2 = __toESM(require_express2(), 1);
@@ -70477,24 +70521,101 @@ router7.get("/browse", async (req, res) => {
 });
 var browse_default = router7;
 
-// src/routes/music/index.ts
+// src/routes/music/search.ts
+var import_express8 = __toESM(require_express2(), 1);
 var router8 = (0, import_express8.Router)();
-router8.use(libraries_default);
-router8.use(artists_default);
-router8.use(albums_default);
-router8.use(tracks_default);
-router8.use(genres_default);
-router8.use(browse_default);
-var music_default = router8;
+var LIMIT = 10;
+router8.get("/search", async (req, res) => {
+  const q = req.query.q?.trim();
+  if (!q) {
+    res.json({ tracks: [], artists: [], albums: [] });
+    return;
+  }
+  const pattern = `%${q}%`;
+  const [tracks, artists, albums] = await Promise.all([
+    db.select({
+      id: tracksTable.id,
+      title: tracksTable.title,
+      artistId: tracksTable.artistId,
+      artistName: artistsTable.name,
+      albumId: tracksTable.albumId,
+      albumTitle: albumsTable.title,
+      albumHasArt: albumsTable.hasArt,
+      durationSeconds: tracksTable.durationSeconds,
+      filePath: tracksTable.filePath,
+      mimeType: tracksTable.mimeType
+    }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(ilike(tracksTable.title, pattern)).orderBy(sql`lower(${tracksTable.title})`).limit(LIMIT),
+    db.select({
+      id: artistsTable.id,
+      name: artistsTable.name,
+      albumCount: sql`cast(count(distinct ${albumsTable.id}) as int)`,
+      trackCount: sql`cast(count(${tracksTable.id}) as int)`,
+      representativeAlbumId: sql`min(${albumsTable.id})`
+    }).from(artistsTable).leftJoin(albumsTable, eq(albumsTable.artistId, artistsTable.id)).leftJoin(tracksTable, eq(tracksTable.artistId, artistsTable.id)).where(ilike(artistsTable.name, pattern)).groupBy(artistsTable.id, artistsTable.name).orderBy(sql`lower(${artistsTable.name})`).limit(LIMIT),
+    db.select({
+      id: albumsTable.id,
+      title: albumsTable.title,
+      artistId: albumsTable.artistId,
+      artistName: artistsTable.name,
+      year: albumsTable.year,
+      hasArt: albumsTable.hasArt,
+      genre: albumsTable.genre,
+      trackCount: sql`cast(count(${tracksTable.id}) as int)`
+    }).from(albumsTable).leftJoin(artistsTable, eq(artistsTable.id, albumsTable.artistId)).leftJoin(tracksTable, eq(tracksTable.albumId, albumsTable.id)).where(ilike(albumsTable.title, pattern)).groupBy(albumsTable.id, artistsTable.name).orderBy(sql`lower(${albumsTable.title})`).limit(LIMIT)
+  ]);
+  res.json({
+    tracks: tracks.map((t) => ({
+      id: t.id,
+      title: t.title,
+      artistId: t.artistId ?? null,
+      artistName: t.artistName ?? null,
+      albumId: t.albumId ?? null,
+      albumTitle: t.albumTitle ?? null,
+      durationSeconds: t.durationSeconds ?? null,
+      filePath: t.filePath,
+      mimeType: t.mimeType,
+      hasArt: t.albumHasArt ?? false
+    })),
+    artists: artists.map((a) => ({
+      id: a.id,
+      name: a.name,
+      albumCount: a.albumCount,
+      trackCount: a.trackCount,
+      representativeAlbumId: a.representativeAlbumId ?? null
+    })),
+    albums: albums.map((a) => ({
+      id: a.id,
+      title: a.title,
+      artistId: a.artistId ?? null,
+      artistName: a.artistName ?? null,
+      year: a.year ?? null,
+      hasArt: a.hasArt,
+      genre: a.genre ?? null,
+      trackCount: a.trackCount
+    }))
+  });
+});
+var search_default = router8;
+
+// src/routes/music/index.ts
+var router9 = (0, import_express9.Router)();
+router9.use(libraries_default);
+router9.use(artists_default);
+router9.use(albums_default);
+router9.use(tracks_default);
+router9.use(genres_default);
+router9.use(browse_default);
+router9.use(search_default);
+var music_default = router9;
 
 // src/routes/index.ts
-var router9 = (0, import_express9.Router)();
-router9.use(health_default);
-router9.use("/music", music_default);
-var routes_default = router9;
+var router10 = (0, import_express10.Router)();
+router10.use(health_default);
+router10.use("/music", music_default);
+var routes_default = router10;
 
 // src/app.ts
-var app = (0, import_express10.default)();
+var app = (0, import_express11.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -70515,13 +70636,13 @@ app.use(
   })
 );
 app.use((0, import_cors.default)());
-app.use(import_express10.default.json());
-app.use(import_express10.default.urlencoded({ extended: true }));
+app.use(import_express11.default.json());
+app.use(import_express11.default.urlencoded({ extended: true }));
 app.use("/api", routes_default);
 if (process.env.NODE_ENV === "production") {
   const __dirname2 = path3.dirname(fileURLToPath(import.meta.url));
   const webClientDist = process.env.WEB_CLIENT_DIST ?? path3.resolve(__dirname2, "../../web-client/dist/public");
-  app.use(import_express10.default.static(webClientDist));
+  app.use(import_express11.default.static(webClientDist));
   app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path3.join(webClientDist, "index.html"));
   });

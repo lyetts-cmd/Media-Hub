@@ -382,6 +382,61 @@ export const BrowseFolderResponse = zod.object({
 });
 
 /**
+ * @summary Search tracks, artists, and albums
+ */
+export const SearchMusicQueryParams = zod.object({
+  q: zod.coerce
+    .string()
+    .optional()
+    .describe("Search query (case-insensitive partial match)"),
+});
+
+export const SearchMusicResponse = zod.object({
+  tracks: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      albumId: zod.number().nullish(),
+      albumTitle: zod.string().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
+      durationSeconds: zod.number().nullish(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      filePath: zod.string(),
+      mimeType: zod.string(),
+      hasArt: zod.boolean(),
+    }),
+  ),
+  artists: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      albumCount: zod.number(),
+      trackCount: zod.number(),
+      representativeAlbumId: zod
+        .number()
+        .nullish()
+        .describe("ID of a representative album for artwork display"),
+    }),
+  ),
+  albums: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      year: zod.number().nullish(),
+      trackCount: zod.number(),
+      hasArt: zod.boolean(),
+      genre: zod.string().nullish(),
+    }),
+  ),
+});
+
+/**
  * @summary Stream audio file for a track
  */
 export const StreamTrackParams = zod.object({
