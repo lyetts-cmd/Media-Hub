@@ -50,6 +50,11 @@ export default function Player() {
           <span className="text-xs md:text-sm text-muted-foreground truncate">
             {currentTrack.artistName || "Unknown Artist"}
           </span>
+          {currentTrack.albumTitle && (
+            <span className="text-xs text-muted-foreground/70 truncate hidden md:block">
+              {currentTrack.albumTitle}
+            </span>
+          )}
         </div>
       </div>
 

@@ -1,15 +1,18 @@
 import React from "react";
 import { useParams, Link } from "wouter";
-import { useGetArtist, useGetArtistAlbums, getGetAlbumArtUrl } from "@workspace/api-client-react";
+import { useGetArtist, useGetArtistAlbums, useListTracks, getGetAlbumArtUrl } from "@workspace/api-client-react";
 import { Loader2, ArrowLeft, Mic2 } from "lucide-react";
 import { motion } from "framer-motion";
+import TrackList from "@/components/track-list";
 
 export default function ArtistDetail() {
   const { id } = useParams<{ id: string }>();
-  const { data: artist, isLoading: artistLoading } = useGetArtist(Number(id));
-  const { data: albumsData, isLoading: albumsLoading } = useGetArtistAlbums(Number(id));
+  const artistId = Number(id);
+  const { data: artist, isLoading: artistLoading } = useGetArtist(artistId);
+  const { data: albumsData, isLoading: albumsLoading } = useGetArtistAlbums(artistId);
+  const { data: tracksData, isLoading: tracksLoading } = useListTracks({ artistId, pageSize: 500 });
 
-  const isLoading = artistLoading || albumsLoading;
+  const isLoading = artistLoading || albumsLoading || tracksLoading;
 
   if (isLoading) return <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   if (!artist) return <div className="p-8 text-destructive">Failed to load artist.</div>;
@@ -41,7 +44,7 @@ export default function ArtistDetail() {
         <h2 className="text-2xl font-display font-bold mb-6">Discography</h2>
         
         {albumsData?.albums?.length ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 mb-12">
             {albumsData.albums.map((album, i) => (
               <Link key={album.id} href={`/albums/${album.id}`}>
                 <motion.div 
@@ -67,7 +70,14 @@ export default function ArtistDetail() {
             ))}
           </div>
         ) : (
-          <p className="text-muted-foreground">No albums found.</p>
+          <p className="text-muted-foreground mb-12">No albums found.</p>
+        )}
+
+        {tracksData?.tracks && tracksData.tracks.length > 0 && (
+          <>
+            <h2 className="text-2xl font-display font-bold mb-4">All Tracks</h2>
+            <TrackList tracks={tracksData.tracks} showAlbum showArtist={false} />
+          </>
         )}
       </div>
     </div>

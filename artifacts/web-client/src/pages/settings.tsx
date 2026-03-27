@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   useListLibraries, 
   useAddLibrary, 
@@ -24,10 +24,13 @@ export default function SettingsPage() {
   const { mutate: deleteLibrary } = useDeleteLibrary();
   const { mutate: scanLibrary } = useScanLibrary();
   
+  const { data: scanStatus, refetch: refetchScanStatus } = useGetScanStatus();
+  
   // Poll scan status every 2s
-  const { data: scanStatus } = useGetScanStatus({ 
-    query: { refetchInterval: 2000 } 
-  });
+  useEffect(() => {
+    const interval = setInterval(() => { refetchScanStatus(); }, 2000);
+    return () => clearInterval(interval);
+  }, [refetchScanStatus]);
 
   const form = useForm<z.infer<typeof addLibrarySchema>>({
     resolver: zodResolver(addLibrarySchema),
