@@ -5,7 +5,8 @@ dist
 !artifacts/api-server/dist
 !artifacts/api-server/dist/**
 !artifacts/web-client/dist
-!artifacts/web-client/dist/**
+!artifacts/web-client/dist/public
+!artifacts/web-client/dist/public/**
 tmp
 out-tsc
 *.tsbuildinfo
