@@ -1,8 +1,8 @@
-# Workspace
+# Cadence Music — Self-Hosted Music Server
 
 ## Overview
 
-pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
+A self-hosted music media server ("Cadence") with a web client. The server scans music directories, reads metadata from audio files, stores it in a PostgreSQL database, and streams audio to any browser on the network. The web client provides a full music browsing and playback experience.
 
 ## Stack
 
@@ -15,82 +15,93 @@ pnpm workspace monorepo using TypeScript. Each package manages its own dependenc
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **API codegen**: Orval (from OpenAPI spec)
 - **Build**: esbuild (CJS bundle)
+- **Frontend**: React + Vite + Tailwind CSS + Shadcn/ui
+- **Music metadata**: `music-metadata` npm package
 
-## Structure
+## Architecture
 
 ```text
-artifacts-monorepo/
-├── artifacts/              # Deployable applications
-│   └── api-server/         # Express API server
-├── lib/                    # Shared libraries
+cadence-monorepo/
+├── artifacts/
+│   ├── api-server/         # Express API server (music backend)
+│   └── web-client/         # React + Vite web client ("Cadence")
+├── lib/
 │   ├── api-spec/           # OpenAPI spec + Orval codegen config
 │   ├── api-client-react/   # Generated React Query hooks
 │   ├── api-zod/            # Generated Zod schemas from OpenAPI
 │   └── db/                 # Drizzle ORM schema + DB connection
-├── scripts/                # Utility scripts (single workspace package)
-│   └── src/                # Individual .ts scripts, run via `pnpm --filter @workspace/scripts run <script>`
-├── pnpm-workspace.yaml     # pnpm workspace (artifacts/*, lib/*, lib/integrations/*, scripts)
-├── tsconfig.base.json      # Shared TS options (composite, bundler resolution, es2022)
-├── tsconfig.json           # Root TS project references
-└── package.json            # Root package with hoisted devDeps
+├── scripts/
+└── ...config files
 ```
 
-## TypeScript & Composite Projects
+## Music Features
 
-Every package extends `tsconfig.base.json` which sets `composite: true`. The root `tsconfig.json` lists all packages as project references. This means:
+### Server (API)
+- **Library management** — Add/remove music folder paths via API or Settings UI
+- **File scanner** — Walks library directories, reads ID3/metadata tags, upserts into DB
+  - Supports: mp3, flac, ogg, m4a, aac, wav, wma, opus, ape
+  - Detects new, changed (by mtime), and deleted files
+  - Reads album art from tags and stores in DB
+- **Audio streaming** — HTTP range request support for seeking
+- **Browsing APIs** — Artists, Albums, Tracks, Genres, Folder browser
 
-- **Always typecheck from the root** — run `pnpm run typecheck` (which runs `tsc --build --emitDeclarationOnly`). This builds the full dependency graph so that cross-package imports resolve correctly. Running `tsc` inside a single package will fail if its dependencies haven't been built yet.
-- **`emitDeclarationOnly`** — we only emit `.d.ts` files during typecheck; actual JS bundling is handled by esbuild/tsx/vite...etc, not `tsc`.
-- **Project references** — when package A depends on package B, A's `tsconfig.json` must list B in its `references` array. `tsc --build` uses this to determine build order and skip up-to-date packages.
+### Web Client (`/`)
+- Browse by **Albums**, **Artists**, **Genres**
+- **Folder browser** (mirrors on-disk hierarchy)
+- **Bottom player bar** — play/pause, prev/next, seek, volume, now-playing display
+- **Settings** page — add/remove library paths, trigger scans, view scan progress
 
-## Root Scripts
+## API Routes
 
-- `pnpm run build` — runs `typecheck` first, then recursively runs `build` in all packages that define it
-- `pnpm run typecheck` — runs `tsc --build --emitDeclarationOnly` using project references
+All routes are prefixed with `/api/music/`:
 
-## Packages
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/music/libraries` | List configured libraries |
+| POST | `/music/libraries` | Add a library path |
+| DELETE | `/music/libraries/:id` | Remove a library |
+| POST | `/music/libraries/:id/scan` | Trigger async library scan |
+| GET | `/music/scan/status` | Get current scan status |
+| GET | `/music/artists` | List artists (paginated) |
+| GET | `/music/artists/:id` | Artist detail + albums |
+| GET | `/music/albums` | List albums (paginated) |
+| GET | `/music/albums/:id` | Album detail + tracks |
+| GET | `/music/tracks` | List tracks (paginated) |
+| GET | `/music/tracks/:id` | Track detail |
+| GET | `/music/genres` | List genres |
+| GET | `/music/genres/:name/tracks` | Tracks by genre |
+| GET | `/music/browse?path=` | Folder browser |
+| GET | `/music/stream/:id` | Stream audio file (range requests) |
+| GET | `/music/art/:albumId` | Album cover art image |
 
-### `artifacts/api-server` (`@workspace/api-server`)
+## Database Schema
 
-Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` for request and response validation and `@workspace/db` for persistence.
+- `libraries` — Configured music folder paths
+- `artists` — Indexed artist names
+- `albums` — Albums with artist FK, year, genre, hasArt flag
+- `album_art` — Binary album art storage (bytea)
+- `tracks` — Full track metadata with file path, duration, track/disc numbers
 
-- Entry: `src/index.ts` — reads `PORT`, starts Express
-- App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
-- Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
-- `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
-- Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+## Running
 
-### `lib/db` (`@workspace/db`)
+- API server: `pnpm --filter @workspace/api-server run dev`
+- Web client: `pnpm --filter @workspace/web-client run dev`
+- DB schema push: `pnpm --filter @workspace/db run push`
+- Codegen: `pnpm --filter @workspace/api-spec run codegen`
 
-Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
+## Usage
 
-- `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
-- `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
-- `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- Exports: `.` (pool, db, schema), `./schema` (schema only)
+1. Open the web client
+2. Go to **Settings** (bottom of sidebar)
+3. Enter a library name and the **absolute path** to your music folder (e.g. `/home/user/Music`)
+4. Click **Add**, then **Scan**
+5. Browse your library via Albums, Artists, Genres, or Browse
 
-Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
+## Future Work
 
-### `lib/api-spec` (`@workspace/api-spec`)
-
-Owns the OpenAPI 3.1 spec (`openapi.yaml`) and the Orval config (`orval.config.ts`). Running codegen produces output into two sibling packages:
-
-1. `lib/api-client-react/src/generated/` — React Query hooks + fetch client
-2. `lib/api-zod/src/generated/` — Zod schemas
-
-Run codegen: `pnpm --filter @workspace/api-spec run codegen`
-
-### `lib/api-zod` (`@workspace/api-zod`)
-
-Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used by `api-server` for response validation.
-
-### `lib/api-client-react` (`@workspace/api-client-react`)
-
-Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-### `scripts` (`@workspace/scripts`)
-
-Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+- Video/movie support
+- Remote access (beyond local VPN)
+- Authentication
+- Mobile app
+- Playlist management
+- Format transcoding

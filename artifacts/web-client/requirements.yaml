@@ -1,0 +1,19 @@
+packages:
+  "framer-motion": "For page transitions and smooth UI micro-interactions"
+  "react-hook-form": "For form state management in settings"
+  "@hookform/resolvers": "For Zod schema validation in forms"
+  "clsx": "For conditional class names"
+  "tailwind-merge": "For merging tailwind classes safely"
+  "date-fns": "For formatting duration and dates"
+
+images:
+  - path: "artifacts/web-client/public/images/default-art.png"
+    description: "A dark, sleek, abstract gradient mesh in deep blues and purples with a subtle musical note motif in the center, premium glassmorphism aesthetic"
+    aspect_ratio: "1:1"
+  - path: "artifacts/web-client/public/images/hero-bg.png"
+    description: "Dark, moody atmospheric background with blurred neon streaks of cyan and magenta, feeling like a modern night club or premium streaming service"
+    aspect_ratio: "16:9"
+
+notes:
+  - "Assuming the API client from `@workspace/api-client-react` is correctly generated and accessible."
+  - "The audio player uses the native HTML5 Audio API managed via a React Context."

@@ -3,13 +3,25 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Music Media Server API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: libraries
+    description: Music library management
+  - name: artists
+    description: Artist browsing
+  - name: albums
+    description: Album browsing
+  - name: tracks
+    description: Track browsing and streaming
+  - name: genres
+    description: Genre browsing
+  - name: browse
+    description: Folder-based browsing
 paths:
   /healthz:
     get:
@@ -24,6 +36,459 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /music/libraries:
+    get:
+      operationId: listLibraries
+      tags: [libraries]
+      summary: List all music libraries
+      responses:
+        "200":
+          description: List of libraries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  libraries:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Library"
+                required:
+                  - libraries
+    post:
+      operationId: addLibrary
+      tags: [libraries]
+      summary: Add a music library path
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddLibraryRequest"
+      responses:
+        "201":
+          description: Library added
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Library"
+        "400":
+          description: Invalid path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/libraries/{id}:
+    delete:
+      operationId: deleteLibrary
+      tags: [libraries]
+      summary: Remove a music library
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Library removed
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/libraries/{id}/scan:
+    post:
+      operationId: scanLibrary
+      tags: [libraries]
+      summary: Trigger a scan of a library
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "202":
+          description: Scan started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanStatus"
+
+  /music/scan/status:
+    get:
+      operationId: getScanStatus
+      tags: [libraries]
+      summary: Get current scan status
+      responses:
+        "200":
+          description: Scan status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScanStatus"
+
+  /music/artists:
+    get:
+      operationId: listArtists
+      tags: [artists]
+      summary: List all artists
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated list of artists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtistListResponse"
+
+  /music/artists/{id}:
+    get:
+      operationId: getArtist
+      tags: [artists]
+      summary: Get artist details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Artist details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtistDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/artists/{id}/albums:
+    get:
+      operationId: getArtistAlbums
+      tags: [artists]
+      summary: Get albums by an artist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Albums by artist
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  albums:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Album"
+                required:
+                  - albums
+
+  /music/albums:
+    get:
+      operationId: listAlbums
+      tags: [albums]
+      summary: List all albums
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: artistId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paginated list of albums
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlbumListResponse"
+
+  /music/albums/{id}:
+    get:
+      operationId: getAlbum
+      tags: [albums]
+      summary: Get album details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Album with tracks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlbumDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/albums/{id}/tracks:
+    get:
+      operationId: getAlbumTracks
+      tags: [albums]
+      summary: Get tracks in an album
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Tracks in album
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tracks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Track"
+                required:
+                  - tracks
+
+  /music/tracks:
+    get:
+      operationId: listTracks
+      tags: [tracks]
+      summary: List all tracks
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: albumId
+          in: query
+          schema:
+            type: integer
+        - name: artistId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Paginated list of tracks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackListResponse"
+
+  /music/tracks/{id}:
+    get:
+      operationId: getTrack
+      tags: [tracks]
+      summary: Get track details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Track details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Track"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/genres:
+    get:
+      operationId: listGenres
+      tags: [genres]
+      summary: List all genres
+      responses:
+        "200":
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  genres:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Genre"
+                required:
+                  - genres
+
+  /music/genres/{name}/tracks:
+    get:
+      operationId: getGenreTracks
+      tags: [genres]
+      summary: Get tracks by genre
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        "200":
+          description: Tracks in genre
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackListResponse"
+
+  /music/browse:
+    get:
+      operationId: browseFolder
+      tags: [browse]
+      summary: Browse music library by folder path
+      parameters:
+        - name: path
+          in: query
+          schema:
+            type: string
+            default: "/"
+      responses:
+        "200":
+          description: Folder contents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FolderContents"
+        "404":
+          description: Path not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/stream/{id}:
+    get:
+      operationId: streamTrack
+      tags: [tracks]
+      summary: Stream audio file for a track
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Audio stream
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        "206":
+          description: Partial audio content (range request)
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/art/{albumId}:
+    get:
+      operationId: getAlbumArt
+      tags: [albums]
+      summary: Get album cover art
+      parameters:
+        - name: albumId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Album art image
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No art available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +499,321 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Library:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        path:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        lastScannedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - name
+        - path
+        - createdAt
+
+    AddLibraryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+      required:
+        - name
+        - path
+
+    ScanStatus:
+      type: object
+      properties:
+        scanning:
+          type: boolean
+        currentLibraryId:
+          type: integer
+          nullable: true
+        tracksScanned:
+          type: integer
+        tracksAdded:
+          type: integer
+        tracksUpdated:
+          type: integer
+        tracksRemoved:
+          type: integer
+        startedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - scanning
+        - tracksScanned
+        - tracksAdded
+        - tracksUpdated
+        - tracksRemoved
+
+    Artist:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        albumCount:
+          type: integer
+        trackCount:
+          type: integer
+      required:
+        - id
+        - name
+        - albumCount
+        - trackCount
+
+    ArtistDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        albumCount:
+          type: integer
+        trackCount:
+          type: integer
+        albums:
+          type: array
+          items:
+            $ref: "#/components/schemas/Album"
+      required:
+        - id
+        - name
+        - albumCount
+        - trackCount
+        - albums
+
+    ArtistListResponse:
+      type: object
+      properties:
+        artists:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artist"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required:
+        - artists
+        - total
+        - page
+        - pageSize
+
+    Album:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        artistId:
+          type: integer
+          nullable: true
+        artistName:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        trackCount:
+          type: integer
+        hasArt:
+          type: boolean
+        genre:
+          type: string
+          nullable: true
+      required:
+        - id
+        - title
+        - trackCount
+        - hasArt
+
+    AlbumDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        artistId:
+          type: integer
+          nullable: true
+        artistName:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        trackCount:
+          type: integer
+        hasArt:
+          type: boolean
+        genre:
+          type: string
+          nullable: true
+        tracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Track"
+      required:
+        - id
+        - title
+        - trackCount
+        - hasArt
+        - tracks
+
+    AlbumListResponse:
+      type: object
+      properties:
+        albums:
+          type: array
+          items:
+            $ref: "#/components/schemas/Album"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required:
+        - albums
+        - total
+        - page
+        - pageSize
+
+    Track:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        artistId:
+          type: integer
+          nullable: true
+        artistName:
+          type: string
+          nullable: true
+        albumId:
+          type: integer
+          nullable: true
+        albumTitle:
+          type: string
+          nullable: true
+        trackNumber:
+          type: integer
+          nullable: true
+        discNumber:
+          type: integer
+          nullable: true
+        durationSeconds:
+          type: number
+          nullable: true
+        genre:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        filePath:
+          type: string
+        mimeType:
+          type: string
+        hasArt:
+          type: boolean
+      required:
+        - id
+        - title
+        - filePath
+        - mimeType
+        - hasArt
+
+    TrackListResponse:
+      type: object
+      properties:
+        tracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Track"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required:
+        - tracks
+        - total
+        - page
+        - pageSize
+
+    Genre:
+      type: object
+      properties:
+        name:
+          type: string
+        trackCount:
+          type: integer
+      required:
+        - name
+        - trackCount
+
+    FolderEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+          enum: [directory, file]
+        trackId:
+          type: integer
+          nullable: true
+        mimeType:
+          type: string
+          nullable: true
+      required:
+        - name
+        - path
+        - type
+
+    FolderContents:
+      type: object
+      properties:
+        path:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/FolderEntry"
+      required:
+        - path
+        - entries

@@ -16,6 +16,7 @@
     "cors": "^2",
     "drizzle-orm": "catalog:",
     "express": "^5",
+    "music-metadata": "^11.12.3",
     "pino": "^9",
     "pino-http": "^10"
   },
