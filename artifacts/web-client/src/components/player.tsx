@@ -73,16 +73,6 @@ export default function Player() {
             {/* Centre: controls + progress */}
             <div className="flex flex-col items-center justify-center flex-1 max-w-2xl px-4">
               <div className="flex items-center gap-5 mb-2">
-                <button
-                  onClick={e => { e.stopPropagation(); cycleShuffleMode(); }}
-                  className={`transition-colors relative ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                  title={shuffleMode === "off" ? "Shuffle off" : shuffleMode === "normal" ? "Normal shuffle" : "Smart shuffle"}
-                >
-                  <Shuffle className="w-4 h-4" />
-                  {shuffleMode === "smart" && (
-                    <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold text-primary leading-none">S</span>
-                  )}
-                </button>
                 <button onClick={e => { e.stopPropagation(); prev(); }} className="text-muted-foreground hover:text-foreground transition-colors">
                   <SkipBack className="w-5 h-5 fill-current" />
                 </button>
@@ -96,13 +86,6 @@ export default function Player() {
                 </button>
                 <button onClick={e => { e.stopPropagation(); next(); }} className="text-muted-foreground hover:text-foreground transition-colors">
                   <SkipForward className="w-5 h-5 fill-current" />
-                </button>
-                <button
-                  onClick={e => { e.stopPropagation(); cycleRepeat(); }}
-                  className={`transition-colors ${repeat !== "off" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                  title={repeat === "off" ? "No repeat" : repeat === "all" ? "Repeat all" : "Repeat one"}
-                >
-                  {repeat === "one" ? <Repeat1 className="w-4 h-4" /> : <Repeat className="w-4 h-4" />}
                 </button>
               </div>
 
@@ -126,8 +109,28 @@ export default function Player() {
               </div>
             </div>
 
-            {/* Right: volume */}
-            <div className="hidden md:flex items-center justify-end w-1/3 gap-3">
+            {/* Right: shuffle, repeat, volume */}
+            <div className="hidden md:flex items-center justify-end w-1/3 gap-2">
+              {/* Shuffle mode indicator */}
+              <button
+                onClick={e => { e.stopPropagation(); cycleShuffleMode(); }}
+                className={`relative p-1 transition-colors ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                title={shuffleMode === "off" ? "Shuffle off" : shuffleMode === "normal" ? "Normal shuffle" : "Smart shuffle (no repeats)"}
+              >
+                <Shuffle className="w-4 h-4" />
+                {shuffleMode === "smart" && (
+                  <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold text-primary leading-none">S</span>
+                )}
+              </button>
+              {/* Repeat mode indicator */}
+              <button
+                onClick={e => { e.stopPropagation(); cycleRepeat(); }}
+                className={`p-1 transition-colors ${repeat !== "off" ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                title={repeat === "off" ? "No repeat" : repeat === "one" ? "Repeat one" : "Repeat all"}
+              >
+                {repeat === "one" ? <Repeat1 className="w-4 h-4" /> : <Repeat className="w-4 h-4" />}
+              </button>
+              <div className="w-px h-4 bg-border/40 mx-1" />
               <button
                 onClick={e => { e.stopPropagation(); setVolume(volume === 0 ? 1 : 0); }}
                 className="text-muted-foreground hover:text-foreground transition-colors"

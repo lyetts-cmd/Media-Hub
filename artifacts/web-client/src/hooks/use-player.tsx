@@ -540,7 +540,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         setCurrentIndex(q.length);
       }
     }
-  }, []);
+    scheduleSave();
+  }, [scheduleSave]);
 
   const cycleShuffleMode = useCallback(() => {
     setShuffleModeSt(m => {
@@ -612,7 +613,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       else if (from > ci && to <= ci) setCurrentIndex(i => i + 1);
       return next;
     });
-  }, []);
+    scheduleSave();
+  }, [scheduleSave]);
 
   const removeFromQueue = useCallback((index: number) => {
     setQueue(q => {
@@ -637,7 +639,8 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       }
       return next;
     });
-  }, []);
+    scheduleSave();
+  }, [scheduleSave]);
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────────
   const keyHandlerRef = useRef<(e: KeyboardEvent) => void>();
