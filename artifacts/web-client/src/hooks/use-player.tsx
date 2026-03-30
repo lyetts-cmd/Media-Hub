@@ -126,10 +126,13 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [playbackToken, setPlaybackToken] = useState(0);
 
   // ── Audio element & Web Audio refs ────────────────────────────────────────
-  const audioRef         = useRef<HTMLAudioElement | null>(null);
-  const audioCtxRef      = useRef<AudioContext | null>(null);
-  const normGainRef      = useRef<GainNode | null>(null);
-  const normTimerRef     = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const audioRef          = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef       = useRef<AudioContext | null>(null);
+  const normGainRef       = useRef<GainNode | null>(null);
+  const normTimerRef      = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  // On initial mount, restore playback position without auto-playing
+  const isFirstLoadRef    = useRef(true);
+  const restoredTimeRef   = useRef<number>(persisted.currentTime ?? 0);
   const crossfadeGainRef = useRef<GainNode | null>(null);
   const eqFiltersRef     = useRef<BiquadFilterNode[]>([]);
   const analyserRef      = useRef<AnalyserNode | null>(null);
@@ -224,19 +227,12 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   // ── Audio element: create once on mount ───────────────────────────────────
   useEffect(() => {
     const audio = new Audio();
-    audio.volume     = persisted.volume ?? 1;
-    audio.playbackRate = persisted.speed ?? 1;
-    audioRef.current = audio;
-
-    // Restore track src so position can be resumed
-    if ((persisted.queue?.length ?? 0) > 0 && (persisted.currentIndex ?? -1) >= 0) {
-      const track = persisted.queue![persisted.currentIndex!];
-      const url = (track as Track & { streamUrl?: string }).streamUrl
-        ?? getStreamTrackUrl(track.id);
-      audio.src = url;
-      audio.currentTime = persisted.currentTime ?? 0;
-      setCurrentTime(persisted.currentTime ?? 0);
-    }
+    audio.volume       = persisted.volume ?? 1;
+    audio.playbackRate = persisted.speed  ?? 1;
+    audioRef.current   = audio;
+    // Do NOT set audio.src here — the track-change effect handles that.
+    // restoredTimeRef holds the persisted position; the track-change effect
+    // will seek to it after loadedmetadata on the first load.
 
     const handleTimeUpdate = () => {
       setCurrentTime(audio.currentTime);
@@ -375,10 +371,28 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       normGainRef.current.gain.setValueAtTime(1, ctx.currentTime);
     }
 
-    audio.play().catch(console.error);
-    measureAndNormalize();
-    updateMediaSession(currentTrack);
-    scheduleSave();
+    if (isFirstLoadRef.current) {
+      // Initial restore: seek to persisted position but do NOT auto-play.
+      // We must wait for loadedmetadata before seeking because setting
+      // currentTime before the src loads has no effect.
+      isFirstLoadRef.current = false;
+      const restoredTime = restoredTimeRef.current;
+      if (restoredTime > 0) {
+        const onLoaded = () => {
+          audio.currentTime = restoredTime;
+          setCurrentTime(restoredTime);
+          audio.removeEventListener("loadedmetadata", onLoaded);
+        };
+        audio.addEventListener("loadedmetadata", onLoaded);
+      }
+      updateMediaSession(currentTrack);
+      scheduleSave();
+    } else {
+      audio.play().catch(console.error);
+      measureAndNormalize();
+      updateMediaSession(currentTrack);
+      scheduleSave();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex, playbackToken]);
 

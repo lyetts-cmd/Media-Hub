@@ -29,11 +29,8 @@ export default function SearchBar() {
   const [, navigate] = useLocation();
   const { playTrack } = usePlayer();
 
-  const { data } = useSearchMusic(
-    { q: debouncedQuery },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { query: { enabled: debouncedQuery.length > 0 } } as any,
-  );
+  // Query runs whenever debouncedQuery changes; hasResults guards display.
+  const { data } = useSearchMusic({ q: debouncedQuery });
 
   const hasResults =
     debouncedQuery.length > 0 &&
