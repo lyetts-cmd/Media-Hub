@@ -5,7 +5,8 @@ import { Track, getStreamTrackUrl } from "@workspace/api-client-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
-export type RepeatMode = "off" | "one" | "all";
+export type RepeatMode   = "off" | "one" | "all";
+export type ShuffleMode  = "off" | "normal" | "smart";
 export type EqPresetName = "flat" | "bass_boost" | "treble_boost" | "rock" | "jazz" | "classical";
 
 export const EQ_BANDS = [
@@ -31,7 +32,7 @@ const STORAGE_KEY = "cadence_player_state";
 
 interface PersistedState {
   volume: number;
-  shuffle: boolean;
+  shuffleMode: ShuffleMode;
   repeat: RepeatMode;
   speed: number;
   eqBands: number[];
@@ -63,6 +64,8 @@ interface PlayerContextType {
   currentTime: number;
   duration: number;
   volume: number;
+  shuffleMode: ShuffleMode;
+  /** true when shuffleMode !== "off" — convenience alias */
   shuffle: boolean;
   repeat: RepeatMode;
   speed: number;
@@ -80,6 +83,8 @@ interface PlayerContextType {
   seek: (time: number) => void;
   setVolume: (v: number) => void;
   togglePlayPause: () => void;
+  cycleShuffleMode: () => void;
+  /** alias for cycleShuffleMode, kept for backward compat */
   toggleShuffle: () => void;
   cycleRepeat: () => void;
   setSpeed: (v: number) => void;
@@ -107,7 +112,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [duration, setDuration]         = useState(0);
   const [volume, setVolumeState]        = useState(persisted.volume ?? 1);
   // ── Extended state ────────────────────────────────────────────────────────
-  const [shuffle, setShuffleSt]         = useState(persisted.shuffle ?? false);
+  const [shuffleMode, setShuffleModeSt] = useState<ShuffleMode>(persisted.shuffleMode ?? "off");
   const [repeat, setRepeatSt]           = useState<RepeatMode>(persisted.repeat ?? "off");
   const [speed, setSpeedSt]             = useState(persisted.speed ?? 1);
   const [sleepTimerEnd, setSleepTimerEnd] = useState<number | null>(null);
@@ -130,22 +135,25 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const analyserRef      = useRef<AnalyserNode | null>(null);
   const crossfadingRef   = useRef(false);
 
+  // Smart-shuffle history: IDs of tracks played in the current shuffle cycle
+  const shuffleHistoryRef  = useRef<Set<string>>(new Set());
+
   // ── Mutable refs for event-handler closures (avoid stale captures) ────────
   const queueRef           = useRef(queue);
   const currentIndexRef    = useRef(currentIndex);
   const repeatRef          = useRef(repeat);
-  const shuffleRef         = useRef(shuffle);
+  const shuffleModeRef     = useRef(shuffleMode);
   const cfEnabledRef       = useRef(crossfadeEnabled);
   const cfDurRef           = useRef(crossfadeDuration);
   const sleepTimerEndRef   = useRef<number | null>(null);
   const isPlayingRef       = useRef(false);
   const volumeRef          = useRef(persisted.volume ?? 1);
 
-  useEffect(() => { queueRef.current        = queue; },           [queue]);
-  useEffect(() => { currentIndexRef.current = currentIndex; },   [currentIndex]);
-  useEffect(() => { repeatRef.current       = repeat; },         [repeat]);
-  useEffect(() => { shuffleRef.current      = shuffle; },        [shuffle]);
-  useEffect(() => { cfEnabledRef.current    = crossfadeEnabled; },[crossfadeEnabled]);
+  useEffect(() => { queueRef.current         = queue; },           [queue]);
+  useEffect(() => { currentIndexRef.current  = currentIndex; },   [currentIndex]);
+  useEffect(() => { repeatRef.current        = repeat; },         [repeat]);
+  useEffect(() => { shuffleModeRef.current   = shuffleMode; },    [shuffleMode]);
+  useEffect(() => { cfEnabledRef.current     = crossfadeEnabled; },[crossfadeEnabled]);
   useEffect(() => { cfDurRef.current        = crossfadeDuration; },[crossfadeDuration]);
   useEffect(() => { sleepTimerEndRef.current = sleepTimerEnd; },  [sleepTimerEnd]);
   useEffect(() => { isPlayingRef.current    = isPlaying; },      [isPlaying]);
@@ -158,7 +166,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     saveTimer.current = setTimeout(() => {
       persistState({
         volume: volumeRef.current,
-        shuffle: shuffleRef.current,
+        shuffleMode: shuffleModeRef.current,
         repeat: repeatRef.current,
         speed: audioRef.current?.playbackRate ?? 1,
         eqBands: eqFiltersRef.current.map(f => f.gain.value),
@@ -263,23 +271,45 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     const handlePause          = () => setIsPlaying(false);
 
     const handleEnded = () => {
-      const q   = queueRef.current;
-      const idx = currentIndexRef.current;
-      const rep = repeatRef.current;
-      const shf = shuffleRef.current;
+      const q    = queueRef.current;
+      const idx  = currentIndexRef.current;
+      const rep  = repeatRef.current;
+      const shfM = shuffleModeRef.current;
 
       if (rep === "one") {
         audio.currentTime = 0;
         audio.play().catch(console.error);
         return;
       }
-      if (shf && q.length > 1) {
+
+      if (shfM === "normal" && q.length > 1) {
         let newIdx: number;
         do { newIdx = Math.floor(Math.random() * q.length); }
         while (newIdx === idx);
         setCurrentIndex(newIdx);
         return;
       }
+
+      if (shfM === "smart" && q.length > 1) {
+        const history = shuffleHistoryRef.current;
+        // Add current track to history
+        if (q[idx]?.id) history.add(q[idx].id);
+        // Candidates = not in history
+        let candidates = q
+          .map((t, i) => ({ t, i }))
+          .filter(({ t, i }) => i !== idx && !history.has(t.id));
+        // All played? clear history for a fresh cycle (excluding current)
+        if (candidates.length === 0) {
+          history.clear();
+          candidates = q.map((t, i) => ({ t, i })).filter(({ i }) => i !== idx);
+        }
+        if (candidates.length > 0) {
+          const pick = candidates[Math.floor(Math.random() * candidates.length)];
+          setCurrentIndex(pick.i);
+        }
+        return;
+      }
+
       if (idx < q.length - 1) {
         setCurrentIndex(i => i + 1);
       } else if (rep === "all") {
@@ -446,16 +476,31 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [scheduleSave]);
 
   const next = useCallback(() => {
-    const q   = queueRef.current;
-    const idx = currentIndexRef.current;
-    const rep = repeatRef.current;
-    const shf = shuffleRef.current;
+    const q    = queueRef.current;
+    const idx  = currentIndexRef.current;
+    const rep  = repeatRef.current;
+    const shfM = shuffleModeRef.current;
 
-    if (shf && q.length > 1) {
+    if (shfM === "normal" && q.length > 1) {
       let newIdx: number;
       do { newIdx = Math.floor(Math.random() * q.length); }
       while (newIdx === idx);
       setCurrentIndex(newIdx);
+      return;
+    }
+    if (shfM === "smart" && q.length > 1) {
+      const history = shuffleHistoryRef.current;
+      if (q[idx]?.id) history.add(q[idx].id);
+      let candidates = q
+        .map((t, i) => ({ t, i }))
+        .filter(({ t, i }) => i !== idx && !history.has(t.id));
+      if (candidates.length === 0) {
+        history.clear();
+        candidates = q.map((t, i) => ({ t, i })).filter(({ i }) => i !== idx);
+      }
+      if (candidates.length > 0) {
+        setCurrentIndex(candidates[Math.floor(Math.random() * candidates.length)].i);
+      }
       return;
     }
     if (idx < q.length - 1) setCurrentIndex(i => i + 1);
@@ -497,9 +542,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const toggleShuffle = useCallback(() => {
-    setShuffleSt(s => { const n = !s; scheduleSave(); return n; });
+  const cycleShuffleMode = useCallback(() => {
+    setShuffleModeSt(m => {
+      const next: ShuffleMode = m === "off" ? "normal" : m === "normal" ? "smart" : "off";
+      // Clear history when turning on smart shuffle
+      if (next === "smart") shuffleHistoryRef.current.clear();
+      scheduleSave();
+      return next;
+    });
   }, [scheduleSave]);
+  const toggleShuffle = cycleShuffleMode; // backward-compat alias
 
   const cycleRepeat = useCallback(() => {
     setRepeatSt(r => {
@@ -617,14 +669,16 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", h);
   }, []);
 
+  const shuffle = shuffleMode !== "off";
+
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <PlayerContext.Provider value={{
       queue, currentTrack, currentIndex, isPlaying, currentTime, duration, volume,
-      shuffle, repeat, speed, sleepTimerEnd, crossfadeEnabled, crossfadeDuration,
+      shuffleMode, shuffle, repeat, speed, sleepTimerEnd, crossfadeEnabled, crossfadeDuration,
       eqBands, analyserNode, isExpanded,
       playTrack, pause, resume, next, prev, seek, setVolume, togglePlayPause,
-      toggleShuffle, cycleRepeat, setSpeed, setSleepTimer, setCrossfade,
+      cycleShuffleMode, toggleShuffle, cycleRepeat, setSpeed, setSleepTimer, setCrossfade,
       setEqBand, applyEqPreset, reorderQueue, removeFromQueue, setIsExpanded,
     }}>
       {children}

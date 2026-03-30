@@ -16,9 +16,9 @@ function formatTime(s: number) {
 export default function Player() {
   const {
     currentTrack, isPlaying, currentTime, duration, volume,
-    shuffle, repeat,
+    shuffle, shuffleMode, repeat,
     togglePlayPause, prev, next, seek, setVolume,
-    toggleShuffle, cycleRepeat,
+    cycleShuffleMode, cycleRepeat,
     isExpanded, setIsExpanded,
   } = usePlayer();
 
@@ -74,11 +74,14 @@ export default function Player() {
             <div className="flex flex-col items-center justify-center flex-1 max-w-2xl px-4">
               <div className="flex items-center gap-5 mb-2">
                 <button
-                  onClick={e => { e.stopPropagation(); toggleShuffle(); }}
-                  className={`transition-colors ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                  title="Shuffle"
+                  onClick={e => { e.stopPropagation(); cycleShuffleMode(); }}
+                  className={`transition-colors relative ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                  title={shuffleMode === "off" ? "Shuffle off" : shuffleMode === "normal" ? "Normal shuffle" : "Smart shuffle"}
                 >
                   <Shuffle className="w-4 h-4" />
+                  {shuffleMode === "smart" && (
+                    <span className="absolute -top-0.5 -right-0.5 text-[8px] font-bold text-primary leading-none">S</span>
+                  )}
                 </button>
                 <button onClick={e => { e.stopPropagation(); prev(); }} className="text-muted-foreground hover:text-foreground transition-colors">
                   <SkipBack className="w-5 h-5 fill-current" />

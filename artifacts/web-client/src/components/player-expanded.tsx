@@ -71,10 +71,10 @@ function QueueItem({ track, index, isCurrent, onPlay, onRemove, onDragStart, onD
 export default function PlayerExpanded() {
   const {
     currentTrack, isPlaying, currentTime, duration, volume,
-    shuffle, repeat, speed, sleepTimerEnd, crossfadeEnabled, crossfadeDuration,
+    shuffle, shuffleMode, repeat, speed, sleepTimerEnd, crossfadeEnabled, crossfadeDuration,
     eqBands, analyserNode, isExpanded, queue, currentIndex,
     togglePlayPause, prev, next, seek, setVolume,
-    toggleShuffle, cycleRepeat, setSpeed, setSleepTimer, setCrossfade,
+    cycleShuffleMode, cycleRepeat, setSpeed, setSleepTimer, setCrossfade,
     setEqBand, applyEqPreset, reorderQueue, removeFromQueue, setIsExpanded,
     playTrack,
   } = usePlayer();
@@ -197,11 +197,14 @@ export default function PlayerExpanded() {
             {/* Main controls */}
             <div className="flex items-center justify-center gap-4 px-6 mb-5 shrink-0">
               <button
-                onClick={toggleShuffle}
-                className={`p-2 rounded-full transition-colors ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                title="Shuffle"
+                onClick={cycleShuffleMode}
+                className={`p-2 rounded-full transition-colors relative ${shuffle ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                title={shuffleMode === "off" ? "Shuffle off" : shuffleMode === "normal" ? "Normal shuffle" : "Smart shuffle (no repeats)"}
               >
                 <Shuffle className="w-5 h-5" />
+                {shuffleMode === "smart" && (
+                  <span className="absolute -top-0.5 -right-0.5 text-[9px] font-bold text-primary leading-none">S</span>
+                )}
               </button>
               <button onClick={prev} className="p-2 rounded-full text-muted-foreground hover:text-foreground transition-colors">
                 <SkipBack className="w-6 h-6 fill-current" />
@@ -435,12 +438,12 @@ export default function PlayerExpanded() {
                         </div>
                         <div className="relative group flex items-center">
                           <input
-                            type="range" min={1} max={12} step={0.5} value={crossfadeDuration}
+                            type="range" min={0} max={12} step={0.5} value={crossfadeDuration}
                             onChange={e => setCrossfade(true, Number(e.target.value))}
                             className="player-slider relative z-10 w-full bg-transparent"
                           />
                           <div className="absolute left-0 h-1.5 bg-white/10 rounded-full w-full pointer-events-none overflow-hidden">
-                            <div className="h-full bg-primary rounded-full" style={{ width: `${((crossfadeDuration - 1) / 11) * 100}%` }} />
+                            <div className="h-full bg-primary rounded-full" style={{ width: `${(crossfadeDuration / 12) * 100}%` }} />
                           </div>
                         </div>
                       </div>
