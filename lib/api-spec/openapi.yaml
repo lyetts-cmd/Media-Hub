@@ -22,6 +22,8 @@ tags:
     description: Genre browsing
   - name: browse
     description: Folder-based browsing
+  - name: playlists
+    description: Playlist management and liked songs
 paths:
   /healthz:
     get:
@@ -509,6 +511,240 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /music/liked:
+    get:
+      operationId: getLikedTracks
+      tags: [playlists]
+      summary: Get all liked tracks ordered by like date (newest first)
+      responses:
+        "200":
+          description: Liked tracks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrackListResponse"
+
+  /music/liked/{trackId}:
+    post:
+      operationId: likeTrack
+      tags: [playlists]
+      summary: Like a track
+      parameters:
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated track
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Track"
+        "404":
+          description: Track not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: unlikeTrack
+      tags: [playlists]
+      summary: Unlike a track
+      parameters:
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated track
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Track"
+        "404":
+          description: Track not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/playlists:
+    get:
+      operationId: listPlaylists
+      tags: [playlists]
+      summary: List all playlists
+      responses:
+        "200":
+          description: List of playlists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  playlists:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Playlist"
+                required:
+                  - playlists
+    post:
+      operationId: createPlaylist
+      tags: [playlists]
+      summary: Create a new playlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlaylistRequest"
+      responses:
+        "201":
+          description: Created playlist with tracks
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaylistDetail"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/playlists/{id}:
+    get:
+      operationId: getPlaylist
+      tags: [playlists]
+      summary: Get a playlist with its tracks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Playlist detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaylistDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: renamePlaylist
+      tags: [playlists]
+      summary: Rename a playlist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RenamePlaylistRequest"
+      responses:
+        "200":
+          description: Updated playlist detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaylistDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deletePlaylist
+      tags: [playlists]
+      summary: Delete a playlist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/playlists/{id}/tracks:
+    post:
+      operationId: addTrackToPlaylist
+      tags: [playlists]
+      summary: Add a track to a playlist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddTrackToPlaylistRequest"
+      responses:
+        "200":
+          description: Updated playlist detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlaylistDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /music/playlists/{id}/tracks/{trackId}:
+    delete:
+      operationId: removeTrackFromPlaylist
+      tags: [playlists]
+      summary: Remove a track from a playlist
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -777,12 +1013,16 @@ components:
           type: string
         hasArt:
           type: boolean
+        liked:
+          type: boolean
+          description: Whether the user has liked this track
       required:
         - id
         - title
         - filePath
         - mimeType
         - hasArt
+        - liked
 
     TrackListResponse:
       type: object
@@ -870,3 +1110,92 @@ components:
         - tracks
         - artists
         - albums
+
+    Playlist:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        trackCount:
+          type: integer
+        totalDuration:
+          type: number
+          nullable: true
+        coverAlbumId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - trackCount
+        - createdAt
+        - updatedAt
+
+    PlaylistDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        trackCount:
+          type: integer
+        totalDuration:
+          type: number
+          nullable: true
+        coverAlbumId:
+          type: integer
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        tracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Track"
+      required:
+        - id
+        - name
+        - trackCount
+        - createdAt
+        - updatedAt
+        - tracks
+
+    CreatePlaylistRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        trackIds:
+          type: array
+          items:
+            type: integer
+      required:
+        - name
+
+    RenamePlaylistRequest:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+
+    AddTrackToPlaylistRequest:
+      type: object
+      properties:
+        trackId:
+          type: integer
+      required:
+        - trackId

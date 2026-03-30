@@ -6,7 +6,8 @@ import {
   RotateCcw, RotateCw, Clock, Zap, SlidersHorizontal, X, GripVertical,
 } from "lucide-react";
 import { usePlayer, EQ_BANDS, EQ_PRESETS, EqPresetName } from "@/hooks/use-player";
-import { getGetAlbumArtUrl } from "@workspace/api-client-react";
+import { getGetAlbumArtUrl, useCreatePlaylist } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import AudioVisualizer from "./audio-visualizer";
 
 function fmt(s: number) {
@@ -79,6 +80,9 @@ export default function PlayerExpanded() {
     playTrack,
   } = usePlayer();
 
+  const qc = useQueryClient();
+  const createPlaylist = useCreatePlaylist();
+
   const [showQueue,    setShowQueue]    = useState(false);
   const [showEq,       setShowEq]       = useState(false);
   const [showSleep,    setShowSleep]    = useState(false);
@@ -86,6 +90,7 @@ export default function PlayerExpanded() {
   const [sleepRemaining, setSleepRemaining] = useState<number | null>(null);
   const [dragFrom, setDragFrom]         = useState<number | null>(null);
   const [dragOver, setDragOver]         = useState<number | null>(null);
+  const [savingQueue, setSavingQueue]   = useState(false);
   // Track which duration (in minutes) was last chosen so each button shows its own active state
   const [activeSleepMinutes, setActiveSleepMinutes] = useState<number | null>(null);
 
@@ -479,9 +484,29 @@ export default function PlayerExpanded() {
               >
                 <div className="flex items-center justify-between p-4 border-b border-white/5 shrink-0">
                   <h3 className="font-semibold text-sm">Queue</h3>
-                  <button onClick={() => setShowQueue(false)} className="p-1 rounded text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {queue.length > 0 && (
+                      <button
+                        onClick={async () => {
+                          setSavingQueue(true);
+                          const name = `Queue – ${new Date().toLocaleDateString()}`;
+                          await createPlaylist.mutateAsync(
+                            { data: { name, trackIds: queue.map((t) => t.id) } },
+                            { onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/music/playlists"] }) }
+                          );
+                          setSavingQueue(false);
+                        }}
+                        disabled={savingQueue}
+                        className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded bg-white/5 hover:bg-white/10"
+                        title="Save queue as playlist"
+                      >
+                        {savingQueue ? "Saving…" : "Save as playlist"}
+                      </button>
+                    )}
+                    <button onClick={() => setShowQueue(false)} className="p-1 rounded text-muted-foreground hover:text-foreground">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
                 <div className="flex-1 overflow-y-auto py-2 space-y-0.5">
                   {queue.length === 0 ? (

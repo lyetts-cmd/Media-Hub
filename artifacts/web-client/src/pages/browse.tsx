@@ -15,6 +15,7 @@ function makeTrackFromEntry(entry: FolderEntry): PlayableTrack {
       filePath: entry.path,
       mimeType: entry.mimeType ?? "audio/mpeg",
       hasArt: false,
+      liked: false,
     };
   }
   return {
@@ -23,6 +24,7 @@ function makeTrackFromEntry(entry: FolderEntry): PlayableTrack {
     filePath: entry.path,
     mimeType: entry.mimeType ?? "audio/mpeg",
     hasArt: false,
+    liked: false,
     streamUrl: `/api/music/browse/stream?path=${encodeURIComponent(entry.path)}`,
   };
 }

@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, real, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, real, timestamp, boolean, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { albumsTable } from "./albums";
@@ -24,6 +24,8 @@ export const tracksTable = pgTable(
     mimeType: text("mime_type").notNull(),
     fileModifiedAt: timestamp("file_modified_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    liked: boolean("liked").notNull().default(false),
+    likedAt: timestamp("liked_at", { withTimezone: true }),
   },
   (table) => ({
     artistIdx: index("tracks_artist_idx").on(table.artistId),

@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Library, Music2, Disc3, Mic2, FolderTree, Settings, Home } from "lucide-react";
+import { Library, Music2, Disc3, Mic2, FolderTree, Settings, Heart, ListMusic, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import Player from "./player";
 import SearchBar from "./search-bar";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useListPlaylists, useCreatePlaylist } from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -17,6 +19,109 @@ const navItems = [
   { href: "/genres", label: "Genres", icon: Music2 },
   { href: "/browse", label: "Browse", icon: FolderTree },
 ];
+
+function NavLink({
+  href,
+  icon: Icon,
+  label,
+  active,
+}: {
+  href: string;
+  icon: React.ElementType;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+        active
+          ? "bg-primary/10 text-primary"
+          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+      )}
+    >
+      <Icon className={cn("w-5 h-5 shrink-0", active ? "text-primary" : "text-muted-foreground")} />
+      <span className="truncate">{label}</span>
+    </Link>
+  );
+}
+
+function PlaylistsSidebar() {
+  const [location] = useLocation();
+  const qc = useQueryClient();
+  const { data } = useListPlaylists();
+  const createPlaylist = useCreatePlaylist();
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
+
+  const playlists = data?.playlists ?? [];
+
+  async function handleCreate() {
+    if (!newName.trim()) { setCreating(false); return; }
+    const result = await createPlaylist.mutateAsync(
+      { data: { name: newName.trim() } },
+      { onSuccess: () => qc.invalidateQueries({ queryKey: ["/api/music/playlists"] }) }
+    );
+    setNewName("");
+    setCreating(false);
+    if (result?.id) {
+      window.location.href = `/playlists/${result.id}`;
+    }
+  }
+
+  return (
+    <div className="mt-2">
+      <div className="flex items-center justify-between px-3 mb-2">
+        <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+          Playlists
+        </h2>
+        <button
+          onClick={() => { setCreating(true); setNewName(""); }}
+          className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          title="New playlist"
+        >
+          <Plus className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      <NavLink
+        href="/liked"
+        icon={Heart}
+        label="Liked Songs"
+        active={location.startsWith("/liked")}
+      />
+
+      {playlists.map((pl) => (
+        <NavLink
+          key={pl.id}
+          href={`/playlists/${pl.id}`}
+          icon={ListMusic}
+          label={pl.name}
+          active={location.startsWith(`/playlists/${pl.id}`)}
+        />
+      ))}
+
+      {creating && (
+        <div className="flex items-center gap-2 px-3 py-2">
+          <ListMusic className="w-4 h-4 text-muted-foreground shrink-0" />
+          <input
+            autoFocus
+            placeholder="Playlist name…"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleCreate();
+              if (e.key === "Escape") setCreating(false);
+            }}
+            onBlur={() => { if (!newName.trim()) setCreating(false); }}
+            className="flex-1 bg-transparent text-sm outline-none border-b border-border/70 focus:border-primary transition-colors"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -32,52 +137,43 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <h1 className="text-xl font-display font-bold text-gradient">Cadence</h1>
         </div>
 
-        {/* Search in sidebar */}
+        {/* Search */}
         <div className="px-4 py-3 border-b border-border/50">
           <SearchBar />
         </div>
-        
+
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          <div className="mb-8">
-            <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3 px-3">Library</h2>
-            {navItems.map((item) => {
-              const isActive = location.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-                    isActive 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  )}
-                >
-                  <item.icon className={cn("w-5 h-5", isActive ? "text-primary" : "text-muted-foreground")} />
-                  {item.label}
-                </Link>
-              );
-            })}
+          {/* Library */}
+          <div className="mb-6">
+            <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3 px-3">
+              Library
+            </h2>
+            {navItems.map((item) => (
+              <NavLink
+                key={item.href}
+                href={item.href}
+                icon={item.icon}
+                label={item.label}
+                active={location.startsWith(item.href)}
+              />
+            ))}
           </div>
+
+          {/* Playlists */}
+          <PlaylistsSidebar />
         </nav>
 
         <div className="p-4 border-t border-border/50">
-          <Link
+          <NavLink
             href="/settings"
-            className={cn(
-              "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
-              location.startsWith("/settings")
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-            )}
-          >
-            <Settings className="w-5 h-5" />
-            Settings
-          </Link>
+            icon={Settings}
+            label="Settings"
+            active={location.startsWith("/settings")}
+          />
         </div>
       </aside>
 
-      {/* Main Content Area */}
+      {/* Main Content */}
       <main className="flex-1 relative flex flex-col overflow-hidden pb-24">
         {/* Mobile Header */}
         <header className="md:hidden flex items-center gap-3 p-3 border-b border-border bg-card shrink-0">
@@ -89,7 +185,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <SearchBar />
           </div>
         </header>
-        
+
         <div className="flex-1 overflow-y-auto w-full relative scroll-smooth">
           <motion.div
             key={location}
@@ -122,6 +218,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <span className="text-[10px] font-medium">{item.label}</span>
           </Link>
         ))}
+        <Link
+          href="/liked"
+          className={cn(
+            "flex flex-col items-center p-2 rounded-lg gap-1",
+            location.startsWith("/liked") ? "text-primary" : "text-muted-foreground"
+          )}
+        >
+          <Heart className="w-5 h-5" />
+          <span className="text-[10px] font-medium">Liked</span>
+        </Link>
         <Link
           href="/settings"
           className={cn(

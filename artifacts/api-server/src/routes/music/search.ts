@@ -29,6 +29,7 @@ router.get("/search", async (req, res) => {
         durationSeconds: tracksTable.durationSeconds,
         filePath: tracksTable.filePath,
         mimeType: tracksTable.mimeType,
+        liked: tracksTable.liked,
       })
       .from(tracksTable)
       .leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId))
@@ -85,6 +86,7 @@ router.get("/search", async (req, res) => {
       filePath: t.filePath,
       mimeType: t.mimeType,
       hasArt: t.albumHasArt ?? false,
+      liked: t.liked ?? false,
     })),
     artists: artists.map((a) => ({
       id: a.id,

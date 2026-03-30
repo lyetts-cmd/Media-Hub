@@ -7,6 +7,7 @@
  */
 
 export * from "./addLibraryRequest";
+export * from "./addTrackToPlaylistRequest";
 export * from "./album";
 export * from "./albumDetail";
 export * from "./albumListResponse";
@@ -14,6 +15,7 @@ export * from "./artist";
 export * from "./artistDetail";
 export * from "./artistListResponse";
 export * from "./browseFolderParams";
+export * from "./createPlaylistRequest";
 export * from "./errorResponse";
 export * from "./folderContents";
 export * from "./folderEntry";
@@ -28,7 +30,11 @@ export * from "./listAlbumsParams";
 export * from "./listArtistsParams";
 export * from "./listGenres200";
 export * from "./listLibraries200";
+export * from "./listPlaylists200";
 export * from "./listTracksParams";
+export * from "./playlist";
+export * from "./playlistDetail";
+export * from "./renamePlaylistRequest";
 export * from "./scanStatus";
 export * from "./searchMusicParams";
 export * from "./searchResult";

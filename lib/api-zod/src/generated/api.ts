@@ -208,6 +208,7 @@ export const GetAlbumResponse = zod.object({
       filePath: zod.string(),
       mimeType: zod.string(),
       hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
     }),
   ),
 });
@@ -236,6 +237,7 @@ export const GetAlbumTracksResponse = zod.object({
       filePath: zod.string(),
       mimeType: zod.string(),
       hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
     }),
   ),
 });
@@ -271,6 +273,7 @@ export const ListTracksResponse = zod.object({
       filePath: zod.string(),
       mimeType: zod.string(),
       hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
     }),
   ),
   total: zod.number(),
@@ -300,6 +303,7 @@ export const GetTrackResponse = zod.object({
   filePath: zod.string(),
   mimeType: zod.string(),
   hasArt: zod.boolean(),
+  liked: zod.boolean().describe("Whether the user has liked this track"),
 });
 
 /**
@@ -346,6 +350,7 @@ export const GetGenreTracksResponse = zod.object({
       filePath: zod.string(),
       mimeType: zod.string(),
       hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
     }),
   ),
   total: zod.number(),
@@ -408,6 +413,7 @@ export const SearchMusicResponse = zod.object({
       filePath: zod.string(),
       mimeType: zod.string(),
       hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
     }),
   ),
   artists: zod.array(
@@ -448,4 +454,238 @@ export const StreamTrackParams = zod.object({
  */
 export const GetAlbumArtParams = zod.object({
   albumId: zod.coerce.number(),
+});
+
+/**
+ * @summary Get all liked tracks ordered by like date (newest first)
+ */
+export const GetLikedTracksResponse = zod.object({
+  tracks: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      albumId: zod.number().nullish(),
+      albumTitle: zod.string().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
+      durationSeconds: zod.number().nullish(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      filePath: zod.string(),
+      mimeType: zod.string(),
+      hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  pageSize: zod.number(),
+});
+
+/**
+ * @summary Like a track
+ */
+export const LikeTrackParams = zod.object({
+  trackId: zod.coerce.number(),
+});
+
+export const LikeTrackResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  artistId: zod.number().nullish(),
+  artistName: zod.string().nullish(),
+  albumId: zod.number().nullish(),
+  albumTitle: zod.string().nullish(),
+  trackNumber: zod.number().nullish(),
+  discNumber: zod.number().nullish(),
+  durationSeconds: zod.number().nullish(),
+  genre: zod.string().nullish(),
+  year: zod.number().nullish(),
+  filePath: zod.string(),
+  mimeType: zod.string(),
+  hasArt: zod.boolean(),
+  liked: zod.boolean().describe("Whether the user has liked this track"),
+});
+
+/**
+ * @summary Unlike a track
+ */
+export const UnlikeTrackParams = zod.object({
+  trackId: zod.coerce.number(),
+});
+
+export const UnlikeTrackResponse = zod.object({
+  id: zod.number(),
+  title: zod.string(),
+  artistId: zod.number().nullish(),
+  artistName: zod.string().nullish(),
+  albumId: zod.number().nullish(),
+  albumTitle: zod.string().nullish(),
+  trackNumber: zod.number().nullish(),
+  discNumber: zod.number().nullish(),
+  durationSeconds: zod.number().nullish(),
+  genre: zod.string().nullish(),
+  year: zod.number().nullish(),
+  filePath: zod.string(),
+  mimeType: zod.string(),
+  hasArt: zod.boolean(),
+  liked: zod.boolean().describe("Whether the user has liked this track"),
+});
+
+/**
+ * @summary List all playlists
+ */
+export const ListPlaylistsResponse = zod.object({
+  playlists: zod.array(
+    zod.object({
+      id: zod.number(),
+      name: zod.string(),
+      trackCount: zod.number(),
+      totalDuration: zod.number().nullish(),
+      coverAlbumId: zod.number().nullish(),
+      createdAt: zod.date(),
+      updatedAt: zod.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Create a new playlist
+ */
+export const CreatePlaylistBody = zod.object({
+  name: zod.string(),
+  trackIds: zod.array(zod.number()).optional(),
+});
+
+/**
+ * @summary Get a playlist with its tracks
+ */
+export const GetPlaylistParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetPlaylistResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  trackCount: zod.number(),
+  totalDuration: zod.number().nullish(),
+  coverAlbumId: zod.number().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+  tracks: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      albumId: zod.number().nullish(),
+      albumTitle: zod.string().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
+      durationSeconds: zod.number().nullish(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      filePath: zod.string(),
+      mimeType: zod.string(),
+      hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
+    }),
+  ),
+});
+
+/**
+ * @summary Rename a playlist
+ */
+export const RenamePlaylistParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const RenamePlaylistBody = zod.object({
+  name: zod.string(),
+});
+
+export const RenamePlaylistResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  trackCount: zod.number(),
+  totalDuration: zod.number().nullish(),
+  coverAlbumId: zod.number().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+  tracks: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      albumId: zod.number().nullish(),
+      albumTitle: zod.string().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
+      durationSeconds: zod.number().nullish(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      filePath: zod.string(),
+      mimeType: zod.string(),
+      hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
+    }),
+  ),
+});
+
+/**
+ * @summary Delete a playlist
+ */
+export const DeletePlaylistParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary Add a track to a playlist
+ */
+export const AddTrackToPlaylistParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const AddTrackToPlaylistBody = zod.object({
+  trackId: zod.number(),
+});
+
+export const AddTrackToPlaylistResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  trackCount: zod.number(),
+  totalDuration: zod.number().nullish(),
+  coverAlbumId: zod.number().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+  tracks: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      albumId: zod.number().nullish(),
+      albumTitle: zod.string().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
+      durationSeconds: zod.number().nullish(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      filePath: zod.string(),
+      mimeType: zod.string(),
+      hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
+    }),
+  ),
+});
+
+/**
+ * @summary Remove a track from a playlist
+ */
+export const RemoveTrackFromPlaylistParams = zod.object({
+  id: zod.coerce.number(),
+  trackId: zod.coerce.number(),
 });

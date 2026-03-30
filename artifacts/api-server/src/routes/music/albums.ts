@@ -100,6 +100,7 @@ router.get("/albums/:id", async (req, res) => {
       year: tracksTable.year,
       filePath: tracksTable.filePath,
       mimeType: tracksTable.mimeType,
+      liked: tracksTable.liked,
     })
     .from(tracksTable)
     .leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId))
@@ -130,6 +131,7 @@ router.get("/albums/:id", async (req, res) => {
       filePath: t.filePath,
       mimeType: t.mimeType,
       hasArt: album.hasArt,
+      liked: t.liked ?? false,
     })),
   });
 });
@@ -168,6 +170,7 @@ router.get("/albums/:id/tracks", async (req, res) => {
       year: tracksTable.year,
       filePath: tracksTable.filePath,
       mimeType: tracksTable.mimeType,
+      liked: tracksTable.liked,
     })
     .from(tracksTable)
     .leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId))
@@ -190,6 +193,7 @@ router.get("/albums/:id/tracks", async (req, res) => {
       filePath: t.filePath,
       mimeType: t.mimeType,
       hasArt: album.hasArt,
+      liked: t.liked ?? false,
     })),
   });
 });

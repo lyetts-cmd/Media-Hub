@@ -58,6 +58,7 @@ router.get("/genres/:name/tracks", async (req, res) => {
         year: tracksTable.year,
         filePath: tracksTable.filePath,
         mimeType: tracksTable.mimeType,
+        liked: tracksTable.liked,
       })
       .from(tracksTable)
       .leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId))
@@ -84,6 +85,7 @@ router.get("/genres/:name/tracks", async (req, res) => {
       filePath: t.filePath,
       mimeType: t.mimeType,
       hasArt: t.albumHasArt ?? false,
+      liked: t.liked ?? false,
     })),
     total: Number(totalResult[0].count),
     page,

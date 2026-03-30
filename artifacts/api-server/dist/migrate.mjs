@@ -12236,6 +12236,8 @@ __export(schema_exports, {
   insertLibrarySchema: () => insertLibrarySchema,
   insertTrackSchema: () => insertTrackSchema,
   librariesTable: () => librariesTable,
+  playlistTracksTable: () => playlistTracksTable,
+  playlistsTable: () => playlistsTable,
   tracksTable: () => tracksTable
 });
 
@@ -23694,7 +23696,9 @@ var tracksTable = pgTable(
     filePath: text("file_path").notNull().unique(),
     mimeType: text("mime_type").notNull(),
     fileModifiedAt: timestamp("file_modified_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    liked: boolean("liked").notNull().default(false),
+    likedAt: timestamp("liked_at", { withTimezone: true })
   },
   (table) => ({
     artistIdx: index("tracks_artist_idx").on(table.artistId),
@@ -23703,6 +23707,27 @@ var tracksTable = pgTable(
   })
 );
 var insertTrackSchema = createInsertSchema(tracksTable).omit({ id: true, createdAt: true });
+
+// ../../lib/db/src/schema/playlists.ts
+var playlistsTable = pgTable("playlists", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+var playlistTracksTable = pgTable(
+  "playlist_tracks",
+  {
+    id: serial("id").primaryKey(),
+    playlistId: integer("playlist_id").notNull().references(() => playlistsTable.id, { onDelete: "cascade" }),
+    trackId: integer("track_id").notNull().references(() => tracksTable.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    playlistIdx: index("playlist_tracks_playlist_idx").on(table.playlistId)
+  })
+);
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
@@ -23796,6 +23821,34 @@ async function migrate() {
       "CREATE INDEX IF NOT EXISTS tracks_library_idx ON tracks(library_id)"
     );
     console.log("  ok  indexes");
+    await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked boolean NOT NULL DEFAULT false`);
+    await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked_at timestamptz`);
+    console.log("  ok  tracks.liked / tracks.liked_at");
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS playlists (
+        id         serial      PRIMARY KEY,
+        name       text        NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT NOW(),
+        updated_at timestamptz NOT NULL DEFAULT NOW()
+      )
+    `);
+    console.log("  ok  playlists");
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS playlist_tracks (
+        id          serial      PRIMARY KEY,
+        playlist_id integer     NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+        track_id    integer     NOT NULL REFERENCES tracks(id)    ON DELETE CASCADE,
+        position    integer     NOT NULL,
+        added_at    timestamptz NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(
+      "CREATE INDEX IF NOT EXISTS playlist_tracks_playlist_idx ON playlist_tracks(playlist_id)"
+    );
+    await client.query(
+      "CREATE INDEX IF NOT EXISTS playlist_tracks_track_idx ON playlist_tracks(track_id)"
+    );
+    console.log("  ok  playlist_tracks");
     console.log("\nMigration complete. Your database is ready.");
   } catch (err) {
     console.error("\nMigration failed:", err);

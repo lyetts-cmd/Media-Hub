@@ -88,6 +88,8 @@ export interface Track {
   filePath: string;
   mimeType: string;
   hasArt: boolean;
+  /** Whether the user has liked this track */
+  liked: boolean;
 }
 
 export interface AlbumDetail {
@@ -150,6 +152,40 @@ export interface SearchResult {
   albums: Album[];
 }
 
+export interface Playlist {
+  id: number;
+  name: string;
+  trackCount: number;
+  totalDuration?: number | null;
+  coverAlbumId?: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PlaylistDetail {
+  id: number;
+  name: string;
+  trackCount: number;
+  totalDuration?: number | null;
+  coverAlbumId?: number | null;
+  createdAt: string;
+  updatedAt: string;
+  tracks: Track[];
+}
+
+export interface CreatePlaylistRequest {
+  name: string;
+  trackIds?: number[];
+}
+
+export interface RenamePlaylistRequest {
+  name: string;
+}
+
+export interface AddTrackToPlaylistRequest {
+  trackId: number;
+}
+
 export type ListLibraries200 = {
   libraries: Library[];
 };
@@ -201,4 +237,8 @@ export type SearchMusicParams = {
    * Search query (case-insensitive partial match)
    */
   q?: string;
+};
+
+export type ListPlaylists200 = {
+  playlists: Playlist[];
 };

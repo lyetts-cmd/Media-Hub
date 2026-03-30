@@ -21,4 +21,6 @@ export interface Track {
   filePath: string;
   mimeType: string;
   hasArt: boolean;
+  /** Whether the user has liked this track */
+  liked: boolean;
 }

@@ -20488,27 +20488,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router11;
+    module.exports = Router12;
     module.exports.Route = Route;
-    function Router11(options) {
-      if (!(this instanceof Router11)) {
-        return new Router11(options);
+    function Router12(options) {
+      if (!(this instanceof Router12)) {
+        return new Router12(options);
       }
       const opts = options || {};
-      function router11(req, res, next) {
-        router11.handle(req, res, next);
+      function router12(req, res, next) {
+        router12.handle(req, res, next);
       }
-      Object.setPrototypeOf(router11, this);
-      router11.caseSensitive = opts.caseSensitive;
-      router11.mergeParams = opts.mergeParams;
-      router11.params = {};
-      router11.strict = opts.strict;
-      router11.stack = [];
-      return router11;
+      Object.setPrototypeOf(router12, this);
+      router12.caseSensitive = opts.caseSensitive;
+      router12.mergeParams = opts.mergeParams;
+      router12.params = {};
+      router12.strict = opts.strict;
+      router12.stack = [];
+      return router12;
     }
-    Router11.prototype = function() {
+    Router12.prototype = function() {
     };
-    Router11.prototype.param = function param(name, fn) {
+    Router12.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20528,7 +20528,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router11.prototype.handle = function handle(req, res, callback) {
+    Router12.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20655,7 +20655,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router11.prototype.use = function use(handler) {
+    Router12.prototype.use = function use(handler) {
       let offset = 0;
       let path4 = "/";
       if (typeof handler !== "function") {
@@ -20688,7 +20688,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router11.prototype.route = function route(path4) {
+    Router12.prototype.route = function route(path4) {
       const route2 = new Route(path4);
       const layer = new Layer(path4, {
         sensitive: this.caseSensitive,
@@ -20703,7 +20703,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router11.prototype[method] = function(path4) {
+      Router12.prototype[method] = function(path4) {
         const route = this.route(path4);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -20886,13 +20886,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router11 = require_router();
+    var Router12 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router11 = null;
+      var router12 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20901,13 +20901,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router11 === null) {
-            router11 = new Router11({
+          if (router12 === null) {
+            router12 = new Router12({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router11;
+          return router12;
         }
       });
     };
@@ -20978,15 +20978,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router11 = this.router;
+      var router12 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router11.use(path4, fn2);
+          return router12.use(path4, fn2);
         }
         debug31(".use app under %s", path4);
         fn2.mountpath = path4;
         fn2.parent = this;
-        router11.use(path4, function mounted_app(req, res, next) {
+        router12.use(path4, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23513,7 +23513,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router11 = require_router();
+    var Router12 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23535,8 +23535,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router11.Route;
-    exports.Router = Router11;
+    exports.Route = Router12.Route;
+    exports.Router = Router12;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -42097,14 +42097,14 @@ var init_WaveParser = __esm({
 });
 
 // src/app.ts
-var import_express11 = __toESM(require_express2(), 1);
+var import_express12 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 import path3 from "node:path";
 import { fileURLToPath } from "node:url";
 
 // src/routes/index.ts
-var import_express10 = __toESM(require_express2(), 1);
+var import_express11 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -46142,7 +46142,8 @@ var GetAlbumResponse = objectType({
       year: numberType().nullish(),
       filePath: stringType(),
       mimeType: stringType(),
-      hasArt: booleanType()
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
     })
   )
 });
@@ -46165,7 +46166,8 @@ var GetAlbumTracksResponse = objectType({
       year: numberType().nullish(),
       filePath: stringType(),
       mimeType: stringType(),
-      hasArt: booleanType()
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
     })
   )
 });
@@ -46194,7 +46196,8 @@ var ListTracksResponse = objectType({
       year: numberType().nullish(),
       filePath: stringType(),
       mimeType: stringType(),
-      hasArt: booleanType()
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
     })
   ),
   total: numberType(),
@@ -46218,7 +46221,8 @@ var GetTrackResponse = objectType({
   year: numberType().nullish(),
   filePath: stringType(),
   mimeType: stringType(),
-  hasArt: booleanType()
+  hasArt: booleanType(),
+  liked: booleanType().describe("Whether the user has liked this track")
 });
 var ListGenresResponse = objectType({
   genres: arrayType(
@@ -46253,7 +46257,8 @@ var GetGenreTracksResponse = objectType({
       year: numberType().nullish(),
       filePath: stringType(),
       mimeType: stringType(),
-      hasArt: booleanType()
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
     })
   ),
   total: numberType(),
@@ -46298,7 +46303,8 @@ var SearchMusicResponse = objectType({
       year: numberType().nullish(),
       filePath: stringType(),
       mimeType: stringType(),
-      hasArt: booleanType()
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
     })
   ),
   artists: arrayType(
@@ -46329,6 +46335,193 @@ var StreamTrackParams = objectType({
 var GetAlbumArtParams = objectType({
   albumId: coerce.number()
 });
+var GetLikedTracksResponse = objectType({
+  tracks: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      albumId: numberType().nullish(),
+      albumTitle: stringType().nullish(),
+      trackNumber: numberType().nullish(),
+      discNumber: numberType().nullish(),
+      durationSeconds: numberType().nullish(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      filePath: stringType(),
+      mimeType: stringType(),
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
+    })
+  ),
+  total: numberType(),
+  page: numberType(),
+  pageSize: numberType()
+});
+var LikeTrackParams = objectType({
+  trackId: coerce.number()
+});
+var LikeTrackResponse = objectType({
+  id: numberType(),
+  title: stringType(),
+  artistId: numberType().nullish(),
+  artistName: stringType().nullish(),
+  albumId: numberType().nullish(),
+  albumTitle: stringType().nullish(),
+  trackNumber: numberType().nullish(),
+  discNumber: numberType().nullish(),
+  durationSeconds: numberType().nullish(),
+  genre: stringType().nullish(),
+  year: numberType().nullish(),
+  filePath: stringType(),
+  mimeType: stringType(),
+  hasArt: booleanType(),
+  liked: booleanType().describe("Whether the user has liked this track")
+});
+var UnlikeTrackParams = objectType({
+  trackId: coerce.number()
+});
+var UnlikeTrackResponse = objectType({
+  id: numberType(),
+  title: stringType(),
+  artistId: numberType().nullish(),
+  artistName: stringType().nullish(),
+  albumId: numberType().nullish(),
+  albumTitle: stringType().nullish(),
+  trackNumber: numberType().nullish(),
+  discNumber: numberType().nullish(),
+  durationSeconds: numberType().nullish(),
+  genre: stringType().nullish(),
+  year: numberType().nullish(),
+  filePath: stringType(),
+  mimeType: stringType(),
+  hasArt: booleanType(),
+  liked: booleanType().describe("Whether the user has liked this track")
+});
+var ListPlaylistsResponse = objectType({
+  playlists: arrayType(
+    objectType({
+      id: numberType(),
+      name: stringType(),
+      trackCount: numberType(),
+      totalDuration: numberType().nullish(),
+      coverAlbumId: numberType().nullish(),
+      createdAt: dateType(),
+      updatedAt: dateType()
+    })
+  )
+});
+var CreatePlaylistBody = objectType({
+  name: stringType(),
+  trackIds: arrayType(numberType()).optional()
+});
+var GetPlaylistParams = objectType({
+  id: coerce.number()
+});
+var GetPlaylistResponse = objectType({
+  id: numberType(),
+  name: stringType(),
+  trackCount: numberType(),
+  totalDuration: numberType().nullish(),
+  coverAlbumId: numberType().nullish(),
+  createdAt: dateType(),
+  updatedAt: dateType(),
+  tracks: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      albumId: numberType().nullish(),
+      albumTitle: stringType().nullish(),
+      trackNumber: numberType().nullish(),
+      discNumber: numberType().nullish(),
+      durationSeconds: numberType().nullish(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      filePath: stringType(),
+      mimeType: stringType(),
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
+    })
+  )
+});
+var RenamePlaylistParams = objectType({
+  id: coerce.number()
+});
+var RenamePlaylistBody = objectType({
+  name: stringType()
+});
+var RenamePlaylistResponse = objectType({
+  id: numberType(),
+  name: stringType(),
+  trackCount: numberType(),
+  totalDuration: numberType().nullish(),
+  coverAlbumId: numberType().nullish(),
+  createdAt: dateType(),
+  updatedAt: dateType(),
+  tracks: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      albumId: numberType().nullish(),
+      albumTitle: stringType().nullish(),
+      trackNumber: numberType().nullish(),
+      discNumber: numberType().nullish(),
+      durationSeconds: numberType().nullish(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      filePath: stringType(),
+      mimeType: stringType(),
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
+    })
+  )
+});
+var DeletePlaylistParams = objectType({
+  id: coerce.number()
+});
+var AddTrackToPlaylistParams = objectType({
+  id: coerce.number()
+});
+var AddTrackToPlaylistBody = objectType({
+  trackId: numberType()
+});
+var AddTrackToPlaylistResponse = objectType({
+  id: numberType(),
+  name: stringType(),
+  trackCount: numberType(),
+  totalDuration: numberType().nullish(),
+  coverAlbumId: numberType().nullish(),
+  createdAt: dateType(),
+  updatedAt: dateType(),
+  tracks: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      albumId: numberType().nullish(),
+      albumTitle: stringType().nullish(),
+      trackNumber: numberType().nullish(),
+      discNumber: numberType().nullish(),
+      durationSeconds: numberType().nullish(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      filePath: stringType(),
+      mimeType: stringType(),
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
+    })
+  )
+});
+var RemoveTrackFromPlaylistParams = objectType({
+  id: coerce.number(),
+  trackId: coerce.number()
+});
 
 // src/routes/health.ts
 var router = (0, import_express.Router)();
@@ -46339,7 +46532,7 @@ router.get("/healthz", (_req, res) => {
 var health_default = router;
 
 // src/routes/music/index.ts
-var import_express9 = __toESM(require_express2(), 1);
+var import_express10 = __toESM(require_express2(), 1);
 
 // src/routes/music/libraries.ts
 var import_express2 = __toESM(require_express2(), 1);
@@ -53440,6 +53633,8 @@ __export(schema_exports, {
   insertLibrarySchema: () => insertLibrarySchema,
   insertTrackSchema: () => insertTrackSchema,
   librariesTable: () => librariesTable,
+  playlistTracksTable: () => playlistTracksTable,
+  playlistsTable: () => playlistsTable,
   tracksTable: () => tracksTable
 });
 
@@ -64898,7 +65093,9 @@ var tracksTable = pgTable(
     filePath: text("file_path").notNull().unique(),
     mimeType: text("mime_type").notNull(),
     fileModifiedAt: timestamp("file_modified_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    liked: boolean("liked").notNull().default(false),
+    likedAt: timestamp("liked_at", { withTimezone: true })
   },
   (table) => ({
     artistIdx: index("tracks_artist_idx").on(table.artistId),
@@ -64907,6 +65104,27 @@ var tracksTable = pgTable(
   })
 );
 var insertTrackSchema = createInsertSchema(tracksTable).omit({ id: true, createdAt: true });
+
+// ../../lib/db/src/schema/playlists.ts
+var playlistsTable = pgTable("playlists", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow()
+});
+var playlistTracksTable = pgTable(
+  "playlist_tracks",
+  {
+    id: serial("id").primaryKey(),
+    playlistId: integer("playlist_id").notNull().references(() => playlistsTable.id, { onDelete: "cascade" }),
+    trackId: integer("track_id").notNull().references(() => tracksTable.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    playlistIdx: index("playlist_tracks_playlist_idx").on(table.playlistId)
+  })
+);
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
@@ -70022,7 +70240,8 @@ router4.get("/albums/:id", async (req, res) => {
     genre: tracksTable.genre,
     year: tracksTable.year,
     filePath: tracksTable.filePath,
-    mimeType: tracksTable.mimeType
+    mimeType: tracksTable.mimeType,
+    liked: tracksTable.liked
   }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).where(eq(tracksTable.albumId, id)).orderBy(tracksTable.discNumber, tracksTable.trackNumber, tracksTable.title);
   res.json({
     id: album.id,
@@ -70047,7 +70266,8 @@ router4.get("/albums/:id", async (req, res) => {
       year: t.year ?? null,
       filePath: t.filePath,
       mimeType: t.mimeType,
-      hasArt: album.hasArt
+      hasArt: album.hasArt,
+      liked: t.liked ?? false
     }))
   });
 });
@@ -70075,7 +70295,8 @@ router4.get("/albums/:id/tracks", async (req, res) => {
     genre: tracksTable.genre,
     year: tracksTable.year,
     filePath: tracksTable.filePath,
-    mimeType: tracksTable.mimeType
+    mimeType: tracksTable.mimeType,
+    liked: tracksTable.liked
   }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).where(eq(tracksTable.albumId, id)).orderBy(tracksTable.discNumber, tracksTable.trackNumber, tracksTable.title);
   res.json({
     tracks: tracks.map((t) => ({
@@ -70092,7 +70313,8 @@ router4.get("/albums/:id/tracks", async (req, res) => {
       year: t.year ?? null,
       filePath: t.filePath,
       mimeType: t.mimeType,
-      hasArt: album.hasArt
+      hasArt: album.hasArt,
+      liked: t.liked ?? false
     }))
   });
 });
@@ -70147,7 +70369,8 @@ router5.get("/tracks", async (req, res) => {
       genre: tracksTable.genre,
       year: tracksTable.year,
       filePath: tracksTable.filePath,
-      mimeType: tracksTable.mimeType
+      mimeType: tracksTable.mimeType,
+      liked: tracksTable.liked
     }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(whereClause).orderBy(sql`lower(${tracksTable.title})`).limit(pageSize).offset(offset)
   ]);
   res.json({
@@ -70165,7 +70388,8 @@ router5.get("/tracks", async (req, res) => {
       year: t.year ?? null,
       filePath: t.filePath,
       mimeType: t.mimeType,
-      hasArt: t.albumHasArt ?? false
+      hasArt: t.albumHasArt ?? false,
+      liked: t.liked ?? false
     })),
     total: Number(totalResult[0].count),
     page,
@@ -70192,7 +70416,8 @@ router5.get("/tracks/:id", async (req, res) => {
     genre: tracksTable.genre,
     year: tracksTable.year,
     filePath: tracksTable.filePath,
-    mimeType: tracksTable.mimeType
+    mimeType: tracksTable.mimeType,
+    liked: tracksTable.liked
   }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(eq(tracksTable.id, id)).limit(1);
   if (tracks.length === 0) {
     res.status(404).json({ error: "Track not found" });
@@ -70213,7 +70438,8 @@ router5.get("/tracks/:id", async (req, res) => {
     year: t.year ?? null,
     filePath: t.filePath,
     mimeType: t.mimeType,
-    hasArt: t.albumHasArt ?? false
+    hasArt: t.albumHasArt ?? false,
+    liked: t.liked ?? false
   });
 });
 router5.get("/stream/:id", async (req, res) => {
@@ -70309,7 +70535,8 @@ router6.get("/genres/:name/tracks", async (req, res) => {
       genre: tracksTable.genre,
       year: tracksTable.year,
       filePath: tracksTable.filePath,
-      mimeType: tracksTable.mimeType
+      mimeType: tracksTable.mimeType,
+      liked: tracksTable.liked
     }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(eq(tracksTable.genreId, genreId)).orderBy(sql`lower(${tracksTable.title})`).limit(pageSize).offset(offset)
   ]);
   res.json({
@@ -70327,7 +70554,8 @@ router6.get("/genres/:name/tracks", async (req, res) => {
       year: t.year ?? null,
       filePath: t.filePath,
       mimeType: t.mimeType,
-      hasArt: t.albumHasArt ?? false
+      hasArt: t.albumHasArt ?? false,
+      liked: t.liked ?? false
     })),
     total: Number(totalResult[0].count),
     page,
@@ -70543,7 +70771,8 @@ router8.get("/search", async (req, res) => {
       albumHasArt: albumsTable.hasArt,
       durationSeconds: tracksTable.durationSeconds,
       filePath: tracksTable.filePath,
-      mimeType: tracksTable.mimeType
+      mimeType: tracksTable.mimeType,
+      liked: tracksTable.liked
     }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(ilike(tracksTable.title, pattern)).orderBy(sql`lower(${tracksTable.title})`).limit(LIMIT),
     db.select({
       id: artistsTable.id,
@@ -70574,7 +70803,8 @@ router8.get("/search", async (req, res) => {
       durationSeconds: t.durationSeconds ?? null,
       filePath: t.filePath,
       mimeType: t.mimeType,
-      hasArt: t.albumHasArt ?? false
+      hasArt: t.albumHasArt ?? false,
+      liked: t.liked ?? false
     })),
     artists: artists.map((a) => ({
       id: a.id,
@@ -70597,25 +70827,294 @@ router8.get("/search", async (req, res) => {
 });
 var search_default = router8;
 
-// src/routes/music/index.ts
+// src/routes/music/playlists.ts
+var import_express9 = __toESM(require_express2(), 1);
 var router9 = (0, import_express9.Router)();
-router9.use(libraries_default);
-router9.use(artists_default);
-router9.use(albums_default);
-router9.use(tracks_default);
-router9.use(genres_default);
-router9.use(browse_default);
-router9.use(search_default);
-var music_default = router9;
+async function fetchFullTrack(trackId) {
+  const rows = await db.select({
+    id: tracksTable.id,
+    title: tracksTable.title,
+    artistId: tracksTable.artistId,
+    artistName: artistsTable.name,
+    albumId: tracksTable.albumId,
+    albumTitle: albumsTable.title,
+    albumHasArt: albumsTable.hasArt,
+    trackNumber: tracksTable.trackNumber,
+    discNumber: tracksTable.discNumber,
+    durationSeconds: tracksTable.durationSeconds,
+    genre: tracksTable.genre,
+    year: tracksTable.year,
+    filePath: tracksTable.filePath,
+    mimeType: tracksTable.mimeType,
+    liked: tracksTable.liked
+  }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(eq(tracksTable.id, trackId)).limit(1);
+  return rows[0] ?? null;
+}
+function formatTrack(t) {
+  return {
+    id: t.id,
+    title: t.title,
+    artistId: t.artistId ?? null,
+    artistName: t.artistName ?? null,
+    albumId: t.albumId ?? null,
+    albumTitle: t.albumTitle ?? null,
+    trackNumber: t.trackNumber ?? null,
+    discNumber: t.discNumber ?? null,
+    durationSeconds: t.durationSeconds ?? null,
+    genre: t.genre ?? null,
+    year: t.year ?? null,
+    filePath: t.filePath,
+    mimeType: t.mimeType,
+    hasArt: t.albumHasArt ?? false,
+    liked: t.liked ?? false
+  };
+}
+async function getPlaylistDetail(playlistId) {
+  const pl = await db.select().from(playlistsTable).where(eq(playlistsTable.id, playlistId)).limit(1);
+  if (pl.length === 0) return null;
+  const rows = await db.select({
+    id: tracksTable.id,
+    title: tracksTable.title,
+    artistId: tracksTable.artistId,
+    artistName: artistsTable.name,
+    albumId: tracksTable.albumId,
+    albumTitle: albumsTable.title,
+    albumHasArt: albumsTable.hasArt,
+    trackNumber: tracksTable.trackNumber,
+    discNumber: tracksTable.discNumber,
+    durationSeconds: tracksTable.durationSeconds,
+    genre: tracksTable.genre,
+    year: tracksTable.year,
+    filePath: tracksTable.filePath,
+    mimeType: tracksTable.mimeType,
+    liked: tracksTable.liked
+  }).from(playlistTracksTable).innerJoin(tracksTable, eq(tracksTable.id, playlistTracksTable.trackId)).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(eq(playlistTracksTable.playlistId, playlistId)).orderBy(asc(playlistTracksTable.position));
+  const tracks = rows.map(formatTrack);
+  const totalDuration = tracks.reduce((sum, t) => sum + (t.durationSeconds ?? 0), 0);
+  const coverAlbumId = tracks.find((t) => t.albumId && t.hasArt)?.albumId ?? null;
+  return {
+    id: pl[0].id,
+    name: pl[0].name,
+    trackCount: tracks.length,
+    totalDuration: totalDuration || null,
+    coverAlbumId,
+    createdAt: pl[0].createdAt,
+    updatedAt: pl[0].updatedAt,
+    tracks
+  };
+}
+router9.get("/liked", async (_req, res) => {
+  const rows = await db.select({
+    id: tracksTable.id,
+    title: tracksTable.title,
+    artistId: tracksTable.artistId,
+    artistName: artistsTable.name,
+    albumId: tracksTable.albumId,
+    albumTitle: albumsTable.title,
+    albumHasArt: albumsTable.hasArt,
+    trackNumber: tracksTable.trackNumber,
+    discNumber: tracksTable.discNumber,
+    durationSeconds: tracksTable.durationSeconds,
+    genre: tracksTable.genre,
+    year: tracksTable.year,
+    filePath: tracksTable.filePath,
+    mimeType: tracksTable.mimeType,
+    liked: tracksTable.liked
+  }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(eq(tracksTable.liked, true)).orderBy(desc(tracksTable.likedAt));
+  res.json({ tracks: rows.map(formatTrack), total: rows.length, page: 1, pageSize: rows.length });
+});
+router9.post("/liked/:trackId", async (req, res) => {
+  const trackId = Number(req.params.trackId);
+  if (isNaN(trackId)) {
+    res.status(400).json({ error: "Invalid trackId" });
+    return;
+  }
+  const updated = await db.update(tracksTable).set({ liked: true, likedAt: /* @__PURE__ */ new Date() }).where(eq(tracksTable.id, trackId)).returning({ id: tracksTable.id });
+  if (updated.length === 0) {
+    res.status(404).json({ error: "Track not found" });
+    return;
+  }
+  const track = await fetchFullTrack(trackId);
+  res.json(formatTrack(track));
+});
+router9.delete("/liked/:trackId", async (req, res) => {
+  const trackId = Number(req.params.trackId);
+  if (isNaN(trackId)) {
+    res.status(400).json({ error: "Invalid trackId" });
+    return;
+  }
+  const updated = await db.update(tracksTable).set({ liked: false, likedAt: null }).where(eq(tracksTable.id, trackId)).returning({ id: tracksTable.id });
+  if (updated.length === 0) {
+    res.status(404).json({ error: "Track not found" });
+    return;
+  }
+  const track = await fetchFullTrack(trackId);
+  res.json(formatTrack(track));
+});
+router9.get("/playlists", async (_req, res) => {
+  const playlists = await db.select({
+    id: playlistsTable.id,
+    name: playlistsTable.name,
+    trackCount: sql`cast(count(${playlistTracksTable.id}) as int)`,
+    coverAlbumId: sql`(
+        select t.album_id
+        from playlist_tracks pt
+        join tracks t on t.id = pt.track_id
+        join albums a on a.id = t.album_id
+        where pt.playlist_id = ${playlistsTable.id} and a.has_art = true
+        order by pt.position asc
+        limit 1
+      )`,
+    totalDuration: sql`cast(sum(${tracksTable.durationSeconds}) as real)`,
+    createdAt: playlistsTable.createdAt,
+    updatedAt: playlistsTable.updatedAt
+  }).from(playlistsTable).leftJoin(playlistTracksTable, eq(playlistTracksTable.playlistId, playlistsTable.id)).leftJoin(tracksTable, eq(tracksTable.id, playlistTracksTable.trackId)).groupBy(playlistsTable.id).orderBy(asc(playlistsTable.name));
+  res.json({
+    playlists: playlists.map((p) => ({
+      id: p.id,
+      name: p.name,
+      trackCount: p.trackCount,
+      totalDuration: p.totalDuration ?? null,
+      coverAlbumId: p.coverAlbumId ?? null,
+      createdAt: p.createdAt,
+      updatedAt: p.updatedAt
+    }))
+  });
+});
+router9.post("/playlists", async (req, res) => {
+  const { name, trackIds } = req.body;
+  if (!name || typeof name !== "string" || name.trim() === "") {
+    res.status(400).json({ error: "name is required" });
+    return;
+  }
+  const [pl] = await db.insert(playlistsTable).values({ name: name.trim() }).returning();
+  if (trackIds && Array.isArray(trackIds) && trackIds.length > 0) {
+    await db.insert(playlistTracksTable).values(
+      trackIds.map((trackId, i) => ({
+        playlistId: pl.id,
+        trackId,
+        position: i
+      }))
+    );
+  }
+  const detail = await getPlaylistDetail(pl.id);
+  res.status(201).json(detail);
+});
+router9.get("/playlists/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const detail = await getPlaylistDetail(id);
+  if (!detail) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
+  res.json(detail);
+});
+router9.patch("/playlists/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const { name } = req.body;
+  if (!name || typeof name !== "string" || name.trim() === "") {
+    res.status(400).json({ error: "name is required" });
+    return;
+  }
+  const updated = await db.update(playlistsTable).set({ name: name.trim(), updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id)).returning({ id: playlistsTable.id });
+  if (updated.length === 0) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
+  const detail = await getPlaylistDetail(id);
+  res.json(detail);
+});
+router9.delete("/playlists/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const deleted = await db.delete(playlistsTable).where(eq(playlistsTable.id, id)).returning({ id: playlistsTable.id });
+  if (deleted.length === 0) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
+  res.status(204).end();
+});
+router9.post("/playlists/:id/tracks", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const { trackId } = req.body;
+  if (!trackId || isNaN(Number(trackId))) {
+    res.status(400).json({ error: "trackId is required" });
+    return;
+  }
+  const pl = await db.select({ id: playlistsTable.id }).from(playlistsTable).where(eq(playlistsTable.id, id)).limit(1);
+  if (pl.length === 0) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
+  const maxPos = await db.select({ max: sql`coalesce(max(${playlistTracksTable.position}), -1)` }).from(playlistTracksTable).where(eq(playlistTracksTable.playlistId, id));
+  const nextPos = (maxPos[0]?.max ?? -1) + 1;
+  await db.insert(playlistTracksTable).values({
+    playlistId: id,
+    trackId: Number(trackId),
+    position: nextPos
+  });
+  await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
+  const detail = await getPlaylistDetail(id);
+  res.json(detail);
+});
+router9.delete("/playlists/:id/tracks/:trackId", async (req, res) => {
+  const id = Number(req.params.id);
+  const trackId = Number(req.params.trackId);
+  if (isNaN(id) || isNaN(trackId)) {
+    res.status(400).json({ error: "Invalid id or trackId" });
+    return;
+  }
+  const deleted = await db.delete(playlistTracksTable).where(
+    sql`${playlistTracksTable.playlistId} = ${id} AND ${playlistTracksTable.trackId} = ${trackId}`
+  ).returning({ id: playlistTracksTable.id });
+  if (deleted.length === 0) {
+    res.status(404).json({ error: "Track not in playlist" });
+    return;
+  }
+  const remaining = await db.select({ id: playlistTracksTable.id }).from(playlistTracksTable).where(eq(playlistTracksTable.playlistId, id)).orderBy(asc(playlistTracksTable.position));
+  for (let i = 0; i < remaining.length; i++) {
+    await db.update(playlistTracksTable).set({ position: i }).where(eq(playlistTracksTable.id, remaining[i].id));
+  }
+  await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
+  res.status(204).end();
+});
+var playlists_default = router9;
+
+// src/routes/music/index.ts
+var router10 = (0, import_express10.Router)();
+router10.use(libraries_default);
+router10.use(artists_default);
+router10.use(albums_default);
+router10.use(tracks_default);
+router10.use(genres_default);
+router10.use(browse_default);
+router10.use(search_default);
+router10.use(playlists_default);
+var music_default = router10;
 
 // src/routes/index.ts
-var router10 = (0, import_express10.Router)();
-router10.use(health_default);
-router10.use("/music", music_default);
-var routes_default = router10;
+var router11 = (0, import_express11.Router)();
+router11.use(health_default);
+router11.use("/music", music_default);
+var routes_default = router11;
 
 // src/app.ts
-var app = (0, import_express11.default)();
+var app = (0, import_express12.default)();
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -70636,13 +71135,13 @@ app.use(
   })
 );
 app.use((0, import_cors.default)());
-app.use(import_express11.default.json());
-app.use(import_express11.default.urlencoded({ extended: true }));
+app.use(import_express12.default.json());
+app.use(import_express12.default.urlencoded({ extended: true }));
 app.use("/api", routes_default);
 if (process.env.NODE_ENV === "production") {
   const __dirname2 = path3.dirname(fileURLToPath(import.meta.url));
   const webClientDist = process.env.WEB_CLIENT_DIST ?? path3.resolve(__dirname2, "../../web-client/dist/public");
-  app.use(import_express11.default.static(webClientDist));
+  app.use(import_express12.default.static(webClientDist));
   app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path3.join(webClientDist, "index.html"));
   });

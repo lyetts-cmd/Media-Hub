@@ -89,6 +89,39 @@ async function migrate() {
     );
     console.log("  ok  indexes");
 
+    // v2: liked songs columns
+    await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked boolean NOT NULL DEFAULT false`);
+    await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked_at timestamptz`);
+    console.log("  ok  tracks.liked / tracks.liked_at");
+
+    // v2: playlists
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS playlists (
+        id         serial      PRIMARY KEY,
+        name       text        NOT NULL,
+        created_at timestamptz NOT NULL DEFAULT NOW(),
+        updated_at timestamptz NOT NULL DEFAULT NOW()
+      )
+    `);
+    console.log("  ok  playlists");
+
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS playlist_tracks (
+        id          serial      PRIMARY KEY,
+        playlist_id integer     NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+        track_id    integer     NOT NULL REFERENCES tracks(id)    ON DELETE CASCADE,
+        position    integer     NOT NULL,
+        added_at    timestamptz NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(
+      "CREATE INDEX IF NOT EXISTS playlist_tracks_playlist_idx ON playlist_tracks(playlist_id)"
+    );
+    await client.query(
+      "CREATE INDEX IF NOT EXISTS playlist_tracks_track_idx ON playlist_tracks(track_id)"
+    );
+    console.log("  ok  playlist_tracks");
+
     console.log("\nMigration complete. Your database is ready.");
   } catch (err) {
     console.error("\nMigration failed:", err);

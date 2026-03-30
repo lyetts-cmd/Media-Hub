@@ -15,6 +15,8 @@ import GenresPage from "@/pages/genres";
 import GenreDetail from "@/pages/genre-detail";
 import BrowsePage from "@/pages/browse";
 import SettingsPage from "@/pages/settings";
+import LikedPage from "@/pages/liked";
+import PlaylistPage from "@/pages/playlist";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,6 +39,8 @@ function Router() {
       <Route path="/genres/:name" component={GenreDetail} />
       <Route path="/browse" component={BrowsePage} />
       <Route path="/settings" component={SettingsPage} />
+      <Route path="/liked" component={LikedPage} />
+      <Route path="/playlists/:id" component={PlaylistPage} />
       <Route component={NotFound} />
     </Switch>
   );
