@@ -242,3 +242,7 @@ export type SearchMusicParams = {
 export type ListPlaylists200 = {
   playlists: Playlist[];
 };
+
+export type ReorderPlaylistTracksBody = {
+  trackIds: number[];
+};

@@ -35,6 +35,7 @@ export * from "./listTracksParams";
 export * from "./playlist";
 export * from "./playlistDetail";
 export * from "./renamePlaylistRequest";
+export * from "./reorderPlaylistTracksBody";
 export * from "./scanStatus";
 export * from "./searchMusicParams";
 export * from "./searchResult";

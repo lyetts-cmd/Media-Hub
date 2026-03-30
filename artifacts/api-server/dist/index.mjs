@@ -46518,6 +46518,40 @@ var AddTrackToPlaylistResponse = objectType({
     })
   )
 });
+var ReorderPlaylistTracksParams = objectType({
+  id: coerce.number()
+});
+var ReorderPlaylistTracksBody = objectType({
+  trackIds: arrayType(numberType())
+});
+var ReorderPlaylistTracksResponse = objectType({
+  id: numberType(),
+  name: stringType(),
+  trackCount: numberType(),
+  totalDuration: numberType().nullish(),
+  coverAlbumId: numberType().nullish(),
+  createdAt: dateType(),
+  updatedAt: dateType(),
+  tracks: arrayType(
+    objectType({
+      id: numberType(),
+      title: stringType(),
+      artistId: numberType().nullish(),
+      artistName: stringType().nullish(),
+      albumId: numberType().nullish(),
+      albumTitle: stringType().nullish(),
+      trackNumber: numberType().nullish(),
+      discNumber: numberType().nullish(),
+      durationSeconds: numberType().nullish(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      filePath: stringType(),
+      mimeType: stringType(),
+      hasArt: booleanType(),
+      liked: booleanType().describe("Whether the user has liked this track")
+    })
+  )
+});
 var RemoveTrackFromPlaylistParams = objectType({
   id: coerce.number(),
   trackId: coerce.number()
@@ -71092,6 +71126,31 @@ router9.delete("/playlists/:id/tracks/:trackId", async (req, res) => {
   }
   await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
   res.status(204).end();
+});
+router9.put("/playlists/:id/tracks/reorder", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const { trackIds } = req.body;
+  if (!Array.isArray(trackIds) || trackIds.some((x) => typeof x !== "number")) {
+    res.status(400).json({ error: "trackIds must be an array of numbers" });
+    return;
+  }
+  const pl = await db.select({ id: playlistsTable.id }).from(playlistsTable).where(eq(playlistsTable.id, id)).limit(1);
+  if (pl.length === 0) {
+    res.status(404).json({ error: "Playlist not found" });
+    return;
+  }
+  for (let i = 0; i < trackIds.length; i++) {
+    await db.update(playlistTracksTable).set({ position: i }).where(
+      sql`${playlistTracksTable.playlistId} = ${id} AND ${playlistTracksTable.trackId} = ${trackIds[i]}`
+    );
+  }
+  await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
+  const detail = await getPlaylistDetail(id);
+  res.json(detail);
 });
 var playlists_default = router9;
 

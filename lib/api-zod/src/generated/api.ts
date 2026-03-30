@@ -683,6 +683,46 @@ export const AddTrackToPlaylistResponse = zod.object({
 });
 
 /**
+ * @summary Reorder all tracks in a playlist
+ */
+export const ReorderPlaylistTracksParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ReorderPlaylistTracksBody = zod.object({
+  trackIds: zod.array(zod.number()),
+});
+
+export const ReorderPlaylistTracksResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  trackCount: zod.number(),
+  totalDuration: zod.number().nullish(),
+  coverAlbumId: zod.number().nullish(),
+  createdAt: zod.date(),
+  updatedAt: zod.date(),
+  tracks: zod.array(
+    zod.object({
+      id: zod.number(),
+      title: zod.string(),
+      artistId: zod.number().nullish(),
+      artistName: zod.string().nullish(),
+      albumId: zod.number().nullish(),
+      albumTitle: zod.string().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
+      durationSeconds: zod.number().nullish(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      filePath: zod.string(),
+      mimeType: zod.string(),
+      hasArt: zod.boolean(),
+      liked: zod.boolean().describe("Whether the user has liked this track"),
+    }),
+  ),
+});
+
+/**
  * @summary Remove a track from a playlist
  */
 export const RemoveTrackFromPlaylistParams = zod.object({

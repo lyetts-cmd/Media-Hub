@@ -47,6 +47,7 @@ export default function PlaylistPage() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["/api/music/playlists"] });
+          queryClient.invalidateQueries({ queryKey: [`/api/music/playlists/${playlistId}`] });
         },
       }
     );
@@ -59,6 +60,7 @@ export default function PlaylistPage() {
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["/api/music/playlists"] });
+          queryClient.invalidateQueries({ queryKey: [`/api/music/playlists/${playlistId}`] });
           navigate("/albums");
         },
       }

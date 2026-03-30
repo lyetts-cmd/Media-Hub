@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useLocation } from "wouter";
-import { Search, Music, Disc3, Mic2, X } from "lucide-react";
-import { useSearchMusic, getGetAlbumArtUrl } from "@workspace/api-client-react";
+import { Search, Music, Disc3, Mic2, X, Heart } from "lucide-react";
+import { useSearchMusic, getGetAlbumArtUrl, useLikeTrack, useUnlikeTrack } from "@workspace/api-client-react";
 import type { Track, Artist, Album } from "@workspace/api-client-react";
 import { usePlayer } from "@/hooks/use-player";
+import { useQueryClient } from "@tanstack/react-query";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -18,6 +19,46 @@ function useDebounce(value: string, delay: number): string {
     return () => clearTimeout(t);
   }, [value, delay]);
   return debounced;
+}
+
+function SearchHeartButton({ track }: { track: Track }) {
+  const qc = useQueryClient();
+  const likeTrack = useLikeTrack();
+  const unlikeTrack = useUnlikeTrack();
+  const [optimistic, setOptimistic] = useState<boolean | null>(null);
+  const liked = optimistic !== null ? optimistic : (track.liked ?? false);
+
+  function toggle(e: React.MouseEvent) {
+    e.stopPropagation();
+    const next = !liked;
+    setOptimistic(next);
+    (next ? likeTrack : unlikeTrack).mutate(
+      { trackId: track.id },
+      {
+        onSuccess: () => {
+          qc.invalidateQueries({ queryKey: ["/api/music/liked"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/tracks"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/albums"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/search"] });
+          setOptimistic(null);
+        },
+        onError: () => setOptimistic(null),
+      }
+    );
+  }
+
+  return (
+    <button
+      onClick={toggle}
+      className={cn(
+        "p-1.5 rounded-lg transition-all shrink-0 ml-1",
+        liked ? "text-pink-500" : "text-muted-foreground/30 hover:text-muted-foreground"
+      )}
+      title={liked ? "Unlike" : "Like"}
+    >
+      <Heart className={cn("w-3.5 h-3.5 transition-all", liked && "fill-current")} />
+    </button>
+  );
 }
 
 export default function SearchBar() {
@@ -152,6 +193,7 @@ export default function SearchBar() {
                           </p>
                         )}
                       </div>
+                      <SearchHeartButton track={track} />
                     </button>
                   ))}
                 </section>

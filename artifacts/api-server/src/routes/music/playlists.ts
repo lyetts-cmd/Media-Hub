@@ -365,4 +365,41 @@ router.delete("/playlists/:id/tracks/:trackId", async (req, res) => {
   res.status(204).end();
 });
 
+// ── Reorder tracks in a playlist ───────────────────────────────────────────
+// Body: { trackIds: number[] }  — ordered list of all track IDs in new order
+router.put("/playlists/:id/tracks/reorder", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+  const { trackIds } = req.body as { trackIds?: number[] };
+  if (!Array.isArray(trackIds) || trackIds.some((x) => typeof x !== "number")) {
+    res.status(400).json({ error: "trackIds must be an array of numbers" });
+    return;
+  }
+
+  const pl = await db
+    .select({ id: playlistsTable.id })
+    .from(playlistsTable)
+    .where(eq(playlistsTable.id, id))
+    .limit(1);
+  if (pl.length === 0) { res.status(404).json({ error: "Playlist not found" }); return; }
+
+  for (let i = 0; i < trackIds.length; i++) {
+    await db
+      .update(playlistTracksTable)
+      .set({ position: i })
+      .where(
+        sql`${playlistTracksTable.playlistId} = ${id} AND ${playlistTracksTable.trackId} = ${trackIds[i]}`
+      );
+  }
+
+  await db
+    .update(playlistsTable)
+    .set({ updatedAt: new Date() })
+    .where(eq(playlistsTable.id, id));
+
+  const detail = await getPlaylistDetail(id);
+  res.json(detail);
+});
+
 export default router;

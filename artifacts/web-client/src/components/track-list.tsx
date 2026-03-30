@@ -52,6 +52,12 @@ function HeartButton({ track }: { track: Track }) {
       {
         onSuccess: () => {
           qc.invalidateQueries({ queryKey: ["/api/music/liked"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/tracks"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/albums"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/artists"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/genres"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/search"] });
+          qc.invalidateQueries({ queryKey: ["/api/music/playlists"] });
           setOptimistic(null);
         },
         onError: () => setOptimistic(null),
@@ -115,6 +121,7 @@ function TrackMenu({
       {
         onSuccess: () => {
           qc.invalidateQueries({ queryKey: ["/api/music/playlists"] });
+          qc.invalidateQueries({ queryKey: [`/api/music/playlists/${pid}`] });
           setOpen(false);
           setShowPlaylists(false);
         },
@@ -130,6 +137,7 @@ function TrackMenu({
       {
         onSuccess: () => {
           qc.invalidateQueries({ queryKey: ["/api/music/playlists"] });
+          qc.invalidateQueries({ queryKey: [`/api/music/playlists/${playlistId}`] });
           setOpen(false);
         },
       }

@@ -40,6 +40,7 @@ import type {
   ListTracksParams,
   PlaylistDetail,
   RenamePlaylistRequest,
+  ReorderPlaylistTracksBody,
   ScanStatus,
   SearchMusicParams,
   SearchResult,
@@ -2544,6 +2545,94 @@ export const useAddTrackToPlaylist = <
   TContext
 > => {
   return useMutation(getAddTrackToPlaylistMutationOptions(options));
+};
+
+/**
+ * @summary Reorder all tracks in a playlist
+ */
+export const getReorderPlaylistTracksUrl = (id: number) => {
+  return `/api/music/playlists/${id}/tracks/reorder`;
+};
+
+export const reorderPlaylistTracks = async (
+  id: number,
+  reorderPlaylistTracksBody: ReorderPlaylistTracksBody,
+  options?: RequestInit,
+): Promise<PlaylistDetail> => {
+  return customFetch<PlaylistDetail>(getReorderPlaylistTracksUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(reorderPlaylistTracksBody),
+  });
+};
+
+export const getReorderPlaylistTracksMutationOptions = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof reorderPlaylistTracks>>,
+    TError,
+    { id: number; data: BodyType<ReorderPlaylistTracksBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof reorderPlaylistTracks>>,
+  TError,
+  { id: number; data: BodyType<ReorderPlaylistTracksBody> },
+  TContext
+> => {
+  const mutationKey = ["reorderPlaylistTracks"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof reorderPlaylistTracks>>,
+    { id: number; data: BodyType<ReorderPlaylistTracksBody> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return reorderPlaylistTracks(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ReorderPlaylistTracksMutationResult = NonNullable<
+  Awaited<ReturnType<typeof reorderPlaylistTracks>>
+>;
+export type ReorderPlaylistTracksMutationBody =
+  BodyType<ReorderPlaylistTracksBody>;
+export type ReorderPlaylistTracksMutationError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Reorder all tracks in a playlist
+ */
+export const useReorderPlaylistTracks = <
+  TError = ErrorType<ErrorResponse>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof reorderPlaylistTracks>>,
+    TError,
+    { id: number; data: BodyType<ReorderPlaylistTracksBody> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof reorderPlaylistTracks>>,
+  TError,
+  { id: number; data: BodyType<ReorderPlaylistTracksBody> },
+  TContext
+> => {
+  return useMutation(getReorderPlaylistTracksMutationOptions(options));
 };
 
 /**
