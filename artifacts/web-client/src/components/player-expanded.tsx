@@ -433,6 +433,7 @@ export default function PlayerExpanded() {
                       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">
                         Crossfade between tracks
                       </p>
+                      {/* Note: uses single audio element — fade-out/fade-in (not simultaneous overlap) */}
                       <button
                         onClick={() => setCrossfade(!crossfadeEnabled)}
                         className={`relative w-10 h-5 rounded-full transition-colors ${crossfadeEnabled ? "bg-primary" : "bg-white/20"}`}
