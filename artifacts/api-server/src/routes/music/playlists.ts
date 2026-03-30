@@ -227,8 +227,9 @@ router.post("/playlists", async (req, res) => {
     .returning();
 
   if (trackIds && Array.isArray(trackIds) && trackIds.length > 0) {
+    const uniqueIds = [...new Set(trackIds)];
     await db.insert(playlistTracksTable).values(
-      trackIds.map((trackId, i) => ({
+      uniqueIds.map((trackId, i) => ({
         playlistId: pl.id,
         trackId,
         position: i,
@@ -300,6 +301,20 @@ router.post("/playlists/:id/tracks", async (req, res) => {
     .where(eq(playlistsTable.id, id))
     .limit(1);
   if (pl.length === 0) { res.status(404).json({ error: "Playlist not found" }); return; }
+
+  // Enforce no-duplicate policy
+  const existing = await db
+    .select({ id: playlistTracksTable.id })
+    .from(playlistTracksTable)
+    .where(
+      sql`${playlistTracksTable.playlistId} = ${id} AND ${playlistTracksTable.trackId} = ${Number(trackId)}`
+    )
+    .limit(1);
+
+  if (existing.length > 0) {
+    res.status(409).json({ error: "Track is already in this playlist" });
+    return;
+  }
 
   const maxPos = await db
     .select({ max: sql<number>`coalesce(max(${playlistTracksTable.position}), -1)` })
