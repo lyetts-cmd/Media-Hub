@@ -361,8 +361,10 @@ export default function PlayerExpanded() {
                                 direction: "rtl",
                                 width: 24,
                                 height: 80,
-                                appearance: "slider-vertical",
-                                WebkitAppearance: "slider-vertical",
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                appearance: "slider-vertical" as any,
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                WebkitAppearance: "slider-vertical" as any,
                               }}
                             />
                           </div>

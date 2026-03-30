@@ -9,7 +9,7 @@ interface Props {
 
 export default function AudioVisualizer({ analyserNode, isPlaying, barCount = 48, className = "" }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef    = useRef<number>();
+  const rafRef    = useRef<number | undefined>(undefined);
   const idleFrame = useRef(0);
 
   useEffect(() => {

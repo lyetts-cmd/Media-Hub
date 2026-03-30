@@ -31,7 +31,8 @@ export default function SearchBar() {
 
   const { data } = useSearchMusic(
     { q: debouncedQuery },
-    { query: { enabled: debouncedQuery.length > 0 } },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    { query: { enabled: debouncedQuery.length > 0 } } as any,
   );
 
   const hasResults =

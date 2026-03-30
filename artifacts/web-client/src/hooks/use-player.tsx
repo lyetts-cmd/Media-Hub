@@ -129,14 +129,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const audioRef         = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef      = useRef<AudioContext | null>(null);
   const normGainRef      = useRef<GainNode | null>(null);
-  const normTimerRef     = useRef<ReturnType<typeof setTimeout>>();
+  const normTimerRef     = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const crossfadeGainRef = useRef<GainNode | null>(null);
   const eqFiltersRef     = useRef<BiquadFilterNode[]>([]);
   const analyserRef      = useRef<AnalyserNode | null>(null);
   const crossfadingRef   = useRef(false);
 
   // Smart-shuffle history: IDs of tracks played in the current shuffle cycle
-  const shuffleHistoryRef  = useRef<Set<string>>(new Set());
+  const shuffleHistoryRef  = useRef<Set<number>>(new Set());
 
   // ── Mutable refs for event-handler closures (avoid stale captures) ────────
   const queueRef           = useRef(queue);
@@ -160,7 +160,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { volumeRef.current       = volume; },         [volume]);
 
   // ── Save to localStorage (throttled) ─────────────────────────────────────
-  const saveTimer = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scheduleSave = useCallback(() => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => {
@@ -643,7 +643,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   }, [scheduleSave]);
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────────
-  const keyHandlerRef = useRef<(e: KeyboardEvent) => void>();
+  const keyHandlerRef = useRef<((e: KeyboardEvent) => void) | undefined>(undefined);
   keyHandlerRef.current = (e: KeyboardEvent) => {
     const target = e.target as HTMLElement;
     if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) return;
