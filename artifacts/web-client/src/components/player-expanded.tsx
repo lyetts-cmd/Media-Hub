@@ -86,6 +86,18 @@ export default function PlayerExpanded() {
   const [sleepRemaining, setSleepRemaining] = useState<number | null>(null);
   const [dragFrom, setDragFrom]         = useState<number | null>(null);
   const [dragOver, setDragOver]         = useState<number | null>(null);
+  // Track which duration (in minutes) was last chosen so each button shows its own active state
+  const [activeSleepMinutes, setActiveSleepMinutes] = useState<number | null>(null);
+
+  const handleSetSleepTimer = (minutes: number | null) => {
+    setSleepTimer(minutes);
+    setActiveSleepMinutes(minutes);
+  };
+
+  // Clear active selection when timer expires
+  useEffect(() => {
+    if (!sleepTimerEnd) setActiveSleepMinutes(null);
+  }, [sleepTimerEnd]);
 
   // Sleep timer countdown
   useEffect(() => {
@@ -380,10 +392,10 @@ export default function PlayerExpanded() {
                       {SLEEP_OPTIONS.map(min => (
                         <button
                           key={min}
-                          onClick={() => setSleepTimer(min)}
+                          onClick={() => handleSetSleepTimer(activeSleepMinutes === min ? null : min)}
                           className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors min-w-[60px] ${
-                            sleepTimerEnd
-                              ? "bg-primary/20 text-primary"
+                            activeSleepMinutes === min
+                              ? "bg-primary/30 text-primary ring-1 ring-primary/50"
                               : "bg-white/5 hover:bg-white/10 text-muted-foreground hover:text-foreground"
                           }`}
                         >
@@ -392,7 +404,7 @@ export default function PlayerExpanded() {
                       ))}
                       {sleepTimerEnd && (
                         <button
-                          onClick={() => setSleepTimer(null)}
+                          onClick={() => handleSetSleepTimer(null)}
                           className="flex-1 py-2 rounded-lg text-sm font-medium bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors min-w-[60px]"
                         >
                           Cancel
