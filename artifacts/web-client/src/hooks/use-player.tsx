@@ -117,9 +117,14 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [analyserNode, setAnalyserNode]   = useState<AnalyserNode | null>(null);
   const [isExpanded, setIsExpanded]       = useState(false);
 
+  // ── playbackToken: incremented to force re-load when same index holds new track
+  const [playbackToken, setPlaybackToken] = useState(0);
+
   // ── Audio element & Web Audio refs ────────────────────────────────────────
   const audioRef         = useRef<HTMLAudioElement | null>(null);
   const audioCtxRef      = useRef<AudioContext | null>(null);
+  const normGainRef      = useRef<GainNode | null>(null);
+  const normTimerRef     = useRef<ReturnType<typeof setTimeout>>();
   const crossfadeGainRef = useRef<GainNode | null>(null);
   const eqFiltersRef     = useRef<BiquadFilterNode[]>([]);
   const analyserRef      = useRef<AnalyserNode | null>(null);
@@ -176,6 +181,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     const normGain = ctx.createGain();
     normGain.gain.value = 1;
+    normGainRef.current = normGain;
 
     const xfGain = ctx.createGain();
     xfGain.gain.value = 1;
@@ -333,11 +339,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     if (ctx?.state === "suspended") ctx.resume().catch(console.error);
 
+    // Reset normGain to 1 before play; measureAndNormalize() will smooth-adjust it
+    if (normGainRef.current && ctx) {
+      normGainRef.current.gain.cancelScheduledValues(ctx.currentTime);
+      normGainRef.current.gain.setValueAtTime(1, ctx.currentTime);
+    }
+
     audio.play().catch(console.error);
+    measureAndNormalize();
     updateMediaSession(currentTrack);
     scheduleSave();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIndex]);
+  }, [currentIndex, playbackToken]);
 
   // ── Media Session ──────────────────────────────────────────────────────────
   function updateMediaSession(track: Track) {
@@ -361,6 +374,49 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
       if (audioRef.current) seek(Math.min(audioRef.current.duration ?? 0, audioRef.current.currentTime + (seekOffset ?? 10)));
     });
   }
+
+  // ── Loudness normalization: measure RMS ~800 ms after track start ─────────
+  // Samples ~12 frames of float time-domain data, computes average RMS, then
+  // applies a corrective gain on normGainRef so all tracks play at ~-12 dBFS.
+  const measureAndNormalize = useCallback(() => {
+    clearTimeout(normTimerRef.current);
+    normTimerRef.current = setTimeout(() => {
+      const analyser = analyserRef.current;
+      const normGain = normGainRef.current;
+      const ctx      = audioCtxRef.current;
+      if (!analyser || !normGain || !ctx) return;
+
+      const bufLen = analyser.fftSize;
+      const data   = new Float32Array(bufLen);
+      const samples: number[] = [];
+      let frames = 0;
+      const TARGET_FRAMES = 12;
+      const TARGET_RMS    = 0.25; // roughly −12 dBFS
+
+      const collect = () => {
+        if (!analyserRef.current) return;
+        analyserRef.current.getFloatTimeDomainData(data);
+        const sumSq = data.reduce((s, v) => s + v * v, 0);
+        const rms   = Math.sqrt(sumSq / bufLen);
+        if (rms > 0.001) samples.push(rms);
+        frames++;
+        if (frames < TARGET_FRAMES) {
+          requestAnimationFrame(collect);
+        } else if (samples.length > 0) {
+          const avgRms = samples.reduce((a, b) => a + b, 0) / samples.length;
+          // Clamp gain to [0.3, 3.0] to avoid extreme boosts or cuts
+          const correctedGain = Math.min(3, Math.max(0.3, TARGET_RMS / avgRms));
+          normGainRef.current?.gain.setTargetAtTime(
+            correctedGain,
+            audioCtxRef.current!.currentTime,
+            0.5, // smooth ~0.5 s time constant
+          );
+        }
+      };
+
+      requestAnimationFrame(collect);
+    }, 800);
+  }, []);
 
   // ── Player actions ────────────────────────────────────────────────────────
   const pause  = useCallback(() => audioRef.current?.pause(), []);
@@ -447,7 +503,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
   const cycleRepeat = useCallback(() => {
     setRepeatSt(r => {
-      const next = r === "off" ? "all" : r === "all" ? "one" : "off";
+      const next = r === "off" ? "one" : r === "one" ? "all" : "off";
       scheduleSave();
       return next;
     });
@@ -510,8 +566,23 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     setQueue(q => {
       const next = q.filter((_, i) => i !== index);
       const ci = currentIndexRef.current;
-      if (index < ci) setCurrentIndex(i => i - 1);
-      else if (index === ci && index >= next.length) setCurrentIndex(next.length - 1);
+      if (index < ci) {
+        // Track before current removed — shift index down, no reload needed
+        setCurrentIndex(i => i - 1);
+      } else if (index === ci) {
+        if (next.length === 0) {
+          // Queue now empty
+          setCurrentIndex(-1);
+          if (audioRef.current) { audioRef.current.pause(); audioRef.current.src = ""; }
+        } else if (index >= next.length) {
+          // Removed last track — move to new last
+          setCurrentIndex(next.length - 1);
+        } else {
+          // Removed mid-queue active track — same index now points to next track.
+          // currentIndex unchanged so we bump the token to force the load effect.
+          setPlaybackToken(t => t + 1);
+        }
+      }
       return next;
     });
   }, []);
