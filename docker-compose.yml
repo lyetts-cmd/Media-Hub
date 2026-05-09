@@ -15,9 +15,18 @@ services:
       retries: 5
 
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # ── Option A (default): pull the pre-built image from GitHub Container Registry ──
+    # This is the fastest way to get started — no compilation required.
+    # Replace "latest" with a specific version tag (e.g. "1.2.0") to pin a release.
+    image: ${CADENCE_IMAGE:-ghcr.io/lyetts-cmd/media-hub:latest}
+
+    # ── Option B: build the image from source ──
+    # Uncomment the block below (and comment out the `image:` line above) if you
+    # want to build from your local checkout instead of pulling a pre-built image.
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+
     restart: unless-stopped
     depends_on:
       db:

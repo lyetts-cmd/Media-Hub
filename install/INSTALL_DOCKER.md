@@ -1,6 +1,11 @@
 # Installing Cadence Music with Docker (Raspberry Pi / Linux)
 
-This is the recommended installation path. Instead of manually setting up Node.js, PostgreSQL, and FFmpeg, you run a single command and Docker handles everything — building the application from source, setting up the database, and starting all services.
+This is the recommended installation path. Instead of manually setting up Node.js, PostgreSQL, and FFmpeg, you run a single command and Docker handles everything.
+
+There are two ways to get the application image:
+
+- **Option A — Pull pre-built image (recommended, fastest):** Pull a pre-compiled multi-arch image from GitHub Container Registry. Works on both Raspberry Pi (arm64) and standard x86 Linux (amd64). No compilation step — first start takes seconds, not minutes.
+- **Option B — Build from source:** Build the image locally from the repository. Useful if you have made local code changes or want to develop against the project.
 
 **Requirements:** Docker and Docker Compose only — no other software needed.
 
@@ -26,22 +31,40 @@ docker compose version
 
 ---
 
-## Step 1 — Clone the repository
+## Step 1 — Get the docker-compose.yml
+
+### Option A — Pull pre-built image (recommended)
+
+You only need the `docker-compose.yml` file — no need to clone the full repository:
 
 ```bash
-git clone https://github.com/your-org/cadence-music.git
-cd cadence-music
+mkdir cadence-music && cd cadence-music
+curl -fsSL https://raw.githubusercontent.com/lyetts-cmd/Media-Hub/main/docker-compose.yml -o docker-compose.yml
 ```
+
+The compose file is pre-configured to pull `ghcr.io/lyetts-cmd/media-hub:latest`. To pin to a specific release, set `CADENCE_IMAGE` in your `.env` file (see Step 2).
+
+### Option B — Build from source
+
+Clone the full repository:
+
+```bash
+git clone https://github.com/lyetts-cmd/Media-Hub.git
+cd Media-Hub
+```
+
+Then edit `docker-compose.yml` to comment out the `image:` line and uncomment the `build:` block (clearly marked inside the file).
 
 ---
 
 ## Step 2 — Configure environment
 
-Copy the example file and edit it:
+Create a `.env` file in the same directory as `docker-compose.yml`:
 
 ```bash
-cp .env.example .env
-nano .env
+cp .env.example .env   # if you cloned the repo (Option B)
+# — or —
+nano .env              # create from scratch (Option A)
 ```
 
 The variables to set:
@@ -50,8 +73,9 @@ The variables to set:
 |----------|-------------|---------|
 | `PORT` | Host port the app is exposed on | `4000` |
 | `POSTGRES_PASSWORD` | Password for the database user | `changeme` |
-| `DATABASE_URL` | Full PostgreSQL connection string | See `.env.example` |
+| `DATABASE_URL` | Full PostgreSQL connection string | See below |
 | `MUSIC_DIR` | **Absolute path** to your music library on the Pi | `./music` |
+| `CADENCE_IMAGE` | Override the image tag pulled from GHCR (Option A only) | `ghcr.io/lyetts-cmd/media-hub:latest` |
 
 Example `.env` for a Pi with music in `/home/pi/Music`:
 
@@ -66,12 +90,21 @@ MUSIC_DIR=/home/pi/Music
 
 ---
 
-## Step 3 — Build and start the stack
+## Step 3 — Start the stack
 
-This builds the application from source and starts both the app and database containers:
+### Option A — Pull and start (pre-built image)
 
 ```bash
+docker compose pull   # downloads the pre-built image (fast on any hardware)
 docker compose up -d
+```
+
+The image is pre-built for both `linux/amd64` and `linux/arm64`, so Docker selects the correct variant automatically. On a Raspberry Pi this takes seconds — no compilation happens on your device.
+
+### Option B — Build from source and start
+
+```bash
+docker compose up -d --build
 ```
 
 The first run takes several minutes while Docker downloads base images, compiles the frontend and API server, and installs dependencies. Subsequent starts are nearly instant.
@@ -136,10 +169,21 @@ Click **Scan** to index your files. Supported formats: MP3, FLAC, OGG, M4A, AAC,
 
 ## Updating
 
-Updating is a single command:
+### Option A — Pull pre-built image
 
 ```bash
 cd cadence-music
+docker compose pull
+docker compose up -d
+docker compose exec app node artifacts/api-server/dist/migrate.mjs
+```
+
+### Option B — Build from source
+
+Updating is a single command:
+
+```bash
+cd Media-Hub
 bash update.sh
 ```
 
@@ -197,7 +241,16 @@ docker compose up -d
 docker compose exec app node artifacts/api-server/dist/migrate.mjs
 ```
 
-### Rebuild the image from scratch
+### Force-pull the latest image (Option A)
+
+If you suspect a cached or corrupted image:
+
+```bash
+docker compose pull
+docker compose up -d --force-recreate
+```
+
+### Rebuild the image from scratch (Option B)
 
 If you run into a corrupted image or dependency issues:
 
