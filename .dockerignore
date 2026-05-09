@@ -1,0 +1,12 @@
+node_modules
+artifacts/*/node_modules
+lib/*/node_modules
+scripts/node_modules
+.git
+.local
+.replit
+replit.nix
+attached_assets
+install
+*.md
+.env

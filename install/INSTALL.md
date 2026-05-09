@@ -1,5 +1,7 @@
 # Installing Cadence Music on a Raspberry Pi
 
+> **Easier path available:** If you have Docker installed (or are happy to install it), the [Docker installation guide](INSTALL_DOCKER.md) gets Cadence Music running with a single command — no manual Node.js, PostgreSQL, or FFmpeg setup required. The steps below describe the traditional systemd/bare-metal path for users who prefer not to use Docker.
+
 Cadence Music is a single Node.js process that serves both the API and the web UI. The repository includes pre-built binaries, so **no compilation is needed on the Pi** — just clone, configure, and run.
 
 ## Requirements

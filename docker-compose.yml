@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: cadence
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: cadence_music
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cadence -d cadence_music"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: ${PORT:-4000}
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgres://cadence:changeme@db:5432/cadence_music}
+      MUSIC_DIR: ${MUSIC_DIR:-/music}
+    ports:
+      - "${PORT:-4000}:${PORT:-4000}"
+    volumes:
+      # Bind-mount your music library folder here.
+      # Change ./music to the absolute path of your music directory, e.g.:
+      #   - /home/pi/Music:/music
+      - ${MUSIC_DIR:-./music}:/music
+
+volumes:
+  db_data:
