@@ -75848,7 +75848,7 @@ router5.get("/stream/:id", async (req, res) => {
   const needsTranscode = req.query.transcode === "1" || req.query.maxBitrate !== void 0 || !BROWSER_SAFE_MIME.has(mimeType);
   if (needsTranscode) {
     const maxBitrate = req.query.maxBitrate ? Number(req.query.maxBitrate) : 192;
-    const bitrate = isNaN(maxBitrate) || maxBitrate <= 0 ? 192 : maxBitrate;
+    const bitrate = isNaN(maxBitrate) || maxBitrate <= 0 ? 192 : Math.min(maxBitrate, 320);
     res.setHeader("Content-Type", "audio/ogg");
     res.setHeader("Transfer-Encoding", "chunked");
     try {
@@ -75869,7 +75869,8 @@ router5.get("/stream/:id", async (req, res) => {
         });
         void stream;
       }));
-    } catch {
+    } catch (err) {
+      logger.warn({ err, filePath }, "Transcode request failed");
     }
     return;
   }
@@ -76346,6 +76347,7 @@ router9.post("/liked/:trackId", async (req, res) => {
     res.status(404).json({ error: "Track not found" });
     return;
   }
+  clearApiCache();
   const track = await fetchFullTrack(trackId);
   res.json(formatTrack(track));
 });
@@ -76360,6 +76362,7 @@ router9.delete("/liked/:trackId", async (req, res) => {
     res.status(404).json({ error: "Track not found" });
     return;
   }
+  clearApiCache();
   const track = await fetchFullTrack(trackId);
   res.json(formatTrack(track));
 });
@@ -76418,6 +76421,7 @@ router9.post("/playlists", async (req, res) => {
       }))
     );
   }
+  clearApiCache();
   const detail = await getPlaylistDetail(pl.id);
   res.status(201).json(detail);
 });
@@ -76450,6 +76454,7 @@ router9.patch("/playlists/:id", async (req, res) => {
     res.status(404).json({ error: "Playlist not found" });
     return;
   }
+  clearApiCache();
   const detail = await getPlaylistDetail(id);
   res.json(detail);
 });
@@ -76464,6 +76469,7 @@ router9.delete("/playlists/:id", async (req, res) => {
     res.status(404).json({ error: "Playlist not found" });
     return;
   }
+  clearApiCache();
   res.status(204).end();
 });
 router9.post("/playlists/:id/tracks", async (req, res) => {
@@ -76497,6 +76503,7 @@ router9.post("/playlists/:id/tracks", async (req, res) => {
     position: nextPos
   });
   await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
+  clearApiCache();
   const detail = await getPlaylistDetail(id);
   res.json(detail);
 });
@@ -76519,6 +76526,7 @@ router9.delete("/playlists/:id/tracks/:trackId", async (req, res) => {
     await db.update(playlistTracksTable).set({ position: i }).where(eq(playlistTracksTable.id, remaining[i].id));
   }
   await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
+  clearApiCache();
   res.status(204).end();
 });
 router9.put("/playlists/:id/tracks/reorder", async (req, res) => {
@@ -76543,6 +76551,7 @@ router9.put("/playlists/:id/tracks/reorder", async (req, res) => {
     );
   }
   await db.update(playlistsTable).set({ updatedAt: /* @__PURE__ */ new Date() }).where(eq(playlistsTable.id, id));
+  clearApiCache();
   const detail = await getPlaylistDetail(id);
   res.json(detail);
 });
