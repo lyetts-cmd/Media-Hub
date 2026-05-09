@@ -5,11 +5,13 @@
  * Music Media Server API
  * OpenAPI spec version: 0.1.0
  */
+import type { LibraryType } from "./libraryType";
 
 export interface Library {
   id: number;
   name: string;
   path: string;
+  type: LibraryType;
   createdAt: Date;
   lastScannedAt?: Date | null;
 }

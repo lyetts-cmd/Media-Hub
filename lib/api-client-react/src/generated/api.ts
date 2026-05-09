@@ -24,6 +24,7 @@ import type {
   ArtistDetail,
   ArtistListResponse,
   BrowseFolderParams,
+  BrowseVideoFolderParams,
   CreatePlaylistRequest,
   ErrorResponse,
   FolderContents,
@@ -38,6 +39,8 @@ import type {
   ListLibraries200,
   ListPlaylists200,
   ListTracksParams,
+  ListVideoGenres200,
+  ListVideosParams,
   PlaylistDetail,
   RenamePlaylistRequest,
   ReorderPlaylistTracksBody,
@@ -46,6 +49,9 @@ import type {
   SearchResult,
   Track,
   TrackListResponse,
+  VideoDetail,
+  VideoFolderContents,
+  VideoListResponse,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -2719,3 +2725,532 @@ export const useRemoveTrackFromPlaylist = <
 > => {
   return useMutation(getRemoveTrackFromPlaylistMutationOptions(options));
 };
+
+/**
+ * @summary List all videos
+ */
+export const getListVideosUrl = (params?: ListVideosParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/video/videos?${stringifiedParams}`
+    : `/api/video/videos`;
+};
+
+export const listVideos = async (
+  params?: ListVideosParams,
+  options?: RequestInit,
+): Promise<VideoListResponse> => {
+  return customFetch<VideoListResponse>(getListVideosUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListVideosQueryKey = (params?: ListVideosParams) => {
+  return [`/api/video/videos`, ...(params ? [params] : [])] as const;
+};
+
+export const getListVideosQueryOptions = <
+  TData = Awaited<ReturnType<typeof listVideos>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListVideosParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVideos>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListVideosQueryKey(params);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listVideos>>> = ({
+    signal,
+  }) => listVideos(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listVideos>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListVideosQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listVideos>>
+>;
+export type ListVideosQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List all videos
+ */
+
+export function useListVideos<
+  TData = Awaited<ReturnType<typeof listVideos>>,
+  TError = ErrorType<unknown>,
+>(
+  params?: ListVideosParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVideos>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVideosQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get video details including subtitle tracks and transcoding status
+ */
+export const getGetVideoUrl = (id: number) => {
+  return `/api/video/videos/${id}`;
+};
+
+export const getVideo = async (
+  id: number,
+  options?: RequestInit,
+): Promise<VideoDetail> => {
+  return customFetch<VideoDetail>(getGetVideoUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetVideoQueryKey = (id: number) => {
+  return [`/api/video/videos/${id}`] as const;
+};
+
+export const getGetVideoQueryOptions = <
+  TData = Awaited<ReturnType<typeof getVideo>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVideo>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetVideoQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getVideo>>> = ({
+    signal,
+  }) => getVideo(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<Awaited<ReturnType<typeof getVideo>>, TError, TData> & {
+    queryKey: QueryKey;
+  };
+};
+
+export type GetVideoQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getVideo>>
+>;
+export type GetVideoQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get video details including subtitle tracks and transcoding status
+ */
+
+export function useGetVideo<
+  TData = Awaited<ReturnType<typeof getVideo>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getVideo>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetVideoQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Stream video file with range request support
+ */
+export const getStreamVideoUrl = (id: number) => {
+  return `/api/video/stream/${id}`;
+};
+
+export const streamVideo = async (
+  id: number,
+  options?: RequestInit,
+): Promise<Blob> => {
+  return customFetch<Blob>(getStreamVideoUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getStreamVideoQueryKey = (id: number) => {
+  return [`/api/video/stream/${id}`] as const;
+};
+
+export const getStreamVideoQueryOptions = <
+  TData = Awaited<ReturnType<typeof streamVideo>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof streamVideo>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getStreamVideoQueryKey(id);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof streamVideo>>> = ({
+    signal,
+  }) => streamVideo(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!id,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof streamVideo>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type StreamVideoQueryResult = NonNullable<
+  Awaited<ReturnType<typeof streamVideo>>
+>;
+export type StreamVideoQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Stream video file with range request support
+ */
+
+export function useStreamVideo<
+  TData = Awaited<ReturnType<typeof streamVideo>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  id: number,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof streamVideo>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getStreamVideoQueryOptions(id, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Get subtitle track as WebVTT (converts .srt/.ass and extracts embedded streams)
+ */
+export const getGetSubtitlesUrl = (videoId: number, trackId: string) => {
+  return `/api/video/subtitles/${videoId}/${trackId}`;
+};
+
+export const getSubtitles = async (
+  videoId: number,
+  trackId: string,
+  options?: RequestInit,
+): Promise<string> => {
+  return customFetch<string>(getGetSubtitlesUrl(videoId, trackId), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetSubtitlesQueryKey = (videoId: number, trackId: string) => {
+  return [`/api/video/subtitles/${videoId}/${trackId}`] as const;
+};
+
+export const getGetSubtitlesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getSubtitles>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  videoId: number,
+  trackId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSubtitles>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getGetSubtitlesQueryKey(videoId, trackId);
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getSubtitles>>> = ({
+    signal,
+  }) => getSubtitles(videoId, trackId, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: !!(videoId && trackId),
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getSubtitles>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetSubtitlesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getSubtitles>>
+>;
+export type GetSubtitlesQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Get subtitle track as WebVTT (converts .srt/.ass and extracts embedded streams)
+ */
+
+export function useGetSubtitles<
+  TData = Awaited<ReturnType<typeof getSubtitles>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  videoId: number,
+  trackId: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getSubtitles>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetSubtitlesQueryOptions(videoId, trackId, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary List distinct video genres with counts
+ */
+export const getListVideoGenresUrl = () => {
+  return `/api/video/genres`;
+};
+
+export const listVideoGenres = async (
+  options?: RequestInit,
+): Promise<ListVideoGenres200> => {
+  return customFetch<ListVideoGenres200>(getListVideoGenresUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListVideoGenresQueryKey = () => {
+  return [`/api/video/genres`] as const;
+};
+
+export const getListVideoGenresQueryOptions = <
+  TData = Awaited<ReturnType<typeof listVideoGenres>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listVideoGenres>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListVideoGenresQueryKey();
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof listVideoGenres>>> = ({
+    signal,
+  }) => listVideoGenres({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listVideoGenres>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListVideoGenresQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listVideoGenres>>
+>;
+export type ListVideoGenresQueryError = ErrorType<unknown>;
+
+/**
+ * @summary List distinct video genres with counts
+ */
+
+export function useListVideoGenres<
+  TData = Awaited<ReturnType<typeof listVideoGenres>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listVideoGenres>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVideoGenresQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Browse video libraries by folder path
+ */
+export const getBrowseVideoFolderUrl = (params?: BrowseVideoFolderParams) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/video/browse?${stringifiedParams}`
+    : `/api/video/browse`;
+};
+
+export const browseVideoFolder = async (
+  params?: BrowseVideoFolderParams,
+  options?: RequestInit,
+): Promise<VideoFolderContents> => {
+  return customFetch<VideoFolderContents>(getBrowseVideoFolderUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getBrowseVideoFolderQueryKey = (
+  params?: BrowseVideoFolderParams,
+) => {
+  return [`/api/video/browse`, ...(params ? [params] : [])] as const;
+};
+
+export const getBrowseVideoFolderQueryOptions = <
+  TData = Awaited<ReturnType<typeof browseVideoFolder>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: BrowseVideoFolderParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof browseVideoFolder>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getBrowseVideoFolderQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof browseVideoFolder>>
+  > = ({ signal }) => browseVideoFolder(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof browseVideoFolder>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type BrowseVideoFolderQueryResult = NonNullable<
+  Awaited<ReturnType<typeof browseVideoFolder>>
+>;
+export type BrowseVideoFolderQueryError = ErrorType<ErrorResponse>;
+
+/**
+ * @summary Browse video libraries by folder path
+ */
+
+export function useBrowseVideoFolder<
+  TData = Awaited<ReturnType<typeof browseVideoFolder>>,
+  TError = ErrorType<ErrorResponse>,
+>(
+  params?: BrowseVideoFolderParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof browseVideoFolder>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getBrowseVideoFolderQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

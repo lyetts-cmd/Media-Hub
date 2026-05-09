@@ -5,8 +5,10 @@
  * Music Media Server API
  * OpenAPI spec version: 0.1.0
  */
+import type { AddLibraryRequestType } from "./addLibraryRequestType";
 
 export interface AddLibraryRequest {
   name: string;
   path: string;
+  type?: AddLibraryRequestType;
 }

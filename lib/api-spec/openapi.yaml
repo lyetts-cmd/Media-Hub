@@ -24,6 +24,8 @@ tags:
     description: Folder-based browsing
   - name: playlists
     description: Playlist management and liked songs
+  - name: video
+    description: Video library browsing and streaming
 paths:
   /healthz:
     get:
@@ -788,6 +790,187 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /video/videos:
+    get:
+      operationId: listVideos
+      tags: [video]
+      summary: List all videos
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: libraryId
+          in: query
+          schema:
+            type: integer
+        - name: genre
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated list of videos
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoListResponse"
+
+  /video/videos/{id}:
+    get:
+      operationId: getVideo
+      tags: [video]
+      summary: Get video details including subtitle tracks and transcoding status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Video detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /video/stream/{id}:
+    get:
+      operationId: streamVideo
+      tags: [video]
+      summary: Stream video file with range request support
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Video stream
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+        "206":
+          description: Partial video content (range request)
+          content:
+            video/mp4:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Video is being transcoded, try again later
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /video/subtitles/{videoId}/{trackId}:
+    get:
+      operationId: getSubtitles
+      tags: [video]
+      summary: Get subtitle track as WebVTT (converts .srt/.ass and extracts embedded streams)
+      parameters:
+        - name: videoId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: trackId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: WebVTT subtitle content
+          content:
+            text/vtt:
+              schema:
+                type: string
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /video/genres:
+    get:
+      operationId: listVideoGenres
+      tags: [video]
+      summary: List distinct video genres with counts
+      responses:
+        "200":
+          description: List of genres
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  genres:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/VideoGenre"
+                required:
+                  - genres
+
+  /video/browse:
+    get:
+      operationId: browseVideoFolder
+      tags: [video]
+      summary: Browse video libraries by folder path
+      parameters:
+        - name: path
+          in: query
+          schema:
+            type: string
+            default: "/"
+      responses:
+        "200":
+          description: Folder contents
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoFolderContents"
+        "403":
+          description: Path outside configured video libraries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Path not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -815,6 +998,9 @@ components:
           type: string
         path:
           type: string
+        type:
+          type: string
+          enum: [music, video]
         createdAt:
           type: string
           format: date-time
@@ -826,6 +1012,7 @@ components:
         - id
         - name
         - path
+        - type
         - createdAt
 
     AddLibraryRequest:
@@ -835,6 +1022,9 @@ components:
           type: string
         path:
           type: string
+        type:
+          type: string
+          enum: [music, video]
       required:
         - name
         - path
@@ -1242,3 +1432,197 @@ components:
           type: integer
       required:
         - trackId
+
+    TranscodingStatus:
+      type: string
+      enum: [none, pending, processing, done]
+
+    SubtitleTrack:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        language:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum: [external, embedded]
+        path:
+          type: string
+          nullable: true
+        streamIndex:
+          type: integer
+          nullable: true
+      required:
+        - id
+        - label
+        - type
+
+    Video:
+      type: object
+      properties:
+        id:
+          type: integer
+        libraryId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        filePath:
+          type: string
+        durationSeconds:
+          type: number
+          nullable: true
+        width:
+          type: integer
+          nullable: true
+        height:
+          type: integer
+          nullable: true
+        mimeType:
+          type: string
+        genre:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        transcodingStatus:
+          $ref: "#/components/schemas/TranscodingStatus"
+        subtitleTracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubtitleTrack"
+      required:
+        - id
+        - title
+        - filePath
+        - mimeType
+        - transcodingStatus
+        - subtitleTracks
+
+    VideoDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        libraryId:
+          type: integer
+          nullable: true
+        title:
+          type: string
+        filePath:
+          type: string
+        durationSeconds:
+          type: number
+          nullable: true
+        width:
+          type: integer
+          nullable: true
+        height:
+          type: integer
+          nullable: true
+        videoCodec:
+          type: string
+          nullable: true
+        audioCodec:
+          type: string
+          nullable: true
+        mimeType:
+          type: string
+        genre:
+          type: string
+          nullable: true
+        year:
+          type: integer
+          nullable: true
+        transcodingStatus:
+          $ref: "#/components/schemas/TranscodingStatus"
+        transcodedPath:
+          type: string
+          nullable: true
+        subtitleTracks:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubtitleTrack"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - filePath
+        - mimeType
+        - transcodingStatus
+        - subtitleTracks
+        - createdAt
+
+    VideoListResponse:
+      type: object
+      properties:
+        videos:
+          type: array
+          items:
+            $ref: "#/components/schemas/Video"
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+      required:
+        - videos
+        - total
+        - page
+        - pageSize
+
+    VideoGenre:
+      type: object
+      properties:
+        name:
+          type: string
+        videoCount:
+          type: integer
+      required:
+        - name
+        - videoCount
+
+    VideoFolderEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        type:
+          type: string
+          enum: [directory, file]
+        videoId:
+          type: integer
+          nullable: true
+        mimeType:
+          type: string
+          nullable: true
+      required:
+        - name
+        - path
+        - type
+
+    VideoFolderContents:
+      type: object
+      properties:
+        path:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/VideoFolderEntry"
+        noLibraries:
+          type: boolean
+          description: True when no video libraries are configured and the root was requested
+      required:
+        - path
+        - entries

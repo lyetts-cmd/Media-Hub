@@ -15202,11 +15202,11 @@ var require_mime_types = __commonJS({
       }
       return exts[0];
     }
-    function lookup(path4) {
-      if (!path4 || typeof path4 !== "string") {
+    function lookup(path8) {
+      if (!path8 || typeof path8 !== "string") {
         return false;
       }
-      var extension2 = extname("x." + path4).toLowerCase().slice(1);
+      var extension2 = extname("x." + path8).toLowerCase().slice(1);
       if (!extension2) {
         return false;
       }
@@ -18678,13 +18678,13 @@ var require_view = __commonJS({
   "../../node_modules/.pnpm/express@5.2.1/node_modules/express/lib/view.js"(exports, module) {
     "use strict";
     var debug31 = require_src()("express:view");
-    var path4 = __require("node:path");
+    var path8 = __require("node:path");
     var fs = __require("node:fs");
-    var dirname = path4.dirname;
-    var basename = path4.basename;
-    var extname = path4.extname;
-    var join = path4.join;
-    var resolve = path4.resolve;
+    var dirname = path8.dirname;
+    var basename = path8.basename;
+    var extname = path8.extname;
+    var join = path8.join;
+    var resolve = path8.resolve;
     module.exports = View2;
     function View2(name, options) {
       var opts = options || {};
@@ -18713,17 +18713,17 @@ var require_view = __commonJS({
       this.path = this.lookup(fileName);
     }
     View2.prototype.lookup = function lookup(name) {
-      var path5;
+      var path9;
       var roots = [].concat(this.root);
       debug31('lookup "%s"', name);
-      for (var i = 0; i < roots.length && !path5; i++) {
+      for (var i = 0; i < roots.length && !path9; i++) {
         var root = roots[i];
         var loc = resolve(root, name);
         var dir = dirname(loc);
         var file2 = basename(loc);
-        path5 = this.resolve(dir, file2);
+        path9 = this.resolve(dir, file2);
       }
-      return path5;
+      return path9;
     };
     View2.prototype.render = function render(options, callback) {
       var sync = true;
@@ -18745,21 +18745,21 @@ var require_view = __commonJS({
     };
     View2.prototype.resolve = function resolve2(dir, file2) {
       var ext = this.ext;
-      var path5 = join(dir, file2);
-      var stat4 = tryStat(path5);
-      if (stat4 && stat4.isFile()) {
-        return path5;
+      var path9 = join(dir, file2);
+      var stat7 = tryStat(path9);
+      if (stat7 && stat7.isFile()) {
+        return path9;
       }
-      path5 = join(dir, basename(file2, ext), "index" + ext);
-      stat4 = tryStat(path5);
-      if (stat4 && stat4.isFile()) {
-        return path5;
+      path9 = join(dir, basename(file2, ext), "index" + ext);
+      stat7 = tryStat(path9);
+      if (stat7 && stat7.isFile()) {
+        return path9;
       }
     };
-    function tryStat(path5) {
-      debug31('stat "%s"', path5);
+    function tryStat(path9) {
+      debug31('stat "%s"', path9);
       try {
-        return fs.statSync(path5);
+        return fs.statSync(path9);
       } catch (e) {
         return void 0;
       }
@@ -18801,9 +18801,9 @@ var require_etag = __commonJS({
       }
       return obj && typeof obj === "object" && "ctime" in obj && toString.call(obj.ctime) === "[object Date]" && "mtime" in obj && toString.call(obj.mtime) === "[object Date]" && "ino" in obj && typeof obj.ino === "number" && "size" in obj && typeof obj.size === "number";
     }
-    function stattag(stat4) {
-      var mtime = stat4.mtime.getTime().toString(16);
-      var size = stat4.size.toString(16);
+    function stattag(stat7) {
+      var mtime = stat7.mtime.getTime().toString(16);
+      var size = stat7.size.toString(16);
       return '"' + size + "-" + mtime + '"';
     }
   }
@@ -19957,15 +19957,15 @@ var require_dist = __commonJS({
           if (token.type === endType)
             break;
           if (token.type === "char" || token.type === "escape") {
-            let path4 = token.value;
+            let path8 = token.value;
             let cur = tokens[pos];
             while (cur.type === "char" || cur.type === "escape") {
-              path4 += cur.value;
+              path8 += cur.value;
               cur = tokens[++pos];
             }
             output.push({
               type: "text",
-              value: encodePath(path4)
+              value: encodePath(path8)
             });
             continue;
           }
@@ -19989,16 +19989,16 @@ var require_dist = __commonJS({
       }
       return new TokenData(consumeUntil("end"), str);
     }
-    function compile(path4, options = {}) {
+    function compile(path8, options = {}) {
       const { encode = encodeURIComponent, delimiter = DEFAULT_DELIMITER } = options;
-      const data = typeof path4 === "object" ? path4 : parse3(path4, options);
+      const data = typeof path8 === "object" ? path8 : parse3(path8, options);
       const fn = tokensToFunction(data.tokens, delimiter, encode);
-      return function path5(params = {}) {
-        const [path6, ...missing] = fn(params);
+      return function path9(params = {}) {
+        const [path10, ...missing] = fn(params);
         if (missing.length) {
           throw new TypeError(`Missing parameters: ${missing.join(", ")}`);
         }
-        return path6;
+        return path10;
       };
     }
     function tokensToFunction(tokens, delimiter, encode) {
@@ -20054,9 +20054,9 @@ var require_dist = __commonJS({
         return [encodeValue(value)];
       };
     }
-    function match(path4, options = {}) {
+    function match(path8, options = {}) {
       const { decode = decodeURIComponent, delimiter = DEFAULT_DELIMITER } = options;
-      const { regexp, keys } = pathToRegexp(path4, options);
+      const { regexp, keys } = pathToRegexp(path8, options);
       const decoders = keys.map((key) => {
         if (decode === false)
           return NOOP_VALUE;
@@ -20068,7 +20068,7 @@ var require_dist = __commonJS({
         const m = regexp.exec(input);
         if (!m)
           return false;
-        const path5 = m[0];
+        const path9 = m[0];
         const params = /* @__PURE__ */ Object.create(null);
         for (let i = 1; i < m.length; i++) {
           if (m[i] === void 0)
@@ -20077,15 +20077,15 @@ var require_dist = __commonJS({
           const decoder = decoders[i - 1];
           params[key.name] = decoder(m[i]);
         }
-        return { path: path5, params };
+        return { path: path9, params };
       };
     }
-    function pathToRegexp(path4, options = {}) {
+    function pathToRegexp(path8, options = {}) {
       const { delimiter = DEFAULT_DELIMITER, end = true, sensitive = false, trailing = true } = options;
       const keys = [];
       const flags = sensitive ? "" : "i";
       const sources = [];
-      for (const input of pathsToArray(path4, [])) {
+      for (const input of pathsToArray(path8, [])) {
         const data = typeof input === "object" ? input : parse3(input, options);
         for (const tokens of flatten(data.tokens, 0, [])) {
           sources.push(toRegExpSource(tokens, delimiter, keys, data.originalPath));
@@ -20215,18 +20215,18 @@ var require_layer = __commonJS({
     var TRAILING_SLASH_REGEXP = /\/+$/;
     var MATCHING_GROUP_REGEXP = /\((?:\?<(.*?)>)?(?!\?)/g;
     module.exports = Layer;
-    function Layer(path4, options, fn) {
+    function Layer(path8, options, fn) {
       if (!(this instanceof Layer)) {
-        return new Layer(path4, options, fn);
+        return new Layer(path8, options, fn);
       }
-      debug31("new %o", path4);
+      debug31("new %o", path8);
       const opts = options || {};
       this.handle = fn;
       this.keys = [];
       this.name = fn.name || "<anonymous>";
       this.params = void 0;
       this.path = void 0;
-      this.slash = path4 === "/" && opts.end === false;
+      this.slash = path8 === "/" && opts.end === false;
       function matcher(_path) {
         if (_path instanceof RegExp) {
           const keys = [];
@@ -20265,7 +20265,7 @@ var require_layer = __commonJS({
           decode: decodeParam
         });
       }
-      this.matchers = Array.isArray(path4) ? path4.map(matcher) : [matcher(path4)];
+      this.matchers = Array.isArray(path8) ? path8.map(matcher) : [matcher(path8)];
     }
     Layer.prototype.handleError = function handleError(error40, req, res, next) {
       const fn = this.handle;
@@ -20305,9 +20305,9 @@ var require_layer = __commonJS({
         next(err);
       }
     };
-    Layer.prototype.match = function match(path4) {
+    Layer.prototype.match = function match(path8) {
       let match2;
-      if (path4 != null) {
+      if (path8 != null) {
         if (this.slash) {
           this.params = {};
           this.path = "";
@@ -20315,7 +20315,7 @@ var require_layer = __commonJS({
         }
         let i = 0;
         while (!match2 && i < this.matchers.length) {
-          match2 = this.matchers[i](path4);
+          match2 = this.matchers[i](path8);
           i++;
         }
       }
@@ -20343,13 +20343,13 @@ var require_layer = __commonJS({
         throw err;
       }
     }
-    function loosen(path4) {
-      if (path4 instanceof RegExp || path4 === "/") {
-        return path4;
+    function loosen(path8) {
+      if (path8 instanceof RegExp || path8 === "/") {
+        return path8;
       }
-      return Array.isArray(path4) ? path4.map(function(p) {
+      return Array.isArray(path8) ? path8.map(function(p) {
         return loosen(p);
-      }) : String(path4).replace(TRAILING_SLASH_REGEXP, "");
+      }) : String(path8).replace(TRAILING_SLASH_REGEXP, "");
     }
   }
 });
@@ -20365,9 +20365,9 @@ var require_route = __commonJS({
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
     module.exports = Route;
-    function Route(path4) {
-      debug31("new %o", path4);
-      this.path = path4;
+    function Route(path8) {
+      debug31("new %o", path8);
+      this.path = path8;
       this.stack = [];
       this.methods = /* @__PURE__ */ Object.create(null);
     }
@@ -20488,27 +20488,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router12;
+    module.exports = Router18;
     module.exports.Route = Route;
-    function Router12(options) {
-      if (!(this instanceof Router12)) {
-        return new Router12(options);
+    function Router18(options) {
+      if (!(this instanceof Router18)) {
+        return new Router18(options);
       }
       const opts = options || {};
-      function router12(req, res, next) {
-        router12.handle(req, res, next);
+      function router18(req, res, next) {
+        router18.handle(req, res, next);
       }
-      Object.setPrototypeOf(router12, this);
-      router12.caseSensitive = opts.caseSensitive;
-      router12.mergeParams = opts.mergeParams;
-      router12.params = {};
-      router12.strict = opts.strict;
-      router12.stack = [];
-      return router12;
+      Object.setPrototypeOf(router18, this);
+      router18.caseSensitive = opts.caseSensitive;
+      router18.mergeParams = opts.mergeParams;
+      router18.params = {};
+      router18.strict = opts.strict;
+      router18.stack = [];
+      return router18;
     }
-    Router12.prototype = function() {
+    Router18.prototype = function() {
     };
-    Router12.prototype.param = function param(name, fn) {
+    Router18.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20528,7 +20528,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router12.prototype.handle = function handle(req, res, callback) {
+    Router18.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20575,8 +20575,8 @@ var require_router = __commonJS({
         if (++sync > 100) {
           return setImmediate(next, err);
         }
-        const path4 = getPathname(req);
-        if (path4 == null) {
+        const path8 = getPathname(req);
+        if (path8 == null) {
           return done(layerError);
         }
         let layer;
@@ -20584,7 +20584,7 @@ var require_router = __commonJS({
         let route;
         while (match !== true && idx < stack.length) {
           layer = stack[idx++];
-          match = matchLayer(layer, path4);
+          match = matchLayer(layer, path8);
           route = layer.route;
           if (typeof match !== "boolean") {
             layerError = layerError || match;
@@ -20622,18 +20622,18 @@ var require_router = __commonJS({
           } else if (route) {
             layer.handleRequest(req, res, next);
           } else {
-            trimPrefix(layer, layerError, layerPath, path4);
+            trimPrefix(layer, layerError, layerPath, path8);
           }
           sync = 0;
         });
       }
-      function trimPrefix(layer, layerError, layerPath, path4) {
+      function trimPrefix(layer, layerError, layerPath, path8) {
         if (layerPath.length !== 0) {
-          if (layerPath !== path4.substring(0, layerPath.length)) {
+          if (layerPath !== path8.substring(0, layerPath.length)) {
             next(layerError);
             return;
           }
-          const c = path4[layerPath.length];
+          const c = path8[layerPath.length];
           if (c && c !== "/") {
             next(layerError);
             return;
@@ -20655,9 +20655,9 @@ var require_router = __commonJS({
         }
       }
     };
-    Router12.prototype.use = function use(handler) {
+    Router18.prototype.use = function use(handler) {
       let offset = 0;
-      let path4 = "/";
+      let path8 = "/";
       if (typeof handler !== "function") {
         let arg = handler;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -20665,7 +20665,7 @@ var require_router = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path4 = handler;
+          path8 = handler;
         }
       }
       const callbacks = flatten.call(slice.call(arguments, offset), Infinity);
@@ -20677,8 +20677,8 @@ var require_router = __commonJS({
         if (typeof fn !== "function") {
           throw new TypeError("argument handler must be a function");
         }
-        debug31("use %o %s", path4, fn.name || "<anonymous>");
-        const layer = new Layer(path4, {
+        debug31("use %o %s", path8, fn.name || "<anonymous>");
+        const layer = new Layer(path8, {
           sensitive: this.caseSensitive,
           strict: false,
           end: false
@@ -20688,9 +20688,9 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router12.prototype.route = function route(path4) {
-      const route2 = new Route(path4);
-      const layer = new Layer(path4, {
+    Router18.prototype.route = function route(path8) {
+      const route2 = new Route(path8);
+      const layer = new Layer(path8, {
         sensitive: this.caseSensitive,
         strict: this.strict,
         end: true
@@ -20703,8 +20703,8 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router12.prototype[method] = function(path4) {
-        const route = this.route(path4);
+      Router18.prototype[method] = function(path8) {
+        const route = this.route(path8);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
@@ -20733,9 +20733,9 @@ var require_router = __commonJS({
       const fqdnIndex = url2.substring(0, pathLength).indexOf("://");
       return fqdnIndex !== -1 ? url2.substring(0, url2.indexOf("/", 3 + fqdnIndex)) : void 0;
     }
-    function matchLayer(layer, path4) {
+    function matchLayer(layer, path8) {
       try {
-        return layer.match(path4);
+        return layer.match(path8);
       } catch (err) {
         return err;
       }
@@ -20886,13 +20886,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router12 = require_router();
+    var Router18 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router12 = null;
+      var router18 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -20901,13 +20901,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router12 === null) {
-            router12 = new Router12({
+          if (router18 === null) {
+            router18 = new Router18({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router12;
+          return router18;
         }
       });
     };
@@ -20963,7 +20963,7 @@ var require_application = __commonJS({
     };
     app2.use = function use(fn) {
       var offset = 0;
-      var path4 = "/";
+      var path8 = "/";
       if (typeof fn !== "function") {
         var arg = fn;
         while (Array.isArray(arg) && arg.length !== 0) {
@@ -20971,22 +20971,22 @@ var require_application = __commonJS({
         }
         if (typeof arg !== "function") {
           offset = 1;
-          path4 = fn;
+          path8 = fn;
         }
       }
       var fns = flatten.call(slice.call(arguments, offset), Infinity);
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router12 = this.router;
+      var router18 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router12.use(path4, fn2);
+          return router18.use(path8, fn2);
         }
-        debug31(".use app under %s", path4);
-        fn2.mountpath = path4;
+        debug31(".use app under %s", path8);
+        fn2.mountpath = path8;
         fn2.parent = this;
-        router12.use(path4, function mounted_app(req, res, next) {
+        router18.use(path8, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -20998,8 +20998,8 @@ var require_application = __commonJS({
       }, this);
       return this;
     };
-    app2.route = function route(path4) {
-      return this.router.route(path4);
+    app2.route = function route(path8) {
+      return this.router.route(path8);
     };
     app2.engine = function engine(ext, fn) {
       if (typeof fn !== "function") {
@@ -21042,7 +21042,7 @@ var require_application = __commonJS({
       }
       return this;
     };
-    app2.path = function path4() {
+    app2.path = function path8() {
       return this.parent ? this.parent.path() + this.mountpath : "";
     };
     app2.enabled = function enabled(setting) {
@@ -21058,17 +21058,17 @@ var require_application = __commonJS({
       return this.set(setting, false);
     };
     methods.forEach(function(method) {
-      app2[method] = function(path4) {
+      app2[method] = function(path8) {
         if (method === "get" && arguments.length === 1) {
-          return this.set(path4);
+          return this.set(path8);
         }
-        var route = this.route(path4);
+        var route = this.route(path8);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
       };
     });
-    app2.all = function all(path4) {
-      var route = this.route(path4);
+    app2.all = function all(path8) {
+      var route = this.route(path8);
       var args = slice.call(arguments, 1);
       for (var i = 0; i < methods.length; i++) {
         route[methods[i]].apply(route, args);
@@ -21978,7 +21978,7 @@ var require_request = __commonJS({
       var subdomains2 = !isIP(hostname2) ? hostname2.split(".").reverse() : [hostname2];
       return subdomains2.slice(offset);
     });
-    defineGetter(req, "path", function path4() {
+    defineGetter(req, "path", function path8() {
       return parse3(this).pathname;
     });
     defineGetter(req, "host", function host() {
@@ -22390,27 +22390,27 @@ var require_send = __commonJS({
     var ms = require_ms();
     var onFinished = require_on_finished();
     var parseRange = require_range_parser();
-    var path4 = __require("path");
+    var path8 = __require("path");
     var statuses = require_statuses();
     var Stream = __require("stream");
     var util2 = __require("util");
-    var extname = path4.extname;
-    var join = path4.join;
-    var normalize = path4.normalize;
-    var resolve = path4.resolve;
-    var sep = path4.sep;
+    var extname = path8.extname;
+    var join = path8.join;
+    var normalize = path8.normalize;
+    var resolve = path8.resolve;
+    var sep = path8.sep;
     var BYTES_RANGE_REGEXP = /^ *bytes=/;
     var MAX_MAXAGE = 60 * 60 * 24 * 365 * 1e3;
     var UP_PATH_REGEXP = /(?:^|[\\/])\.\.(?:[\\/]|$)/;
     module.exports = send;
-    function send(req, path5, options) {
-      return new SendStream(req, path5, options);
+    function send(req, path9, options) {
+      return new SendStream(req, path9, options);
     }
-    function SendStream(req, path5, options) {
+    function SendStream(req, path9, options) {
       Stream.call(this);
       var opts = options || {};
       this.options = opts;
-      this.path = path5;
+      this.path = path9;
       this.req = req;
       this._acceptRanges = opts.acceptRanges !== void 0 ? Boolean(opts.acceptRanges) : true;
       this._cacheControl = opts.cacheControl !== void 0 ? Boolean(opts.cacheControl) : true;
@@ -22524,10 +22524,10 @@ var require_send = __commonJS({
       var lastModified = this.res.getHeader("Last-Modified");
       return parseHttpDate(lastModified) <= parseHttpDate(ifRange);
     };
-    SendStream.prototype.redirect = function redirect(path5) {
+    SendStream.prototype.redirect = function redirect(path9) {
       var res = this.res;
       if (hasListeners(this, "directory")) {
-        this.emit("directory", res, path5);
+        this.emit("directory", res, path9);
         return;
       }
       if (this.hasTrailingSlash()) {
@@ -22547,38 +22547,38 @@ var require_send = __commonJS({
     SendStream.prototype.pipe = function pipe2(res) {
       var root = this._root;
       this.res = res;
-      var path5 = decode(this.path);
-      if (path5 === -1) {
+      var path9 = decode(this.path);
+      if (path9 === -1) {
         this.error(400);
         return res;
       }
-      if (~path5.indexOf("\0")) {
+      if (~path9.indexOf("\0")) {
         this.error(400);
         return res;
       }
       var parts;
       if (root !== null) {
-        if (path5) {
-          path5 = normalize("." + sep + path5);
+        if (path9) {
+          path9 = normalize("." + sep + path9);
         }
-        if (UP_PATH_REGEXP.test(path5)) {
-          debug31('malicious path "%s"', path5);
+        if (UP_PATH_REGEXP.test(path9)) {
+          debug31('malicious path "%s"', path9);
           this.error(403);
           return res;
         }
-        parts = path5.split(sep);
-        path5 = normalize(join(root, path5));
+        parts = path9.split(sep);
+        path9 = normalize(join(root, path9));
       } else {
-        if (UP_PATH_REGEXP.test(path5)) {
-          debug31('malicious path "%s"', path5);
+        if (UP_PATH_REGEXP.test(path9)) {
+          debug31('malicious path "%s"', path9);
           this.error(403);
           return res;
         }
-        parts = normalize(path5).split(sep);
-        path5 = resolve(path5);
+        parts = normalize(path9).split(sep);
+        path9 = resolve(path9);
       }
       if (containsDotFile(parts)) {
-        debug31('%s dotfile "%s"', this._dotfiles, path5);
+        debug31('%s dotfile "%s"', this._dotfiles, path9);
         switch (this._dotfiles) {
           case "allow":
             break;
@@ -22592,14 +22592,14 @@ var require_send = __commonJS({
         }
       }
       if (this._index.length && this.hasTrailingSlash()) {
-        this.sendIndex(path5);
+        this.sendIndex(path9);
         return res;
       }
-      this.sendFile(path5);
+      this.sendFile(path9);
       return res;
     };
-    SendStream.prototype.send = function send2(path5, stat4) {
-      var len = stat4.size;
+    SendStream.prototype.send = function send2(path9, stat7) {
+      var len = stat7.size;
       var options = this.options;
       var opts = {};
       var res = this.res;
@@ -22610,9 +22610,9 @@ var require_send = __commonJS({
         this.headersAlreadySent();
         return;
       }
-      debug31('pipe "%s"', path5);
-      this.setHeader(path5, stat4);
-      this.type(path5);
+      debug31('pipe "%s"', path9);
+      this.setHeader(path9, stat7);
+      this.type(path9);
       if (this.isConditionalGET()) {
         if (this.isPreconditionFailure()) {
           this.error(412);
@@ -22661,38 +22661,38 @@ var require_send = __commonJS({
         res.end();
         return;
       }
-      this.stream(path5, opts);
+      this.stream(path9, opts);
     };
-    SendStream.prototype.sendFile = function sendFile(path5) {
+    SendStream.prototype.sendFile = function sendFile(path9) {
       var i = 0;
       var self = this;
-      debug31('stat "%s"', path5);
-      fs.stat(path5, function onstat(err, stat4) {
-        var pathEndsWithSep = path5[path5.length - 1] === sep;
-        if (err && err.code === "ENOENT" && !extname(path5) && !pathEndsWithSep) {
+      debug31('stat "%s"', path9);
+      fs.stat(path9, function onstat(err, stat7) {
+        var pathEndsWithSep = path9[path9.length - 1] === sep;
+        if (err && err.code === "ENOENT" && !extname(path9) && !pathEndsWithSep) {
           return next(err);
         }
         if (err) return self.onStatError(err);
-        if (stat4.isDirectory()) return self.redirect(path5);
+        if (stat7.isDirectory()) return self.redirect(path9);
         if (pathEndsWithSep) return self.error(404);
-        self.emit("file", path5, stat4);
-        self.send(path5, stat4);
+        self.emit("file", path9, stat7);
+        self.send(path9, stat7);
       });
       function next(err) {
         if (self._extensions.length <= i) {
           return err ? self.onStatError(err) : self.error(404);
         }
-        var p = path5 + "." + self._extensions[i++];
+        var p = path9 + "." + self._extensions[i++];
         debug31('stat "%s"', p);
-        fs.stat(p, function(err2, stat4) {
+        fs.stat(p, function(err2, stat7) {
           if (err2) return next(err2);
-          if (stat4.isDirectory()) return next();
-          self.emit("file", p, stat4);
-          self.send(p, stat4);
+          if (stat7.isDirectory()) return next();
+          self.emit("file", p, stat7);
+          self.send(p, stat7);
         });
       }
     };
-    SendStream.prototype.sendIndex = function sendIndex(path5) {
+    SendStream.prototype.sendIndex = function sendIndex(path9) {
       var i = -1;
       var self = this;
       function next(err) {
@@ -22700,21 +22700,21 @@ var require_send = __commonJS({
           if (err) return self.onStatError(err);
           return self.error(404);
         }
-        var p = join(path5, self._index[i]);
+        var p = join(path9, self._index[i]);
         debug31('stat "%s"', p);
-        fs.stat(p, function(err2, stat4) {
+        fs.stat(p, function(err2, stat7) {
           if (err2) return next(err2);
-          if (stat4.isDirectory()) return next();
-          self.emit("file", p, stat4);
-          self.send(p, stat4);
+          if (stat7.isDirectory()) return next();
+          self.emit("file", p, stat7);
+          self.send(p, stat7);
         });
       }
       next();
     };
-    SendStream.prototype.stream = function stream(path5, options) {
+    SendStream.prototype.stream = function stream(path9, options) {
       var self = this;
       var res = this.res;
-      var stream2 = fs.createReadStream(path5, options);
+      var stream2 = fs.createReadStream(path9, options);
       this.emit("stream", stream2);
       stream2.pipe(res);
       function cleanup() {
@@ -22729,17 +22729,17 @@ var require_send = __commonJS({
         self.emit("end");
       });
     };
-    SendStream.prototype.type = function type(path5) {
+    SendStream.prototype.type = function type(path9) {
       var res = this.res;
       if (res.getHeader("Content-Type")) return;
-      var ext = extname(path5);
+      var ext = extname(path9);
       var type2 = mime.contentType(ext) || "application/octet-stream";
       debug31("content-type %s", type2);
       res.setHeader("Content-Type", type2);
     };
-    SendStream.prototype.setHeader = function setHeader(path5, stat4) {
+    SendStream.prototype.setHeader = function setHeader(path9, stat7) {
       var res = this.res;
-      this.emit("headers", res, path5, stat4);
+      this.emit("headers", res, path9, stat7);
       if (this._acceptRanges && !res.getHeader("Accept-Ranges")) {
         debug31("accept ranges");
         res.setHeader("Accept-Ranges", "bytes");
@@ -22753,12 +22753,12 @@ var require_send = __commonJS({
         res.setHeader("Cache-Control", cacheControl);
       }
       if (this._lastModified && !res.getHeader("Last-Modified")) {
-        var modified = stat4.mtime.toUTCString();
+        var modified = stat7.mtime.toUTCString();
         debug31("modified %s", modified);
         res.setHeader("Last-Modified", modified);
       }
       if (this._etag && !res.getHeader("ETag")) {
-        var val = etag(stat4);
+        var val = etag(stat7);
         debug31("etag %s", val);
         res.setHeader("ETag", val);
       }
@@ -22797,9 +22797,9 @@ var require_send = __commonJS({
       }
       return err instanceof Error ? createError(status, err, { expose: false }) : createError(status, err);
     }
-    function decode(path5) {
+    function decode(path9) {
       try {
-        return decodeURIComponent(path5);
+        return decodeURIComponent(path9);
       } catch (err) {
         return -1;
       }
@@ -22943,7 +22943,7 @@ var require_response = __commonJS({
     var http = __require("node:http");
     var onFinished = require_on_finished();
     var mime = require_mime_types();
-    var path4 = __require("node:path");
+    var path8 = __require("node:path");
     var pathIsAbsolute = __require("node:path").isAbsolute;
     var statuses = require_statuses();
     var sign = require_cookie_signature().sign;
@@ -22952,8 +22952,8 @@ var require_response = __commonJS({
     var setCharset = require_utils3().setCharset;
     var cookie = require_cookie();
     var send = require_send();
-    var extname = path4.extname;
-    var resolve = path4.resolve;
+    var extname = path8.extname;
+    var resolve = path8.resolve;
     var vary = require_vary();
     var { Buffer: Buffer2 } = __require("node:buffer");
     var res = Object.create(http.ServerResponse.prototype);
@@ -23099,26 +23099,26 @@ var require_response = __commonJS({
       this.type("txt");
       return this.send(body);
     };
-    res.sendFile = function sendFile(path5, options, callback) {
+    res.sendFile = function sendFile(path9, options, callback) {
       var done = callback;
       var req = this.req;
       var res2 = this;
       var next = req.next;
       var opts = options || {};
-      if (!path5) {
+      if (!path9) {
         throw new TypeError("path argument is required to res.sendFile");
       }
-      if (typeof path5 !== "string") {
+      if (typeof path9 !== "string") {
         throw new TypeError("path must be a string to res.sendFile");
       }
       if (typeof options === "function") {
         done = options;
         opts = {};
       }
-      if (!opts.root && !pathIsAbsolute(path5)) {
+      if (!opts.root && !pathIsAbsolute(path9)) {
         throw new TypeError("path must be absolute or specify root to res.sendFile");
       }
-      var pathname = encodeURI(path5);
+      var pathname = encodeURI(path9);
       opts.etag = this.app.enabled("etag");
       var file2 = send(req, pathname, opts);
       sendfile(res2, file2, opts, function(err) {
@@ -23129,7 +23129,7 @@ var require_response = __commonJS({
         }
       });
     };
-    res.download = function download(path5, filename, options, callback) {
+    res.download = function download(path9, filename, options, callback) {
       var done = callback;
       var name = filename;
       var opts = options || null;
@@ -23146,7 +23146,7 @@ var require_response = __commonJS({
         opts = filename;
       }
       var headers = {
-        "Content-Disposition": contentDisposition(name || path5)
+        "Content-Disposition": contentDisposition(name || path9)
       };
       if (opts && opts.headers) {
         var keys = Object.keys(opts.headers);
@@ -23159,7 +23159,7 @@ var require_response = __commonJS({
       }
       opts = Object.create(opts);
       opts.headers = headers;
-      var fullPath = !opts.root ? resolve(path5) : path5;
+      var fullPath = !opts.root ? resolve(path9) : path9;
       return this.sendFile(fullPath, opts, done);
     };
     res.contentType = res.type = function contentType(type) {
@@ -23442,11 +23442,11 @@ var require_serve_static = __commonJS({
         }
         var forwardError = !fallthrough;
         var originalUrl = parseUrl.original(req);
-        var path4 = parseUrl(req).pathname;
-        if (path4 === "/" && originalUrl.pathname.substr(-1) !== "/") {
-          path4 = "";
+        var path8 = parseUrl(req).pathname;
+        if (path8 === "/" && originalUrl.pathname.substr(-1) !== "/") {
+          path8 = "";
         }
-        var stream = send(req, path4, opts);
+        var stream = send(req, path8, opts);
         stream.on("directory", onDirectory);
         if (setHeaders) {
           stream.on("headers", setHeaders);
@@ -23513,7 +23513,7 @@ var require_express = __commonJS({
     var EventEmitter = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router12 = require_router();
+    var Router18 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23535,8 +23535,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router12.Route;
-    exports.Router = Router12;
+    exports.Route = Router18.Route;
+    exports.Router = Router18;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -25380,8 +25380,8 @@ var require_req = __commonJS({
       if (req.originalUrl) {
         _req.url = req.originalUrl;
       } else {
-        const path4 = req.path;
-        _req.url = typeof path4 === "string" ? path4 : req.url ? req.url.path || req.url : void 0;
+        const path8 = req.path;
+        _req.url = typeof path8 === "string" ? path8 : req.url ? req.url.path || req.url : void 0;
       }
       if (req.query) {
         _req.query = req.query;
@@ -25546,14 +25546,14 @@ var require_redact = __commonJS({
       }
       return obj;
     }
-    function parsePath(path4) {
+    function parsePath(path8) {
       const parts = [];
       let current = "";
       let inBrackets = false;
       let inQuotes = false;
       let quoteChar = "";
-      for (let i = 0; i < path4.length; i++) {
-        const char2 = path4[i];
+      for (let i = 0; i < path8.length; i++) {
+        const char2 = path8[i];
         if (!inBrackets && char2 === ".") {
           if (current) {
             parts.push(current);
@@ -25684,10 +25684,10 @@ var require_redact = __commonJS({
       return current;
     }
     function redactPaths(obj, paths, censor, remove = false) {
-      for (const path4 of paths) {
-        const parts = parsePath(path4);
+      for (const path8 of paths) {
+        const parts = parsePath(path8);
         if (parts.includes("*")) {
-          redactWildcardPath(obj, parts, censor, path4, remove);
+          redactWildcardPath(obj, parts, censor, path8, remove);
         } else {
           if (remove) {
             removeKey(obj, parts);
@@ -25772,8 +25772,8 @@ var require_redact = __commonJS({
           }
         } else {
           if (afterWildcard.includes("*")) {
-            const wrappedCensor = typeof censor === "function" ? (value, path4) => {
-              const fullPath = [...pathArray.slice(0, pathLength), ...path4];
+            const wrappedCensor = typeof censor === "function" ? (value, path8) => {
+              const fullPath = [...pathArray.slice(0, pathLength), ...path8];
               return censor(value, fullPath);
             } : censor;
             redactWildcardPath(current, afterWildcard, wrappedCensor, originalPath, remove);
@@ -25808,8 +25808,8 @@ var require_redact = __commonJS({
         return null;
       }
       const pathStructure = /* @__PURE__ */ new Map();
-      for (const path4 of pathsToClone) {
-        const parts = parsePath(path4);
+      for (const path8 of pathsToClone) {
+        const parts = parsePath(path8);
         let current = pathStructure;
         for (let i = 0; i < parts.length; i++) {
           const part = parts[i];
@@ -25861,24 +25861,24 @@ var require_redact = __commonJS({
       }
       return cloneSelectively(obj, pathStructure);
     }
-    function validatePath(path4) {
-      if (typeof path4 !== "string") {
+    function validatePath(path8) {
+      if (typeof path8 !== "string") {
         throw new Error("Paths must be (non-empty) strings");
       }
-      if (path4 === "") {
+      if (path8 === "") {
         throw new Error("Invalid redaction path ()");
       }
-      if (path4.includes("..")) {
-        throw new Error(`Invalid redaction path (${path4})`);
+      if (path8.includes("..")) {
+        throw new Error(`Invalid redaction path (${path8})`);
       }
-      if (path4.includes(",")) {
-        throw new Error(`Invalid redaction path (${path4})`);
+      if (path8.includes(",")) {
+        throw new Error(`Invalid redaction path (${path8})`);
       }
       let bracketCount = 0;
       let inQuotes = false;
       let quoteChar = "";
-      for (let i = 0; i < path4.length; i++) {
-        const char2 = path4[i];
+      for (let i = 0; i < path8.length; i++) {
+        const char2 = path8[i];
         if ((char2 === '"' || char2 === "'") && bracketCount > 0) {
           if (!inQuotes) {
             inQuotes = true;
@@ -25892,20 +25892,20 @@ var require_redact = __commonJS({
         } else if (char2 === "]" && !inQuotes) {
           bracketCount--;
           if (bracketCount < 0) {
-            throw new Error(`Invalid redaction path (${path4})`);
+            throw new Error(`Invalid redaction path (${path8})`);
           }
         }
       }
       if (bracketCount !== 0) {
-        throw new Error(`Invalid redaction path (${path4})`);
+        throw new Error(`Invalid redaction path (${path8})`);
       }
     }
     function validatePaths(paths) {
       if (!Array.isArray(paths)) {
         throw new TypeError("paths must be an array");
       }
-      for (const path4 of paths) {
-        validatePath(path4);
+      for (const path8 of paths) {
+        validatePath(path8);
       }
     }
     function slowRedact(options = {}) {
@@ -26073,8 +26073,8 @@ var require_redaction = __commonJS({
         if (shape[k] === null) {
           o[k] = (value) => topCensor(value, [k]);
         } else {
-          const wrappedCensor = typeof censor === "function" ? (value, path4) => {
-            return censor(value, [k, ...path4]);
+          const wrappedCensor = typeof censor === "function" ? (value, path8) => {
+            return censor(value, [k, ...path8]);
           } : censor;
           o[k] = Redact({
             paths: shape[k],
@@ -26295,7 +26295,7 @@ var require_sonic_boom = __commonJS({
     var fs = __require("fs");
     var EventEmitter = __require("events");
     var inherits = __require("util").inherits;
-    var path4 = __require("path");
+    var path8 = __require("path");
     var sleep = require_atomic_sleep();
     var assert2 = __require("assert");
     var BUSY_WRITE_TIMEOUT = 100;
@@ -26349,7 +26349,7 @@ var require_sonic_boom = __commonJS({
       const mode = sonic.mode;
       if (sonic.sync) {
         try {
-          if (sonic.mkdir) fs.mkdirSync(path4.dirname(file2), { recursive: true });
+          if (sonic.mkdir) fs.mkdirSync(path8.dirname(file2), { recursive: true });
           const fd = fs.openSync(file2, flags, mode);
           fileOpened(null, fd);
         } catch (err) {
@@ -26357,7 +26357,7 @@ var require_sonic_boom = __commonJS({
           throw err;
         }
       } else if (sonic.mkdir) {
-        fs.mkdir(path4.dirname(file2), { recursive: true }, (err) => {
+        fs.mkdir(path8.dirname(file2), { recursive: true }, (err) => {
           if (err) return fileOpened(err);
           fs.open(file2, flags, mode, fileOpened);
         });
@@ -26369,7 +26369,7 @@ var require_sonic_boom = __commonJS({
       if (!(this instanceof SonicBoom)) {
         return new SonicBoom(opts);
       }
-      let { fd, dest, minLength, maxLength, maxWrite, periodicFlush, sync, append = true, mkdir, retryEAGAIN, fsync, contentMode, mode } = opts || {};
+      let { fd, dest, minLength, maxLength, maxWrite, periodicFlush, sync, append = true, mkdir: mkdir3, retryEAGAIN, fsync, contentMode, mode } = opts || {};
       fd = fd || dest;
       this._len = 0;
       this.fd = -1;
@@ -26394,7 +26394,7 @@ var require_sonic_boom = __commonJS({
       this.append = append || false;
       this.mode = mode;
       this.retryEAGAIN = retryEAGAIN || (() => true);
-      this.mkdir = mkdir || false;
+      this.mkdir = mkdir3 || false;
       let fsWriteSync;
       let fsWrite;
       if (contentMode === kContentModeBuffer) {
@@ -29217,16 +29217,16 @@ var require_pino = __commonJS({
   "../../node_modules/.pnpm/pino@9.14.0/node_modules/pino/pino.js"(exports, module) {
     function pinoBundlerAbsolutePath(p) {
       try {
-        const path4 = __require("path");
+        const path8 = __require("path");
         const outputDir = "/home/runner/workspace/artifacts/api-server/dist";
-        return path4.resolve(outputDir, p.replace(/^\.\//, ""));
+        return path8.resolve(outputDir, p.replace(/^\.\//, ""));
       } catch (e) {
         const f = new Function("p", "return new URL(p, import.meta.url).pathname");
         return f(p);
       }
     }
     globalThis.__bundlerPathsOverrides = { ...globalThis.__bundlerPathsOverrides || {}, "thread-stream-worker": pinoBundlerAbsolutePath("./thread-stream-worker.mjs"), "pino-worker": pinoBundlerAbsolutePath("./pino-worker.mjs"), "pino/file": pinoBundlerAbsolutePath("./pino-file.mjs"), "pino-pretty": pinoBundlerAbsolutePath("./pino-pretty.mjs") };
-    var os = __require("node:os");
+    var os3 = __require("node:os");
     var stdSerializers = require_pino_std_serializers();
     var caller = require_caller();
     var redaction = require_redaction();
@@ -29273,7 +29273,7 @@ var require_pino = __commonJS({
     } = symbols;
     var { epochTime, nullTime } = time4;
     var { pid } = process;
-    var hostname2 = os.hostname();
+    var hostname2 = os3.hostname();
     var defaultErrorSerializer = stdSerializers.err;
     var defaultOptions = {
       level: "info",
@@ -33084,7 +33084,7 @@ var require_split2 = __commonJS({
 var require_helper = __commonJS({
   "../../node_modules/.pnpm/pgpass@1.0.5/node_modules/pgpass/lib/helper.js"(exports, module) {
     "use strict";
-    var path4 = __require("path");
+    var path8 = __require("path");
     var Stream = __require("stream").Stream;
     var split = require_split2();
     var util2 = __require("util");
@@ -33123,7 +33123,7 @@ var require_helper = __commonJS({
     };
     module.exports.getFileName = function(rawEnv) {
       var env = rawEnv || process.env;
-      var file2 = env.PGPASSFILE || (isWin ? path4.join(env.APPDATA || "./", "postgresql", "pgpass.conf") : path4.join(env.HOME || "./", ".pgpass"));
+      var file2 = env.PGPASSFILE || (isWin ? path8.join(env.APPDATA || "./", "postgresql", "pgpass.conf") : path8.join(env.HOME || "./", ".pgpass"));
       return file2;
     };
     module.exports.usePgPass = function(stats, fname) {
@@ -33255,13 +33255,13 @@ var require_helper = __commonJS({
 var require_lib4 = __commonJS({
   "../../node_modules/.pnpm/pgpass@1.0.5/node_modules/pgpass/lib/index.js"(exports, module) {
     "use strict";
-    var path4 = __require("path");
+    var path8 = __require("path");
     var fs = __require("fs");
     var helper = require_helper();
     module.exports = function(connInfo, cb) {
       var file2 = helper.getFileName();
-      fs.stat(file2, function(err, stat4) {
-        if (err || !helper.usePgPass(stat4, file2)) {
+      fs.stat(file2, function(err, stat7) {
+        if (err || !helper.usePgPass(stat7, file2)) {
           return cb(void 0);
         }
         var st = fs.createReadStream(file2);
@@ -35426,8 +35426,8 @@ var init_FileTokenizer = __esm({
        */
       static async fromFile(sourceFilePath) {
         const fileHandle = await fsOpen(sourceFilePath, "r");
-        const stat4 = await fileHandle.stat();
-        return new _FileTokenizer(fileHandle, { fileInfo: { path: sourceFilePath, size: stat4.size } });
+        const stat7 = await fileHandle.stat();
+        return new _FileTokenizer(fileHandle, { fileInfo: { path: sourceFilePath, size: stat7.size } });
       }
       constructor(fileHandle, options) {
         super(options);
@@ -40621,11 +40621,11 @@ function linkParents(element) {
   return element;
 }
 function getElementPath(element) {
-  let path4 = "";
+  let path8 = "";
   if (element.parent && element.parent.name !== "dtd") {
-    path4 += `${getElementPath(element.parent)}/`;
+    path8 += `${getElementPath(element.parent)}/`;
   }
-  return path4 + element.name;
+  return path8 + element.name;
 }
 var import_debug14, debug14, EbmlContentError, ParseAction, EbmlIterator;
 var init_EbmlIterator = __esm({
@@ -43388,7 +43388,7 @@ var require_windows = __commonJS({
     module.exports = isexe;
     isexe.sync = sync;
     var fs = __require("fs");
-    function checkPathExt(path4, options) {
+    function checkPathExt(path8, options) {
       var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
       if (!pathext) {
         return true;
@@ -43399,25 +43399,25 @@ var require_windows = __commonJS({
       }
       for (var i = 0; i < pathext.length; i++) {
         var p = pathext[i].toLowerCase();
-        if (p && path4.substr(-p.length).toLowerCase() === p) {
+        if (p && path8.substr(-p.length).toLowerCase() === p) {
           return true;
         }
       }
       return false;
     }
-    function checkStat(stat4, path4, options) {
-      if (!stat4.isSymbolicLink() && !stat4.isFile()) {
+    function checkStat(stat7, path8, options) {
+      if (!stat7.isSymbolicLink() && !stat7.isFile()) {
         return false;
       }
-      return checkPathExt(path4, options);
+      return checkPathExt(path8, options);
     }
-    function isexe(path4, options, cb) {
-      fs.stat(path4, function(er, stat4) {
-        cb(er, er ? false : checkStat(stat4, path4, options));
+    function isexe(path8, options, cb) {
+      fs.stat(path8, function(er, stat7) {
+        cb(er, er ? false : checkStat(stat7, path8, options));
       });
     }
-    function sync(path4, options) {
-      return checkStat(fs.statSync(path4), path4, options);
+    function sync(path8, options) {
+      return checkStat(fs.statSync(path8), path8, options);
     }
   }
 });
@@ -43428,21 +43428,21 @@ var require_mode = __commonJS({
     module.exports = isexe;
     isexe.sync = sync;
     var fs = __require("fs");
-    function isexe(path4, options, cb) {
-      fs.stat(path4, function(er, stat4) {
-        cb(er, er ? false : checkStat(stat4, options));
+    function isexe(path8, options, cb) {
+      fs.stat(path8, function(er, stat7) {
+        cb(er, er ? false : checkStat(stat7, options));
       });
     }
-    function sync(path4, options) {
-      return checkStat(fs.statSync(path4), options);
+    function sync(path8, options) {
+      return checkStat(fs.statSync(path8), options);
     }
-    function checkStat(stat4, options) {
-      return stat4.isFile() && checkMode(stat4, options);
+    function checkStat(stat7, options) {
+      return stat7.isFile() && checkMode(stat7, options);
     }
-    function checkMode(stat4, options) {
-      var mod = stat4.mode;
-      var uid = stat4.uid;
-      var gid = stat4.gid;
+    function checkMode(stat7, options) {
+      var mod = stat7.mode;
+      var uid = stat7.uid;
+      var gid = stat7.gid;
       var myUid = options.uid !== void 0 ? options.uid : process.getuid && process.getuid();
       var myGid = options.gid !== void 0 ? options.gid : process.getgid && process.getgid();
       var u3 = parseInt("100", 8);
@@ -43467,7 +43467,7 @@ var require_isexe = __commonJS({
     }
     module.exports = isexe;
     isexe.sync = sync;
-    function isexe(path4, options, cb) {
+    function isexe(path8, options, cb) {
       if (typeof options === "function") {
         cb = options;
         options = {};
@@ -43477,7 +43477,7 @@ var require_isexe = __commonJS({
           throw new TypeError("callback not provided");
         }
         return new Promise(function(resolve, reject) {
-          isexe(path4, options || {}, function(er, is2) {
+          isexe(path8, options || {}, function(er, is2) {
             if (er) {
               reject(er);
             } else {
@@ -43486,7 +43486,7 @@ var require_isexe = __commonJS({
           });
         });
       }
-      core(path4, options || {}, function(er, is2) {
+      core(path8, options || {}, function(er, is2) {
         if (er) {
           if (er.code === "EACCES" || options && options.ignoreErrors) {
             er = null;
@@ -43496,9 +43496,9 @@ var require_isexe = __commonJS({
         cb(er, is2);
       });
     }
-    function sync(path4, options) {
+    function sync(path8, options) {
       try {
-        return core.sync(path4, options || {});
+        return core.sync(path8, options || {});
       } catch (er) {
         if (options && options.ignoreErrors || er.code === "EACCES") {
           return false;
@@ -43516,7 +43516,7 @@ var require_which = __commonJS({
     module.exports = which;
     which.sync = whichSync;
     var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
-    var path4 = __require("path");
+    var path8 = __require("path");
     var COLON = isWindows ? ";" : ":";
     var isexe = require_isexe();
     function getNotFoundError(cmd) {
@@ -43565,7 +43565,7 @@ var require_which = __commonJS({
         var pathPart = pathEnv[i];
         if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
           pathPart = pathPart.slice(1, -1);
-        var p = path4.join(pathPart, cmd);
+        var p = path8.join(pathPart, cmd);
         if (!pathPart && /^\.[\\\/]/.test(cmd)) {
           p = cmd.slice(0, 2) + p;
         }
@@ -43596,7 +43596,7 @@ var require_which = __commonJS({
         var pathPart = pathEnv[i];
         if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
           pathPart = pathPart.slice(1, -1);
-        var p = path4.join(pathPart, cmd);
+        var p = path8.join(pathPart, cmd);
         if (!pathPart && /^\.[\\\/]/.test(cmd)) {
           p = cmd.slice(0, 2) + p;
         }
@@ -44450,14 +44450,14 @@ var require_custom = __commonJS({
 var require_misc = __commonJS({
   "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/misc.js"(exports, module) {
     "use strict";
-    var path4 = __require("path");
+    var path8 = __require("path");
     module.exports = function(proto) {
       proto.usingPreset = proto.preset = function(preset) {
         if (typeof preset === "function") {
           preset(this);
         } else {
           try {
-            var modulePath = path4.join(this.options.presets, preset);
+            var modulePath = path8.join(this.options.presets, preset);
             var module2 = __require(modulePath);
             if (typeof module2.load === "function") {
               module2.load(this);
@@ -45344,8 +45344,8 @@ var require_async = __commonJS({
 var require_processor = __commonJS({
   "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/processor.js"(exports, module) {
     "use strict";
-    var spawn = __require("child_process").spawn;
-    var path4 = __require("path");
+    var spawn2 = __require("child_process").spawn;
+    var path8 = __require("path");
     var fs = __require("fs");
     var async = require_async();
     var utils = require_utils6();
@@ -45385,7 +45385,7 @@ var require_processor = __commonJS({
           var stdoutClosed = false;
           var stderrRing = utils.linesRing(maxLines);
           var stderrClosed = false;
-          var ffmpegProc = spawn(command, args, options);
+          var ffmpegProc = spawn2(command, args, options);
           if (ffmpegProc.stderr) {
             ffmpegProc.stderr.setEncoding("utf8");
           }
@@ -45668,7 +45668,7 @@ var require_processor = __commonJS({
                     async.each(
                       flvmeta,
                       function(output, cb) {
-                        spawn(flvtool, ["-U", output.target], { windowsHide: true }).on("error", function(err4) {
+                        spawn2(flvtool, ["-U", output.target], { windowsHide: true }).on("error", function(err4) {
                           cb(new Error("Error running " + flvtool + " on " + output.target + ": " + err4.message));
                         }).on("exit", function(code, signal) {
                           if (code !== 0 || signal) {
@@ -45709,7 +45709,7 @@ var require_processor = __commonJS({
           if (this.ffmpegProc) {
             var logger2 = this.logger;
             var pid = this.ffmpegProc.pid;
-            var renice = spawn("renice", [niceness, "-p", pid], { windowsHide: true });
+            var renice = spawn2("renice", [niceness, "-p", pid], { windowsHide: true });
             renice.on("error", function(err) {
               logger2.warn("could not renice process " + pid + ": " + err.message);
             });
@@ -45743,7 +45743,7 @@ var require_capabilities = __commonJS({
   "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/capabilities.js"(exports, module) {
     "use strict";
     var fs = __require("fs");
-    var path4 = __require("path");
+    var path8 = __require("path");
     var async = require_async();
     var utils = require_utils6();
     var avCodecRegexp = /^\s*([D ])([E ])([VAS])([S ])([D ])([T ]) ([^ ]+) +(.*)$/;
@@ -45793,19 +45793,19 @@ var require_capabilities = __commonJS({
             }
           },
           // Search in the PATH
-          function(ffmpeg2, cb) {
-            if (ffmpeg2.length) {
-              return cb(null, ffmpeg2);
+          function(ffmpeg5, cb) {
+            if (ffmpeg5.length) {
+              return cb(null, ffmpeg5);
             }
-            utils.which("ffmpeg", function(err, ffmpeg3) {
-              cb(err, ffmpeg3);
+            utils.which("ffmpeg", function(err, ffmpeg6) {
+              cb(err, ffmpeg6);
             });
           }
-        ], function(err, ffmpeg2) {
+        ], function(err, ffmpeg5) {
           if (err) {
             callback(err);
           } else {
-            callback(null, cache2.ffmpegPath = ffmpeg2 || "");
+            callback(null, cache2.ffmpegPath = ffmpeg5 || "");
           }
         });
       };
@@ -45839,12 +45839,12 @@ var require_capabilities = __commonJS({
             if (ffprobe.length) {
               return cb(null, ffprobe);
             }
-            self._getFfmpegPath(function(err, ffmpeg2) {
+            self._getFfmpegPath(function(err, ffmpeg5) {
               if (err) {
                 cb(err);
-              } else if (ffmpeg2.length) {
+              } else if (ffmpeg5.length) {
                 var name = utils.isWindows ? "ffprobe.exe" : "ffprobe";
-                var ffprobe2 = path4.join(path4.dirname(ffmpeg2), name);
+                var ffprobe2 = path8.join(path8.dirname(ffmpeg5), name);
                 fs.exists(ffprobe2, function(exists2) {
                   cb(null, exists2 ? ffprobe2 : "");
                 });
@@ -46155,7 +46155,7 @@ var require_capabilities = __commonJS({
 var require_ffprobe = __commonJS({
   "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/ffprobe.js"(exports, module) {
     "use strict";
-    var spawn = __require("child_process").spawn;
+    var spawn2 = __require("child_process").spawn;
     function legacyTag(key) {
       return key.match(/^TAG:/);
     }
@@ -46245,10 +46245,10 @@ var require_ffprobe = __commonJS({
             return handleCallback(new Error("Invalid input index"));
           }
         }
-        this._getFfprobePath(function(err, path4) {
+        this._getFfprobePath(function(err, path8) {
           if (err) {
             return handleCallback(err);
-          } else if (!path4) {
+          } else if (!path8) {
             return handleCallback(new Error("Cannot find ffprobe"));
           }
           var stdout = "";
@@ -46256,7 +46256,7 @@ var require_ffprobe = __commonJS({
           var stderr = "";
           var stderrClosed = false;
           var src = input.isStream ? "pipe:0" : input.source;
-          var ffprobe = spawn(path4, ["-show_streams", "-show_format"].concat(options, src), { windowsHide: true });
+          var ffprobe = spawn2(path8, ["-show_streams", "-show_format"].concat(options, src), { windowsHide: true });
           if (input.isStream) {
             ffprobe.stdin.on("error", function(err2) {
               if (["ECONNRESET", "EPIPE", "EOF"].indexOf(err2.code) >= 0) {
@@ -46343,7 +46343,7 @@ var require_recipes = __commonJS({
   "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/recipes.js"(exports, module) {
     "use strict";
     var fs = __require("fs");
-    var path4 = __require("path");
+    var path8 = __require("path");
     var PassThrough = __require("stream").PassThrough;
     var async = require_async();
     var utils = require_utils6();
@@ -46471,8 +46471,8 @@ var require_recipes = __commonJS({
               pattern += ".png";
             }
             if (config2.timemarks.length > 1 && !pattern.match(/%(s|0*i)/)) {
-              var ext = path4.extname(pattern);
-              pattern = path4.join(path4.dirname(pattern), path4.basename(pattern, ext) + "_%i" + ext);
+              var ext = path8.extname(pattern);
+              pattern = path8.join(path8.dirname(pattern), path8.basename(pattern, ext) + "_%i" + ext);
             }
             next(null, pattern);
           },
@@ -46482,7 +46482,7 @@ var require_recipes = __commonJS({
               if (typeof source !== "string") {
                 return next(new Error("Cannot replace %f or %b when using an input stream"));
               }
-              pattern = pattern.replace(/%f/g, path4.basename(source)).replace(/%b/g, path4.basename(source, path4.extname(source)));
+              pattern = pattern.replace(/%f/g, path8.basename(source)).replace(/%b/g, path8.basename(source, path8.extname(source)));
             }
             next(null, pattern);
           },
@@ -46588,7 +46588,7 @@ var require_recipes = __commonJS({
               first = config2.timemarks[i2];
               self.seekInput(first);
             }
-            self.output(path4.join(config2.folder, filenames[i2])).frames(1).map(stream);
+            self.output(path8.join(config2.folder, filenames[i2])).frames(1).map(stream);
             if (i2 > 0) {
               self.seek(config2.timemarks[i2] - first);
             }
@@ -46632,7 +46632,7 @@ var require_recipes = __commonJS({
 var require_fluent_ffmpeg = __commonJS({
   "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/fluent-ffmpeg.js"(exports, module) {
     "use strict";
-    var path4 = __require("path");
+    var path8 = __require("path");
     var util2 = __require("util");
     var EventEmitter = __require("events").EventEmitter;
     var utils = require_utils6();
@@ -46658,7 +46658,7 @@ var require_fluent_ffmpeg = __commonJS({
         self[prop] = utils.args();
       });
       options.stdoutLines = "stdoutLines" in options ? options.stdoutLines : 100;
-      options.presets = options.presets || options.preset || path4.join(__dirname, "presets");
+      options.presets = options.presets || options.preset || path8.join(__dirname, "presets");
       options.niceness = options.niceness || options.priority || 0;
       this.options = options;
       this.logger = options.logger || {
@@ -46717,14 +46717,14 @@ var require_fluent_ffmpeg = __commonJS({
     require_misc()(FfmpegCommand.prototype);
     require_processor()(FfmpegCommand.prototype);
     require_capabilities()(FfmpegCommand.prototype);
-    FfmpegCommand.setFfmpegPath = function(path5) {
-      new FfmpegCommand().setFfmpegPath(path5);
+    FfmpegCommand.setFfmpegPath = function(path9) {
+      new FfmpegCommand().setFfmpegPath(path9);
     };
-    FfmpegCommand.setFfprobePath = function(path5) {
-      new FfmpegCommand().setFfprobePath(path5);
+    FfmpegCommand.setFfprobePath = function(path9) {
+      new FfmpegCommand().setFfprobePath(path9);
     };
-    FfmpegCommand.setFlvtoolPath = function(path5) {
-      new FfmpegCommand().setFlvtoolPath(path5);
+    FfmpegCommand.setFlvtoolPath = function(path9) {
+      new FfmpegCommand().setFlvtoolPath(path9);
     };
     FfmpegCommand.availableFilters = FfmpegCommand.getAvailableFilters = function(callback) {
       new FfmpegCommand().availableFilters(callback);
@@ -46758,15 +46758,15 @@ var require_fluent_ffmpeg2 = __commonJS({
 import { execFile } from "node:child_process";
 
 // src/app.ts
-var import_express12 = __toESM(require_express2(), 1);
+var import_express18 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_compression = __toESM(require_compression(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
-import path3 from "node:path";
+import path7 from "node:path";
 import { fileURLToPath } from "node:url";
 
 // src/routes/index.ts
-var import_express11 = __toESM(require_express2(), 1);
+var import_express17 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -47130,8 +47130,8 @@ function getErrorMap() {
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path: path4, errorMaps, issueData } = params;
-  const fullPath = [...path4, ...issueData.path || []];
+  const { data, path: path8, errorMaps, issueData } = params;
+  const fullPath = [...path8, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -47246,11 +47246,11 @@ var errorUtil;
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path4, key) {
+  constructor(parent, value, path8, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path4;
+    this._path = path8;
     this._key = key;
   }
   get path() {
@@ -50667,6 +50667,7 @@ var ListLibrariesResponse = objectType({
       id: numberType(),
       name: stringType(),
       path: stringType(),
+      type: enumType(["music", "video"]),
       createdAt: dateType(),
       lastScannedAt: dateType().nullish()
     })
@@ -50674,7 +50675,8 @@ var ListLibrariesResponse = objectType({
 });
 var AddLibraryBody = objectType({
   name: stringType(),
-  path: stringType()
+  path: stringType(),
+  type: enumType(["music", "video"]).optional()
 });
 var DeleteLibraryParams = objectType({
   id: coerce.number()
@@ -51217,6 +51219,109 @@ var ReorderPlaylistTracksResponse = objectType({
 var RemoveTrackFromPlaylistParams = objectType({
   id: coerce.number(),
   trackId: coerce.number()
+});
+var listVideosQueryPageDefault = 1;
+var listVideosQueryPageSizeDefault = 50;
+var ListVideosQueryParams = objectType({
+  page: coerce.number().default(listVideosQueryPageDefault),
+  pageSize: coerce.number().default(listVideosQueryPageSizeDefault),
+  search: coerce.string().optional(),
+  libraryId: coerce.number().optional(),
+  genre: coerce.string().optional()
+});
+var ListVideosResponse = objectType({
+  videos: arrayType(
+    objectType({
+      id: numberType(),
+      libraryId: numberType().nullish(),
+      title: stringType(),
+      filePath: stringType(),
+      durationSeconds: numberType().nullish(),
+      width: numberType().nullish(),
+      height: numberType().nullish(),
+      mimeType: stringType(),
+      genre: stringType().nullish(),
+      year: numberType().nullish(),
+      transcodingStatus: enumType(["none", "pending", "processing", "done"]),
+      subtitleTracks: arrayType(
+        objectType({
+          id: stringType(),
+          label: stringType(),
+          language: stringType().nullish(),
+          type: enumType(["external", "embedded"]),
+          path: stringType().nullish(),
+          streamIndex: numberType().nullish()
+        })
+      )
+    })
+  ),
+  total: numberType(),
+  page: numberType(),
+  pageSize: numberType()
+});
+var GetVideoParams = objectType({
+  id: coerce.number()
+});
+var GetVideoResponse = objectType({
+  id: numberType(),
+  libraryId: numberType().nullish(),
+  title: stringType(),
+  filePath: stringType(),
+  durationSeconds: numberType().nullish(),
+  width: numberType().nullish(),
+  height: numberType().nullish(),
+  videoCodec: stringType().nullish(),
+  audioCodec: stringType().nullish(),
+  mimeType: stringType(),
+  genre: stringType().nullish(),
+  year: numberType().nullish(),
+  transcodingStatus: enumType(["none", "pending", "processing", "done"]),
+  transcodedPath: stringType().nullish(),
+  subtitleTracks: arrayType(
+    objectType({
+      id: stringType(),
+      label: stringType(),
+      language: stringType().nullish(),
+      type: enumType(["external", "embedded"]),
+      path: stringType().nullish(),
+      streamIndex: numberType().nullish()
+    })
+  ),
+  createdAt: dateType()
+});
+var StreamVideoParams = objectType({
+  id: coerce.number()
+});
+var GetSubtitlesParams = objectType({
+  videoId: coerce.number(),
+  trackId: coerce.string()
+});
+var ListVideoGenresResponse = objectType({
+  genres: arrayType(
+    objectType({
+      name: stringType(),
+      videoCount: numberType()
+    })
+  )
+});
+var browseVideoFolderQueryPathDefault = `/`;
+var BrowseVideoFolderQueryParams = objectType({
+  path: coerce.string().default(browseVideoFolderQueryPathDefault)
+});
+var BrowseVideoFolderResponse = objectType({
+  path: stringType(),
+  entries: arrayType(
+    objectType({
+      name: stringType(),
+      path: stringType(),
+      type: enumType(["directory", "file"]),
+      videoId: numberType().nullish(),
+      mimeType: stringType().nullish()
+    })
+  ),
+  noLibraries: booleanType().optional().describe(
+    "True when no video libraries are configured and the root was requested"
+  )
 });
 
 // src/routes/health.ts
@@ -52609,7 +52714,7 @@ var SelectionProxyHandler = class _SelectionProxyHandler {
 function mapResultRow(columns, row, joinsNotNullableMap) {
   const nullifyMap = {};
   const result = columns.reduce(
-    (result2, { path: path4, field }, columnIndex) => {
+    (result2, { path: path8, field }, columnIndex) => {
       let decoder;
       if (is(field, Column)) {
         decoder = field;
@@ -52621,8 +52726,8 @@ function mapResultRow(columns, row, joinsNotNullableMap) {
         decoder = field.sql.decoder;
       }
       let node = result2;
-      for (const [pathChunkIndex, pathChunk] of path4.entries()) {
-        if (pathChunkIndex < path4.length - 1) {
+      for (const [pathChunkIndex, pathChunk] of path8.entries()) {
+        if (pathChunkIndex < path8.length - 1) {
           if (!(pathChunk in node)) {
             node[pathChunk] = {};
           }
@@ -52630,8 +52735,8 @@ function mapResultRow(columns, row, joinsNotNullableMap) {
         } else {
           const rawValue = row[columnIndex];
           const value = node[pathChunk] = rawValue === null ? null : decoder.mapFromDriverValue(rawValue);
-          if (joinsNotNullableMap && is(field, Column) && path4.length === 2) {
-            const objectName = path4[0];
+          if (joinsNotNullableMap && is(field, Column) && path8.length === 2) {
+            const objectName = path8[0];
             if (!(objectName in nullifyMap)) {
               nullifyMap[objectName] = value === null ? getTableName(field.table) : false;
             } else if (typeof nullifyMap[objectName] === "string" && nullifyMap[objectName] !== getTableName(field.table)) {
@@ -58328,10 +58433,12 @@ __export(schema_exports, {
   insertGenreSchema: () => insertGenreSchema,
   insertLibrarySchema: () => insertLibrarySchema,
   insertTrackSchema: () => insertTrackSchema,
+  insertVideoSchema: () => insertVideoSchema,
   librariesTable: () => librariesTable,
   playlistTracksTable: () => playlistTracksTable,
   playlistsTable: () => playlistsTable,
-  tracksTable: () => tracksTable
+  tracksTable: () => tracksTable,
+  videosTable: () => videosTable
 });
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/classic/external.js
@@ -58986,10 +59093,10 @@ function assignProp(target, prop, value) {
     configurable: true
   });
 }
-function getElementAtPath(obj, path4) {
-  if (!path4)
+function getElementAtPath(obj, path8) {
+  if (!path8)
     return obj;
-  return path4.reduce((acc, key) => acc?.[key], obj);
+  return path8.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
@@ -59309,11 +59416,11 @@ function aborted(x, startIndex = 0) {
   }
   return false;
 }
-function prefixIssues(path4, issues) {
+function prefixIssues(path8, issues) {
   return issues.map((iss) => {
     var _a;
     (_a = iss).path ?? (_a.path = []);
-    iss.path.unshift(path4);
+    iss.path.unshift(path8);
     return iss;
   });
 }
@@ -59450,7 +59557,7 @@ function treeifyError(error40, _mapper) {
     return issue2.message;
   };
   const result = { errors: [] };
-  const processError = (error41, path4 = []) => {
+  const processError = (error41, path8 = []) => {
     var _a, _b;
     for (const issue2 of error41.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
@@ -59460,7 +59567,7 @@ function treeifyError(error40, _mapper) {
       } else if (issue2.code === "invalid_element") {
         processError({ issues: issue2.issues }, issue2.path);
       } else {
-        const fullpath = [...path4, ...issue2.path];
+        const fullpath = [...path8, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
@@ -59490,9 +59597,9 @@ function treeifyError(error40, _mapper) {
   processError(error40);
   return result;
 }
-function toDotPath(path4) {
+function toDotPath(path8) {
   const segs = [];
-  for (const seg of path4) {
+  for (const seg of path8) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -69725,6 +69832,7 @@ var librariesTable = pgTable("libraries", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   path: text("path").notNull().unique(),
+  type: text("type").notNull().default("music"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   lastScannedAt: timestamp("last_scanned_at", { withTimezone: true })
 });
@@ -69821,6 +69929,34 @@ var playlistTracksTable = pgTable(
     playlistIdx: index("playlist_tracks_playlist_idx").on(table.playlistId)
   })
 );
+
+// ../../lib/db/src/schema/videos.ts
+var videosTable = pgTable(
+  "videos",
+  {
+    id: serial("id").primaryKey(),
+    libraryId: integer("library_id").references(() => librariesTable.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    filePath: text("file_path").notNull().unique(),
+    durationSeconds: real("duration_seconds"),
+    width: integer("width"),
+    height: integer("height"),
+    videoCodec: text("video_codec"),
+    audioCodec: text("audio_codec"),
+    mimeType: text("mime_type").notNull(),
+    genre: text("genre"),
+    year: integer("year"),
+    subtitleTracks: jsonb("subtitle_tracks").$type().default([]),
+    transcodingStatus: text("transcoding_status").notNull().default("none"),
+    transcodedPath: text("transcoded_path"),
+    fileModifiedAt: timestamp("file_modified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    libraryIdx: index("videos_library_idx").on(table.libraryId)
+  })
+);
+var insertVideoSchema = createInsertSchema(videosTable).omit({ id: true, createdAt: true });
 
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
@@ -75302,6 +75438,274 @@ async function scanLibrary(libraryId) {
   }
 }
 
+// src/lib/video-scanner.ts
+import { readdir as readdir2, stat as stat2 } from "node:fs/promises";
+import path2 from "node:path";
+var import_fluent_ffmpeg = __toESM(require_fluent_ffmpeg2(), 1);
+var VIDEO_EXTENSIONS = /* @__PURE__ */ new Set([
+  ".mp4",
+  ".mkv",
+  ".mov",
+  ".avi",
+  ".webm",
+  ".m4v"
+]);
+var SUBTITLE_EXTENSIONS = /* @__PURE__ */ new Set([".srt", ".vtt", ".ass"]);
+var WEB_COMPATIBLE_VIDEO_CODECS = /* @__PURE__ */ new Set(["h264", "vp8", "vp9", "av1"]);
+var WEB_COMPATIBLE_AUDIO_CODECS = /* @__PURE__ */ new Set(["aac", "mp3", "opus", "vorbis"]);
+function getVideoMimeType(ext) {
+  const map2 = {
+    ".mp4": "video/mp4",
+    ".mkv": "video/x-matroska",
+    ".mov": "video/quicktime",
+    ".avi": "video/x-msvideo",
+    ".webm": "video/webm",
+    ".m4v": "video/mp4"
+  };
+  return map2[ext] ?? "video/mp4";
+}
+function isVideoWebCompatible(videoCodec, audioCodec) {
+  const vCodec = (videoCodec ?? "").toLowerCase();
+  const aCodec = (audioCodec ?? "").toLowerCase();
+  return WEB_COMPATIBLE_VIDEO_CODECS.has(vCodec) && WEB_COMPATIBLE_AUDIO_CODECS.has(aCodec);
+}
+async function probeVideo(filePath) {
+  return new Promise((resolve, reject) => {
+    import_fluent_ffmpeg.default.ffprobe(filePath, (err, data) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const videoStream = data.streams?.find((s) => s.codec_type === "video");
+      const audioStream = data.streams?.find((s) => s.codec_type === "audio");
+      const subtitleStreams = (data.streams ?? []).filter((s) => s.codec_type === "subtitle");
+      const duration3 = data.format?.duration ? Number(data.format.duration) : null;
+      const width = videoStream?.width ?? null;
+      const height = videoStream?.height ?? null;
+      const videoCodec = videoStream?.codec_name ?? null;
+      const audioCodec = audioStream?.codec_name ?? null;
+      const tags = data.format?.tags ?? {};
+      const title = tags["title"] ?? null;
+      const dateTag = tags["date"] ?? tags["year"];
+      let year = null;
+      if (dateTag) {
+        const parsed = parseInt(dateTag.slice(0, 4), 10);
+        if (!isNaN(parsed) && parsed > 1800 && parsed < 2200) year = parsed;
+      }
+      const embeddedSubtitles = subtitleStreams.map((s, i) => {
+        const stags = s.tags ?? {};
+        const lang = stags["language"];
+        const stitle = stags["title"];
+        const label = stitle ?? (lang ? `Subtitle (${lang})` : `Subtitle ${i + 1}`);
+        return {
+          id: `embedded-${s.index ?? i}`,
+          label,
+          language: lang,
+          type: "embedded",
+          streamIndex: s.index ?? i
+        };
+      });
+      resolve({ duration: duration3, width, height, videoCodec, audioCodec, title, year, embeddedSubtitles });
+    });
+  });
+}
+async function findExternalSubtitlesAsync(dir, baseName) {
+  const subs = [];
+  try {
+    const entries = await readdir2(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      if (!entry.isFile()) continue;
+      const ext = path2.extname(entry.name).toLowerCase();
+      if (!SUBTITLE_EXTENSIONS.has(ext)) continue;
+      const nameWithoutExt = path2.basename(entry.name, ext);
+      if (!nameWithoutExt.startsWith(baseName)) continue;
+      const suffix = nameWithoutExt.slice(baseName.length);
+      const lang = suffix.startsWith(".") ? suffix.slice(1) : suffix || "default";
+      const label = lang && lang !== "default" ? `Subtitle (${lang})` : "Subtitle";
+      subs.push({
+        id: `external-${entry.name}`,
+        label,
+        language: lang && lang !== "default" ? lang : void 0,
+        type: "external",
+        path: path2.join(dir, entry.name)
+      });
+    }
+  } catch {
+  }
+  return subs;
+}
+async function processVideoFile(filePath, libraryId) {
+  const fileStat = await stat2(filePath);
+  const fileModified = fileStat.mtime;
+  const existing = await db.select({ id: videosTable.id, fileModifiedAt: videosTable.fileModifiedAt }).from(videosTable).where(eq(videosTable.filePath, filePath)).limit(1);
+  if (existing.length > 0) {
+    const existingMod = existing[0].fileModifiedAt;
+    if (existingMod && Math.abs(existingMod.getTime() - fileModified.getTime()) < 1e3) {
+      return "skipped";
+    }
+  }
+  let probeResult;
+  try {
+    probeResult = await probeVideo(filePath);
+  } catch (err) {
+    logger.warn({ err, filePath }, "Failed to probe video metadata");
+    return "skipped";
+  }
+  const ext = path2.extname(filePath).toLowerCase();
+  const baseName = path2.basename(filePath, ext);
+  const dir = path2.dirname(filePath);
+  const externalSubs = await findExternalSubtitlesAsync(dir, baseName);
+  const allSubtitles = [...probeResult.embeddedSubtitles, ...externalSubs];
+  const title = probeResult.title ?? baseName;
+  const mimeType = getVideoMimeType(ext);
+  const needsTranscode = !isVideoWebCompatible(probeResult.videoCodec, probeResult.audioCodec);
+  const transcodingStatus = needsTranscode ? "pending" : "none";
+  const videoData = {
+    libraryId,
+    title,
+    filePath,
+    durationSeconds: probeResult.duration,
+    width: probeResult.width,
+    height: probeResult.height,
+    videoCodec: probeResult.videoCodec,
+    audioCodec: probeResult.audioCodec,
+    mimeType,
+    genre: null,
+    year: probeResult.year,
+    subtitleTracks: allSubtitles,
+    transcodingStatus,
+    fileModifiedAt: fileModified
+  };
+  if (existing.length > 0) {
+    await db.update(videosTable).set(videoData).where(eq(videosTable.id, existing[0].id));
+    return "updated";
+  } else {
+    await db.insert(videosTable).values(videoData).onConflictDoNothing();
+    return "added";
+  }
+}
+var videoScanState = {
+  scanning: false,
+  currentLibraryId: null,
+  videosScanned: 0,
+  videosAdded: 0,
+  videosUpdated: 0,
+  videosRemoved: 0,
+  hadErrors: false,
+  errorCount: 0,
+  startedAt: null
+};
+function getVideoScanStatus() {
+  return { ...videoScanState };
+}
+var BATCH_SIZE2 = 4;
+async function collectVideoFiles(dirPath, isRoot = false) {
+  const files = [];
+  let errors = 0;
+  try {
+    const entries = await readdir2(dirPath, { withFileTypes: true });
+    for (let i = 0; i < entries.length; i += BATCH_SIZE2) {
+      const batch = entries.slice(i, i + BATCH_SIZE2);
+      await Promise.all(
+        batch.map(async (entry) => {
+          const fullPath = path2.join(dirPath, entry.name);
+          if (entry.isDirectory()) {
+            const sub = await collectVideoFiles(fullPath, false);
+            files.push(...sub.files);
+            errors += sub.errors;
+          } else if (entry.isFile()) {
+            const ext = path2.extname(entry.name).toLowerCase();
+            if (VIDEO_EXTENSIONS.has(ext)) {
+              files.push(fullPath);
+            }
+          }
+        })
+      );
+    }
+  } catch (err) {
+    if (isRoot) throw err;
+    logger.warn({ err, dirPath }, "Error reading subdirectory during video scan");
+    errors++;
+  }
+  return { files, errors };
+}
+async function scanVideoLibrary(libraryId) {
+  if (videoScanState.scanning) {
+    logger.info("Video scan already in progress, skipping");
+    return;
+  }
+  const libraries = await db.select().from(librariesTable).where(eq(librariesTable.id, libraryId)).limit(1);
+  if (libraries.length === 0) {
+    logger.warn({ libraryId }, "Library not found for video scan");
+    return;
+  }
+  const library = libraries[0];
+  videoScanState.scanning = true;
+  videoScanState.currentLibraryId = libraryId;
+  videoScanState.videosScanned = 0;
+  videoScanState.videosAdded = 0;
+  videoScanState.videosUpdated = 0;
+  videoScanState.videosRemoved = 0;
+  videoScanState.hadErrors = false;
+  videoScanState.errorCount = 0;
+  videoScanState.startedAt = /* @__PURE__ */ new Date();
+  logger.info({ libraryId, path: library.path }, "Starting video library scan");
+  try {
+    let collectResult;
+    try {
+      collectResult = await collectVideoFiles(library.path, true);
+    } catch (err) {
+      logger.error({ err, libraryPath: library.path }, "Cannot read video library root \u2014 aborting scan");
+      videoScanState.hadErrors = true;
+      videoScanState.errorCount++;
+      return;
+    }
+    const { files, errors } = collectResult;
+    if (errors > 0) {
+      videoScanState.hadErrors = true;
+      videoScanState.errorCount += errors;
+    }
+    const fileSet = new Set(files);
+    for (const filePath of files) {
+      try {
+        const result = await processVideoFile(filePath, libraryId);
+        videoScanState.videosScanned++;
+        if (result === "added") videoScanState.videosAdded++;
+        if (result === "updated") videoScanState.videosUpdated++;
+      } catch (err) {
+        logger.warn({ err, filePath }, "Error processing video file");
+        videoScanState.hadErrors = true;
+        videoScanState.errorCount++;
+      }
+    }
+    if (errors === 0) {
+      const existingVideos = await db.select({ id: videosTable.id, filePath: videosTable.filePath }).from(videosTable).where(eq(videosTable.libraryId, libraryId));
+      for (const video of existingVideos) {
+        if (!fileSet.has(video.filePath)) {
+          await db.delete(videosTable).where(eq(videosTable.id, video.id));
+          videoScanState.videosRemoved++;
+        }
+      }
+    }
+    await db.update(librariesTable).set({ lastScannedAt: /* @__PURE__ */ new Date() }).where(eq(librariesTable.id, libraryId));
+    logger.info(
+      {
+        libraryId,
+        videosScanned: videoScanState.videosScanned,
+        videosAdded: videoScanState.videosAdded,
+        videosUpdated: videoScanState.videosUpdated,
+        videosRemoved: videoScanState.videosRemoved
+      },
+      "Video library scan complete"
+    );
+  } catch (err) {
+    logger.error({ err, libraryId }, "Error during video library scan");
+  } finally {
+    videoScanState.scanning = false;
+    videoScanState.currentLibraryId = null;
+  }
+}
+
 // src/routes/music/libraries.ts
 var router2 = (0, import_express2.Router)();
 router2.get("/libraries", async (req, res) => {
@@ -75310,34 +75714,43 @@ router2.get("/libraries", async (req, res) => {
     id: lib.id,
     name: lib.name,
     path: lib.path,
+    type: lib.type,
     createdAt: lib.createdAt,
     lastScannedAt: lib.lastScannedAt ?? null
   })) });
 });
 router2.post("/libraries", async (req, res) => {
-  const { name, path: libPath } = req.body;
+  const { name, path: libPath, type } = req.body;
   if (!name || !libPath) {
     res.status(400).json({ error: "name and path are required" });
     return;
   }
+  const libraryType = type === "video" ? "video" : "music";
   try {
     await access(libPath);
   } catch {
     res.status(400).json({ error: `Path does not exist or is not accessible: ${libPath}` });
     return;
   }
-  const [library] = await db.insert(librariesTable).values({ name, path: libPath }).onConflictDoNothing().returning();
+  const [library] = await db.insert(librariesTable).values({ name, path: libPath, type: libraryType }).onConflictDoNothing().returning();
   if (!library) {
     res.status(400).json({ error: "A library with this path already exists" });
     return;
   }
-  scanLibrary(library.id).catch((err) => {
-    req.log?.error?.({ err }, "Auto-scan error after library add");
-  });
+  if (libraryType === "video") {
+    scanVideoLibrary(library.id).catch((err) => {
+      req.log?.error?.({ err }, "Auto-scan error after video library add");
+    });
+  } else {
+    scanLibrary(library.id).catch((err) => {
+      req.log?.error?.({ err }, "Auto-scan error after library add");
+    });
+  }
   res.status(201).json({
     id: library.id,
     name: library.name,
     path: library.path,
+    type: library.type,
     createdAt: library.createdAt,
     lastScannedAt: library.lastScannedAt ?? null
   });
@@ -75366,10 +75779,18 @@ router2.post("/libraries/:id/scan", async (req, res) => {
     res.status(404).json({ error: "Library not found" });
     return;
   }
-  scanLibrary(id).catch((err) => {
-    req.log.error({ err }, "Scan error");
-  });
-  res.status(202).json(getScanStatus());
+  const library = libraries[0];
+  if (library.type === "video") {
+    scanVideoLibrary(id).catch((err) => {
+      req.log.error({ err }, "Video scan error");
+    });
+    res.status(202).json(getVideoScanStatus());
+  } else {
+    scanLibrary(id).catch((err) => {
+      req.log.error({ err }, "Scan error");
+    });
+    res.status(202).json(getScanStatus());
+  }
 });
 router2.get("/scan/status", (_req, res) => {
   res.json(getScanStatus());
@@ -75667,8 +76088,8 @@ var albums_default = router4;
 // src/routes/music/tracks.ts
 var import_express5 = __toESM(require_express2(), 1);
 import { createReadStream } from "node:fs";
-import { stat as stat2 } from "node:fs/promises";
-var import_fluent_ffmpeg = __toESM(require_fluent_ffmpeg2(), 1);
+import { stat as stat3 } from "node:fs/promises";
+var import_fluent_ffmpeg2 = __toESM(require_fluent_ffmpeg2(), 1);
 
 // src/lib/transcode-config.ts
 function parseWorkers() {
@@ -75880,7 +76301,7 @@ router5.get("/stream/:id", async (req, res) => {
   const { filePath, mimeType } = tracks[0];
   let fileStat;
   try {
-    fileStat = await stat2(filePath);
+    fileStat = await stat3(filePath);
   } catch {
     res.status(404).json({ error: "File not found on disk" });
     return;
@@ -75895,7 +76316,7 @@ router5.get("/stream/:id", async (req, res) => {
       await transcodeSemaphore.run(() => new Promise((resolve, reject) => {
         const { threads: ffmpegThreads, hwaccel, vaapiDevice } = transcodeConfig;
         const useVaapi = hwaccel === "vaapi";
-        let proc = (0, import_fluent_ffmpeg.default)(filePath);
+        let proc = (0, import_fluent_ffmpeg2.default)(filePath);
         if (useVaapi) {
           proc = proc.inputOptions([
             `-hwaccel vaapi`,
@@ -75906,7 +76327,7 @@ router5.get("/stream/:id", async (req, res) => {
         proc.on("error", (err) => {
           if (useVaapi && !res.headersSent) {
             logger.warn({ err, filePath }, "FFmpeg VAAPI transcode error \u2014 falling back to software encoding");
-            const softProc = (0, import_fluent_ffmpeg.default)(filePath).audioCodec("libopus").audioBitrate(bitrate).format("ogg").outputOptions([`-threads ${ffmpegThreads}`]).on("error", (softErr) => {
+            const softProc = (0, import_fluent_ffmpeg2.default)(filePath).audioCodec("libopus").audioBitrate(bitrate).format("ogg").outputOptions([`-threads ${ffmpegThreads}`]).on("error", (softErr) => {
               logger.warn({ err: softErr, filePath }, "FFmpeg software transcode error");
               if (!res.headersSent) {
                 res.status(500).end();
@@ -76048,8 +76469,8 @@ var genres_default = router6;
 // src/routes/music/browse.ts
 var import_express7 = __toESM(require_express2(), 1);
 import { createReadStream as createReadStream2 } from "node:fs";
-import { readdir as readdir2, stat as stat3 } from "node:fs/promises";
-import path2 from "node:path";
+import { readdir as readdir3, stat as stat4 } from "node:fs/promises";
+import path3 from "node:path";
 var router7 = (0, import_express7.Router)();
 var AUDIO_EXTENSIONS2 = /* @__PURE__ */ new Set([
   ".mp3",
@@ -76077,16 +76498,16 @@ function getMimeType2(ext) {
   return map2[ext] ?? "audio/mpeg";
 }
 function isPathSafe(requestedPath, libraryPaths) {
-  const normalized = path2.resolve(requestedPath);
+  const normalized = path3.resolve(requestedPath);
   return libraryPaths.some((libPath) => {
-    const normalizedLib = path2.resolve(libPath);
-    return normalized === normalizedLib || normalized.startsWith(normalizedLib + path2.sep);
+    const normalizedLib = path3.resolve(libPath);
+    return normalized === normalizedLib || normalized.startsWith(normalizedLib + path3.sep);
   });
 }
 async function streamFileByPath(filePath, mimeType, req, res) {
   let fileStat;
   try {
-    fileStat = await stat3(filePath);
+    fileStat = await stat4(filePath);
   } catch {
     res.status(404).json({ error: "File not found on disk" });
     return;
@@ -76134,7 +76555,7 @@ router7.get("/browse/stream", async (req, res) => {
     res.status(403).json({ error: "Path is outside configured libraries" });
     return;
   }
-  const ext = path2.extname(requestedPath).toLowerCase();
+  const ext = path3.extname(requestedPath).toLowerCase();
   if (!AUDIO_EXTENSIONS2.has(ext)) {
     res.status(400).json({ error: "Not an audio file" });
     return;
@@ -76155,7 +76576,7 @@ router7.get("/browse", async (req, res) => {
       browsePath = libraryPaths[0];
     } else {
       const entries2 = libraryPaths.map((p) => ({
-        name: path2.basename(p) || p,
+        name: path3.basename(p) || p,
         path: p,
         type: "directory",
         trackId: null,
@@ -76173,7 +76594,7 @@ router7.get("/browse", async (req, res) => {
   }
   let dirStat;
   try {
-    dirStat = await stat3(browsePath);
+    dirStat = await stat4(browsePath);
   } catch {
     res.status(404).json({ error: "Path not found" });
     return;
@@ -76184,7 +76605,7 @@ router7.get("/browse", async (req, res) => {
   }
   let entries;
   try {
-    entries = await readdir2(browsePath, { withFileTypes: true });
+    entries = await readdir3(browsePath, { withFileTypes: true });
   } catch {
     res.status(500).json({ error: "Could not read directory" });
     return;
@@ -76193,11 +76614,11 @@ router7.get("/browse", async (req, res) => {
   const result = [];
   for (const entry of entries) {
     if (entry.name.startsWith(".")) continue;
-    const fullPath = path2.join(browsePath, entry.name);
+    const fullPath = path3.join(browsePath, entry.name);
     if (entry.isDirectory()) {
       result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null });
     } else if (entry.isFile()) {
-      const ext = path2.extname(entry.name).toLowerCase();
+      const ext = path3.extname(entry.name).toLowerCase();
       if (AUDIO_EXTENSIONS2.has(ext)) {
         audioFiles.push(fullPath);
         result.push({
@@ -76637,14 +77058,584 @@ router10.use(search_default);
 router10.use(playlists_default);
 var music_default = router10;
 
-// src/routes/index.ts
+// src/routes/video/index.ts
+var import_express16 = __toESM(require_express2(), 1);
+
+// src/routes/video/videos.ts
+var import_express11 = __toESM(require_express2(), 1);
 var router11 = (0, import_express11.Router)();
-router11.use(health_default);
-router11.use("/music", music_default);
-var routes_default = router11;
+router11.get("/videos", async (req, res) => {
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize) || 50));
+  const search = req.query.search;
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : void 0;
+  const genre = req.query.genre;
+  const offset = (page - 1) * pageSize;
+  const conditions = [];
+  if (search) conditions.push(ilike(videosTable.title, `%${search}%`));
+  if (libraryId) conditions.push(eq(videosTable.libraryId, libraryId));
+  if (genre) conditions.push(eq(videosTable.genre, genre));
+  const whereClause = conditions.length > 0 ? and(...conditions) : void 0;
+  const [totalResult, videos] = await Promise.all([
+    db.select({ count: count() }).from(videosTable).where(whereClause),
+    db.select({
+      id: videosTable.id,
+      libraryId: videosTable.libraryId,
+      title: videosTable.title,
+      filePath: videosTable.filePath,
+      durationSeconds: videosTable.durationSeconds,
+      width: videosTable.width,
+      height: videosTable.height,
+      mimeType: videosTable.mimeType,
+      genre: videosTable.genre,
+      year: videosTable.year,
+      transcodingStatus: videosTable.transcodingStatus,
+      subtitleTracks: videosTable.subtitleTracks
+    }).from(videosTable).where(whereClause).orderBy(sql`lower(${videosTable.title})`).limit(pageSize).offset(offset)
+  ]);
+  res.json({
+    videos: videos.map((v) => ({
+      id: v.id,
+      libraryId: v.libraryId ?? null,
+      title: v.title,
+      filePath: v.filePath,
+      durationSeconds: v.durationSeconds ?? null,
+      width: v.width ?? null,
+      height: v.height ?? null,
+      mimeType: v.mimeType,
+      genre: v.genre ?? null,
+      year: v.year ?? null,
+      transcodingStatus: v.transcodingStatus,
+      subtitleTracks: v.subtitleTracks ?? []
+    })),
+    total: Number(totalResult[0].count),
+    page,
+    pageSize
+  });
+});
+router11.get("/videos/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const videos = await db.select().from(videosTable).where(eq(videosTable.id, id)).limit(1);
+  if (videos.length === 0) {
+    res.status(404).json({ error: "Video not found" });
+    return;
+  }
+  const v = videos[0];
+  res.json({
+    id: v.id,
+    libraryId: v.libraryId ?? null,
+    title: v.title,
+    filePath: v.filePath,
+    durationSeconds: v.durationSeconds ?? null,
+    width: v.width ?? null,
+    height: v.height ?? null,
+    videoCodec: v.videoCodec ?? null,
+    audioCodec: v.audioCodec ?? null,
+    mimeType: v.mimeType,
+    genre: v.genre ?? null,
+    year: v.year ?? null,
+    transcodingStatus: v.transcodingStatus,
+    transcodedPath: v.transcodedPath ?? null,
+    subtitleTracks: v.subtitleTracks ?? [],
+    createdAt: v.createdAt
+  });
+});
+var videos_default = router11;
+
+// src/routes/video/stream.ts
+var import_express12 = __toESM(require_express2(), 1);
+import { createReadStream as createReadStream3 } from "node:fs";
+import { stat as stat5 } from "node:fs/promises";
+
+// src/lib/video-transcode.ts
+var import_fluent_ffmpeg3 = __toESM(require_fluent_ffmpeg2(), 1);
+import { mkdir } from "node:fs/promises";
+import path4 from "node:path";
+import os from "node:os";
+var TRANSCODE_CACHE_DIR = process.env["VIDEO_TRANSCODE_DIR"] ?? path4.join(os.tmpdir(), "cadence-video-transcode");
+async function ensureTranscodeDir() {
+  await mkdir(TRANSCODE_CACHE_DIR, { recursive: true });
+  return TRANSCODE_CACHE_DIR;
+}
+function getTranscodedPath(videoId) {
+  return path4.join(TRANSCODE_CACHE_DIR, `video-${videoId}.mp4`);
+}
+var activeJobs = /* @__PURE__ */ new Set();
+async function transcodeVideo(videoId) {
+  if (activeJobs.has(videoId)) {
+    logger.info({ videoId }, "Transcode job already in progress");
+    return;
+  }
+  const videos = await db.select({ filePath: videosTable.filePath, transcodingStatus: videosTable.transcodingStatus }).from(videosTable).where(eq(videosTable.id, videoId)).limit(1);
+  if (videos.length === 0) {
+    logger.warn({ videoId }, "Video not found for transcode");
+    return;
+  }
+  const video = videos[0];
+  if (video.transcodingStatus === "done" || video.transcodingStatus === "processing") {
+    return;
+  }
+  activeJobs.add(videoId);
+  await db.update(videosTable).set({ transcodingStatus: "processing" }).where(eq(videosTable.id, videoId));
+  const outputPath = getTranscodedPath(videoId);
+  await ensureTranscodeDir();
+  const { threads: ffmpegThreads, hwaccel, vaapiDevice } = transcodeConfig;
+  const useVaapi = hwaccel === "vaapi";
+  try {
+    await transcodeSemaphore.run(() => new Promise((resolve, reject) => {
+      let proc = (0, import_fluent_ffmpeg3.default)(video.filePath);
+      if (useVaapi) {
+        proc = proc.inputOptions([
+          `-hwaccel vaapi`,
+          `-vaapi_device ${vaapiDevice}`,
+          `-hwaccel_output_format vaapi`
+        ]);
+        proc = proc.outputOptions([
+          `-vf format=nv12|vaapi,hwupload`,
+          `-c:v h264_vaapi`,
+          `-c:a aac`,
+          `-b:a 192k`,
+          `-movflags +faststart`,
+          `-threads ${ffmpegThreads}`
+        ]);
+      } else {
+        proc = proc.videoCodec("libx264").audioCodec("aac").outputOptions([
+          `-crf 23`,
+          `-preset fast`,
+          `-movflags +faststart`,
+          `-b:a 192k`,
+          `-threads ${ffmpegThreads}`
+        ]);
+      }
+      proc = proc.output(outputPath).format("mp4");
+      proc.on("error", async (err) => {
+        if (useVaapi) {
+          logger.warn({ err, videoId }, "VAAPI video transcode failed \u2014 falling back to software");
+          try {
+            await new Promise((res2, rej2) => {
+              (0, import_fluent_ffmpeg3.default)(video.filePath).videoCodec("libx264").audioCodec("aac").outputOptions([
+                `-crf 23`,
+                `-preset fast`,
+                `-movflags +faststart`,
+                `-b:a 192k`,
+                `-threads ${ffmpegThreads}`
+              ]).output(outputPath).format("mp4").on("error", rej2).on("end", res2).run();
+            });
+            resolve();
+          } catch (softErr) {
+            reject(softErr);
+          }
+        } else {
+          reject(err);
+        }
+      }).on("end", () => resolve()).run();
+    }));
+    await db.update(videosTable).set({ transcodingStatus: "done", transcodedPath: outputPath }).where(eq(videosTable.id, videoId));
+    logger.info({ videoId, outputPath }, "Video transcoding complete");
+  } catch (err) {
+    logger.error({ err, videoId }, "Video transcoding failed");
+    await db.update(videosTable).set({ transcodingStatus: "pending" }).where(eq(videosTable.id, videoId));
+  } finally {
+    activeJobs.delete(videoId);
+  }
+}
+async function enqueueVideoTranscode(videoId) {
+  transcodeVideo(videoId).catch((err) => {
+    logger.error({ err, videoId }, "Background video transcode error");
+  });
+}
+
+// src/routes/video/stream.ts
+var router12 = (0, import_express12.Router)();
+async function streamRange(filePath, mimeType, req, res) {
+  let fileStat;
+  try {
+    fileStat = await stat5(filePath);
+  } catch {
+    res.status(404).json({ error: "File not found on disk" });
+    return;
+  }
+  const fileSize = fileStat.size;
+  const range = req.headers.range;
+  if (range) {
+    const match = range.match(/^bytes=(\d*)-(\d*)$/);
+    if (!match) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+    const rawStart = match[1];
+    const rawEnd = match[2];
+    const isSuffix = rawStart === "" && rawEnd !== "";
+    const start = isSuffix ? fileSize - parseInt(rawEnd, 10) : parseInt(rawStart, 10);
+    const end = isSuffix || rawEnd === "" ? fileSize - 1 : Math.min(parseInt(rawEnd, 10), fileSize - 1);
+    if (isNaN(start) || isNaN(end) || start < 0 || end < start || start >= fileSize) {
+      res.status(416).setHeader("Content-Range", `bytes */${fileSize}`).end();
+      return;
+    }
+    const chunkSize = end - start + 1;
+    res.status(206);
+    res.setHeader("Content-Range", `bytes ${start}-${end}/${fileSize}`);
+    res.setHeader("Accept-Ranges", "bytes");
+    res.setHeader("Content-Length", chunkSize);
+    res.setHeader("Content-Type", mimeType);
+    createReadStream3(filePath, { start, end }).pipe(res);
+  } else {
+    res.setHeader("Content-Length", fileSize);
+    res.setHeader("Content-Type", mimeType);
+    res.setHeader("Accept-Ranges", "bytes");
+    createReadStream3(filePath).pipe(res);
+  }
+}
+router12.get("/stream/:id", async (req, res) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid id" });
+    return;
+  }
+  const videos = await db.select({
+    filePath: videosTable.filePath,
+    mimeType: videosTable.mimeType,
+    transcodingStatus: videosTable.transcodingStatus,
+    transcodedPath: videosTable.transcodedPath
+  }).from(videosTable).where(eq(videosTable.id, id)).limit(1);
+  if (videos.length === 0) {
+    res.status(404).json({ error: "Video not found" });
+    return;
+  }
+  const video = videos[0];
+  if (video.transcodingStatus === "done" && video.transcodedPath) {
+    await streamRange(video.transcodedPath, "video/mp4", req, res);
+    return;
+  }
+  if (video.transcodingStatus === "none") {
+    await streamRange(video.filePath, video.mimeType, req, res);
+    return;
+  }
+  if (video.transcodingStatus === "pending") {
+    enqueueVideoTranscode(id).catch((err) => {
+      logger.error({ err, videoId: id }, "Failed to enqueue video transcode");
+    });
+  }
+  res.status(503).json({
+    error: "Video is being transcoded for web compatibility. Try again shortly.",
+    transcodingStatus: video.transcodingStatus
+  });
+});
+var stream_default = router12;
+
+// src/routes/video/subtitles.ts
+var import_express13 = __toESM(require_express2(), 1);
+
+// src/lib/subtitle-cache.ts
+var import_fluent_ffmpeg4 = __toESM(require_fluent_ffmpeg2(), 1);
+import { mkdir as mkdir2, readFile, writeFile, access as access2 } from "node:fs/promises";
+import path5 from "node:path";
+import os2 from "node:os";
+import { spawn } from "node:child_process";
+var SUBTITLE_CACHE_DIR = process.env["SUBTITLE_CACHE_DIR"] ?? path5.join(os2.tmpdir(), "cadence-subtitles");
+async function ensureSubtitleCacheDir() {
+  await mkdir2(SUBTITLE_CACHE_DIR, { recursive: true });
+  return SUBTITLE_CACHE_DIR;
+}
+async function fileExists(p) {
+  try {
+    await access2(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function srtToVtt(srt) {
+  let vtt = "WEBVTT\n\n";
+  const lines = srt.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+  const blocks = lines.split(/\n\n+/);
+  for (const block of blocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
+    const blockLines = trimmed.split("\n");
+    const newLines = [];
+    let inTimecode = false;
+    for (const line2 of blockLines) {
+      if (/^\d+$/.test(line2.trim()) && !inTimecode) {
+        continue;
+      }
+      if (/\d{2}:\d{2}:\d{2},\d{3}/.test(line2)) {
+        inTimecode = true;
+        newLines.push(line2.replace(/,/g, "."));
+      } else {
+        newLines.push(line2);
+      }
+    }
+    if (newLines.length > 0) {
+      vtt += newLines.join("\n") + "\n\n";
+    }
+  }
+  return vtt;
+}
+function getFfmpegBinary() {
+  return import_fluent_ffmpeg4.default._ffmpegPath ?? "ffmpeg";
+}
+async function runFfmpegToString(args) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    const proc = spawn(getFfmpegBinary(), args);
+    proc.stdout.on("data", (chunk) => chunks.push(chunk));
+    proc.stdout.on("end", () => {
+    });
+    proc.stderr.on("data", () => {
+    });
+    proc.on("close", (code) => {
+      if (code === 0 || chunks.length > 0) {
+        resolve(Buffer.concat(chunks).toString("utf-8"));
+      } else {
+        reject(new Error(`ffmpeg exited with code ${code}`));
+      }
+    });
+    proc.on("error", reject);
+  });
+}
+async function convertAssToVttViaFfmpeg(assPath) {
+  return runFfmpegToString(["-i", assPath, "-f", "webvtt", "pipe:1"]);
+}
+async function extractEmbeddedSubtitleViaFfmpeg(videoPath, streamIndex) {
+  return runFfmpegToString([
+    "-i",
+    videoPath,
+    "-map",
+    `0:${streamIndex}`,
+    "-f",
+    "webvtt",
+    "pipe:1"
+  ]);
+}
+async function getSubtitleAsVtt(trackId, type, filePath, streamIndex, sourceVideoPath) {
+  await ensureSubtitleCacheDir();
+  const cacheKey = `${trackId.replace(/[^a-z0-9_-]/gi, "_")}`;
+  const cachePath = path5.join(SUBTITLE_CACHE_DIR, `${cacheKey}.vtt`);
+  if (await fileExists(cachePath)) {
+    return readFile(cachePath);
+  }
+  let vttContent;
+  if (type === "external" && filePath) {
+    const ext = path5.extname(filePath).toLowerCase();
+    if (ext === ".vtt") {
+      const raw = await readFile(filePath, "utf-8");
+      vttContent = raw.startsWith("WEBVTT") ? raw : `WEBVTT
+
+${raw}`;
+    } else if (ext === ".srt") {
+      const raw = await readFile(filePath, "utf-8");
+      vttContent = srtToVtt(raw);
+    } else if (ext === ".ass") {
+      vttContent = await convertAssToVttViaFfmpeg(filePath);
+    } else {
+      throw new Error(`Unsupported subtitle format: ${ext}`);
+    }
+  } else if (type === "embedded" && sourceVideoPath != null && streamIndex != null) {
+    vttContent = await extractEmbeddedSubtitleViaFfmpeg(sourceVideoPath, streamIndex);
+  } else {
+    throw new Error("Invalid subtitle track parameters");
+  }
+  await writeFile(cachePath, vttContent, "utf-8");
+  return Buffer.from(vttContent, "utf-8");
+}
+
+// src/routes/video/subtitles.ts
+var router13 = (0, import_express13.Router)();
+router13.get("/subtitles/:videoId/:trackId", async (req, res) => {
+  const videoId = Number(req.params.videoId);
+  const trackId = req.params.trackId;
+  if (isNaN(videoId)) {
+    res.status(400).json({ error: "Invalid videoId" });
+    return;
+  }
+  const videos = await db.select({ filePath: videosTable.filePath, subtitleTracks: videosTable.subtitleTracks }).from(videosTable).where(eq(videosTable.id, videoId)).limit(1);
+  if (videos.length === 0) {
+    res.status(404).json({ error: "Video not found" });
+    return;
+  }
+  const video = videos[0];
+  const tracks = video.subtitleTracks ?? [];
+  const track = tracks.find((t) => t.id === trackId);
+  if (!track) {
+    res.status(404).json({ error: "Subtitle track not found" });
+    return;
+  }
+  try {
+    const cacheKey = `${videoId}-${trackId}`;
+    const vttBuffer = await getSubtitleAsVtt(
+      cacheKey,
+      track.type,
+      track.path,
+      track.streamIndex,
+      track.type === "embedded" ? video.filePath : void 0
+    );
+    res.setHeader("Content-Type", "text/vtt; charset=utf-8");
+    res.setHeader("Content-Length", vttBuffer.length);
+    res.send(vttBuffer);
+  } catch (err) {
+    logger.error({ err, videoId, trackId }, "Failed to serve subtitle");
+    res.status(500).json({ error: "Failed to process subtitle track" });
+  }
+});
+var subtitles_default = router13;
+
+// src/routes/video/genres.ts
+var import_express14 = __toESM(require_express2(), 1);
+var router14 = (0, import_express14.Router)();
+router14.get("/genres", async (_req, res) => {
+  const rows = await db.select({
+    genre: videosTable.genre,
+    count: sql`cast(count(*) as int)`
+  }).from(videosTable).where(isNotNull(videosTable.genre)).groupBy(videosTable.genre).orderBy(sql`lower(${videosTable.genre})`);
+  res.json({
+    genres: rows.map((r) => ({
+      name: r.genre,
+      videoCount: r.count
+    }))
+  });
+});
+var genres_default2 = router14;
+
+// src/routes/video/browse.ts
+var import_express15 = __toESM(require_express2(), 1);
+import { readdir as readdir4, stat as stat6 } from "node:fs/promises";
+import path6 from "node:path";
+var router15 = (0, import_express15.Router)();
+var VIDEO_EXTENSIONS2 = /* @__PURE__ */ new Set([
+  ".mp4",
+  ".mkv",
+  ".mov",
+  ".avi",
+  ".webm",
+  ".m4v"
+]);
+function isPathSafe2(requestedPath, libraryPaths) {
+  const normalized = path6.resolve(requestedPath);
+  return libraryPaths.some((libPath) => {
+    const normalizedLib = path6.resolve(libPath);
+    return normalized === normalizedLib || normalized.startsWith(normalizedLib + path6.sep);
+  });
+}
+router15.get("/browse", async (req, res) => {
+  const requestedPath = req.query.path || "/";
+  const libraries = await db.select({ path: librariesTable.path }).from(librariesTable).where(eq(librariesTable.type, "video"));
+  const libraryPaths = libraries.map((l) => l.path);
+  let browsePath;
+  if (requestedPath === "/" || requestedPath === "") {
+    if (libraryPaths.length === 0) {
+      res.json({ path: "/", entries: [], noLibraries: true });
+      return;
+    }
+    if (libraryPaths.length === 1) {
+      browsePath = libraryPaths[0];
+    } else {
+      const entries2 = libraryPaths.map((p) => ({
+        name: path6.basename(p) || p,
+        path: p,
+        type: "directory",
+        videoId: null,
+        mimeType: null
+      }));
+      res.json({ path: "/", entries: entries2 });
+      return;
+    }
+  } else {
+    browsePath = requestedPath;
+    if (!isPathSafe2(browsePath, libraryPaths)) {
+      res.status(403).json({ error: "Path is outside configured video libraries" });
+      return;
+    }
+  }
+  let dirStat;
+  try {
+    dirStat = await stat6(browsePath);
+  } catch {
+    res.status(404).json({ error: "Path not found" });
+    return;
+  }
+  if (!dirStat.isDirectory()) {
+    res.status(400).json({ error: "Path is not a directory" });
+    return;
+  }
+  let entries;
+  try {
+    entries = await readdir4(browsePath, { withFileTypes: true });
+  } catch {
+    res.status(500).json({ error: "Could not read directory" });
+    return;
+  }
+  const videoFiles = [];
+  const result = [];
+  const MIME_MAP = {
+    ".mp4": "video/mp4",
+    ".mkv": "video/x-matroska",
+    ".mov": "video/quicktime",
+    ".avi": "video/x-msvideo",
+    ".webm": "video/webm",
+    ".m4v": "video/mp4"
+  };
+  for (const entry of entries) {
+    if (entry.name.startsWith(".")) continue;
+    const fullPath = path6.join(browsePath, entry.name);
+    if (entry.isDirectory()) {
+      result.push({ name: entry.name, path: fullPath, type: "directory", videoId: null, mimeType: null });
+    } else if (entry.isFile()) {
+      const ext = path6.extname(entry.name).toLowerCase();
+      if (VIDEO_EXTENSIONS2.has(ext)) {
+        videoFiles.push(fullPath);
+        result.push({
+          name: entry.name,
+          path: fullPath,
+          type: "file",
+          videoId: null,
+          mimeType: MIME_MAP[ext] ?? "video/mp4"
+        });
+      }
+    }
+  }
+  if (videoFiles.length > 0) {
+    try {
+      const videoRows = await db.select({ id: videosTable.id, filePath: videosTable.filePath }).from(videosTable).where(inArray(videosTable.filePath, videoFiles));
+      const videoMap = new Map(videoRows.map((v) => [v.filePath, v.id]));
+      for (const entry of result) {
+        if (entry.type === "file") {
+          entry.videoId = videoMap.get(entry.path) ?? null;
+        }
+      }
+    } catch {
+    }
+  }
+  result.sort((a, b) => {
+    if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
+    return a.name.localeCompare(b.name);
+  });
+  res.json({ path: browsePath, entries: result });
+});
+var browse_default2 = router15;
+
+// src/routes/video/index.ts
+var router16 = (0, import_express16.Router)();
+router16.use(videos_default);
+router16.use(stream_default);
+router16.use(subtitles_default);
+router16.use(genres_default2);
+router16.use(browse_default2);
+var video_default = router16;
+
+// src/routes/index.ts
+var router17 = (0, import_express17.Router)();
+router17.use(health_default);
+router17.use("/music", music_default);
+router17.use("/video", video_default);
+var routes_default = router17;
 
 // src/app.ts
-var app = (0, import_express12.default)();
+var app = (0, import_express18.default)();
 app.use((0, import_compression.default)());
 app.use(
   (0, import_pino_http.default)({
@@ -76666,15 +77657,15 @@ app.use(
   })
 );
 app.use((0, import_cors.default)());
-app.use(import_express12.default.json());
-app.use(import_express12.default.urlencoded({ extended: true }));
+app.use(import_express18.default.json());
+app.use(import_express18.default.urlencoded({ extended: true }));
 app.use("/api", routes_default);
 if (process.env.NODE_ENV === "production") {
-  const __dirname2 = path3.dirname(fileURLToPath(import.meta.url));
-  const webClientDist = process.env.WEB_CLIENT_DIST ?? path3.resolve(__dirname2, "../../web-client/dist/public");
-  app.use(import_express12.default.static(webClientDist));
+  const __dirname2 = path7.dirname(fileURLToPath(import.meta.url));
+  const webClientDist = process.env.WEB_CLIENT_DIST ?? path7.resolve(__dirname2, "../../web-client/dist/public");
+  app.use(import_express18.default.static(webClientDist));
   app.get(/^(?!\/api).*/, (_req, res) => {
-    res.sendFile(path3.join(webClientDist, "index.html"));
+    res.sendFile(path7.join(webClientDist, "index.html"));
   });
 }
 var app_default = app;

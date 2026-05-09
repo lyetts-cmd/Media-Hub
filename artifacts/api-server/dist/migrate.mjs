@@ -12235,10 +12235,12 @@ __export(schema_exports, {
   insertGenreSchema: () => insertGenreSchema,
   insertLibrarySchema: () => insertLibrarySchema,
   insertTrackSchema: () => insertTrackSchema,
+  insertVideoSchema: () => insertVideoSchema,
   librariesTable: () => librariesTable,
   playlistTracksTable: () => playlistTracksTable,
   playlistsTable: () => playlistsTable,
-  tracksTable: () => tracksTable
+  tracksTable: () => tracksTable,
+  videosTable: () => videosTable
 });
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/classic/external.js
@@ -23632,6 +23634,7 @@ var librariesTable = pgTable("libraries", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   path: text("path").notNull().unique(),
+  type: text("type").notNull().default("music"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   lastScannedAt: timestamp("last_scanned_at", { withTimezone: true })
 });
@@ -23729,6 +23732,34 @@ var playlistTracksTable = pgTable(
   })
 );
 
+// ../../lib/db/src/schema/videos.ts
+var videosTable = pgTable(
+  "videos",
+  {
+    id: serial("id").primaryKey(),
+    libraryId: integer("library_id").references(() => librariesTable.id, { onDelete: "cascade" }),
+    title: text("title").notNull(),
+    filePath: text("file_path").notNull().unique(),
+    durationSeconds: real("duration_seconds"),
+    width: integer("width"),
+    height: integer("height"),
+    videoCodec: text("video_codec"),
+    audioCodec: text("audio_codec"),
+    mimeType: text("mime_type").notNull(),
+    genre: text("genre"),
+    year: integer("year"),
+    subtitleTracks: jsonb("subtitle_tracks").$type().default([]),
+    transcodingStatus: text("transcoding_status").notNull().default("none"),
+    transcodedPath: text("transcoded_path"),
+    fileModifiedAt: timestamp("file_modified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    libraryIdx: index("videos_library_idx").on(table.libraryId)
+  })
+);
+var insertVideoSchema = createInsertSchema(videosTable).omit({ id: true, createdAt: true });
+
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
 if (!process.env.DATABASE_URL) {
@@ -23824,6 +23855,33 @@ async function migrate() {
     await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked boolean NOT NULL DEFAULT false`);
     await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked_at timestamptz`);
     console.log("  ok  tracks.liked / tracks.liked_at");
+    await client.query(`ALTER TABLE libraries ADD COLUMN IF NOT EXISTS type text NOT NULL DEFAULT 'music'`);
+    console.log("  ok  libraries.type");
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS videos (
+        id                 serial      PRIMARY KEY,
+        library_id         integer     REFERENCES libraries(id) ON DELETE CASCADE,
+        title              text        NOT NULL,
+        file_path          text        NOT NULL UNIQUE,
+        duration_seconds   real,
+        width              integer,
+        height             integer,
+        video_codec        text,
+        audio_codec        text,
+        mime_type          text        NOT NULL,
+        genre              text,
+        year               integer,
+        subtitle_tracks    jsonb       NOT NULL DEFAULT '[]',
+        transcoding_status text        NOT NULL DEFAULT 'none',
+        transcoded_path    text,
+        file_modified_at   timestamptz,
+        created_at         timestamptz NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(
+      "CREATE INDEX IF NOT EXISTS videos_library_idx ON videos(library_id)"
+    );
+    console.log("  ok  videos");
     await client.query(`
       CREATE TABLE IF NOT EXISTS playlists (
         id         serial      PRIMARY KEY,

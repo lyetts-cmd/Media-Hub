@@ -94,6 +94,37 @@ async function migrate() {
     await client.query(`ALTER TABLE tracks ADD COLUMN IF NOT EXISTS liked_at timestamptz`);
     console.log("  ok  tracks.liked / tracks.liked_at");
 
+    // v3: library type (music | video)
+    await client.query(`ALTER TABLE libraries ADD COLUMN IF NOT EXISTS type text NOT NULL DEFAULT 'music'`);
+    console.log("  ok  libraries.type");
+
+    // v3: videos table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS videos (
+        id                 serial      PRIMARY KEY,
+        library_id         integer     REFERENCES libraries(id) ON DELETE CASCADE,
+        title              text        NOT NULL,
+        file_path          text        NOT NULL UNIQUE,
+        duration_seconds   real,
+        width              integer,
+        height             integer,
+        video_codec        text,
+        audio_codec        text,
+        mime_type          text        NOT NULL,
+        genre              text,
+        year               integer,
+        subtitle_tracks    jsonb       NOT NULL DEFAULT '[]',
+        transcoding_status text        NOT NULL DEFAULT 'none',
+        transcoded_path    text,
+        file_modified_at   timestamptz,
+        created_at         timestamptz NOT NULL DEFAULT NOW()
+      )
+    `);
+    await client.query(
+      "CREATE INDEX IF NOT EXISTS videos_library_idx ON videos(library_id)"
+    );
+    console.log("  ok  videos");
+
     // v2: playlists
     await client.query(`
       CREATE TABLE IF NOT EXISTS playlists (

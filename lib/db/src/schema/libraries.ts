@@ -6,6 +6,7 @@ export const librariesTable = pgTable("libraries", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   path: text("path").notNull().unique(),
+  type: text("type").notNull().default("music"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   lastScannedAt: timestamp("last_scanned_at", { withTimezone: true }),
 });

@@ -24,6 +24,7 @@ export const ListLibrariesResponse = zod.object({
       id: zod.number(),
       name: zod.string(),
       path: zod.string(),
+      type: zod.enum(["music", "video"]),
       createdAt: zod.date(),
       lastScannedAt: zod.date().nullish(),
     }),
@@ -36,6 +37,7 @@ export const ListLibrariesResponse = zod.object({
 export const AddLibraryBody = zod.object({
   name: zod.string(),
   path: zod.string(),
+  type: zod.enum(["music", "video"]).optional(),
 });
 
 /**
@@ -728,4 +730,139 @@ export const ReorderPlaylistTracksResponse = zod.object({
 export const RemoveTrackFromPlaylistParams = zod.object({
   id: zod.coerce.number(),
   trackId: zod.coerce.number(),
+});
+
+/**
+ * @summary List all videos
+ */
+export const listVideosQueryPageDefault = 1;
+export const listVideosQueryPageSizeDefault = 50;
+
+export const ListVideosQueryParams = zod.object({
+  page: zod.coerce.number().default(listVideosQueryPageDefault),
+  pageSize: zod.coerce.number().default(listVideosQueryPageSizeDefault),
+  search: zod.coerce.string().optional(),
+  libraryId: zod.coerce.number().optional(),
+  genre: zod.coerce.string().optional(),
+});
+
+export const ListVideosResponse = zod.object({
+  videos: zod.array(
+    zod.object({
+      id: zod.number(),
+      libraryId: zod.number().nullish(),
+      title: zod.string(),
+      filePath: zod.string(),
+      durationSeconds: zod.number().nullish(),
+      width: zod.number().nullish(),
+      height: zod.number().nullish(),
+      mimeType: zod.string(),
+      genre: zod.string().nullish(),
+      year: zod.number().nullish(),
+      transcodingStatus: zod.enum(["none", "pending", "processing", "done"]),
+      subtitleTracks: zod.array(
+        zod.object({
+          id: zod.string(),
+          label: zod.string(),
+          language: zod.string().nullish(),
+          type: zod.enum(["external", "embedded"]),
+          path: zod.string().nullish(),
+          streamIndex: zod.number().nullish(),
+        }),
+      ),
+    }),
+  ),
+  total: zod.number(),
+  page: zod.number(),
+  pageSize: zod.number(),
+});
+
+/**
+ * @summary Get video details including subtitle tracks and transcoding status
+ */
+export const GetVideoParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetVideoResponse = zod.object({
+  id: zod.number(),
+  libraryId: zod.number().nullish(),
+  title: zod.string(),
+  filePath: zod.string(),
+  durationSeconds: zod.number().nullish(),
+  width: zod.number().nullish(),
+  height: zod.number().nullish(),
+  videoCodec: zod.string().nullish(),
+  audioCodec: zod.string().nullish(),
+  mimeType: zod.string(),
+  genre: zod.string().nullish(),
+  year: zod.number().nullish(),
+  transcodingStatus: zod.enum(["none", "pending", "processing", "done"]),
+  transcodedPath: zod.string().nullish(),
+  subtitleTracks: zod.array(
+    zod.object({
+      id: zod.string(),
+      label: zod.string(),
+      language: zod.string().nullish(),
+      type: zod.enum(["external", "embedded"]),
+      path: zod.string().nullish(),
+      streamIndex: zod.number().nullish(),
+    }),
+  ),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Stream video file with range request support
+ */
+export const StreamVideoParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+/**
+ * @summary Get subtitle track as WebVTT (converts .srt/.ass and extracts embedded streams)
+ */
+export const GetSubtitlesParams = zod.object({
+  videoId: zod.coerce.number(),
+  trackId: zod.coerce.string(),
+});
+
+/**
+ * @summary List distinct video genres with counts
+ */
+export const ListVideoGenresResponse = zod.object({
+  genres: zod.array(
+    zod.object({
+      name: zod.string(),
+      videoCount: zod.number(),
+    }),
+  ),
+});
+
+/**
+ * @summary Browse video libraries by folder path
+ */
+export const browseVideoFolderQueryPathDefault = `/`;
+
+export const BrowseVideoFolderQueryParams = zod.object({
+  path: zod.coerce.string().default(browseVideoFolderQueryPathDefault),
+});
+
+export const BrowseVideoFolderResponse = zod.object({
+  path: zod.string(),
+  entries: zod.array(
+    zod.object({
+      name: zod.string(),
+      path: zod.string(),
+      type: zod.enum(["directory", "file"]),
+      videoId: zod.number().nullish(),
+      mimeType: zod.string().nullish(),
+    }),
+  ),
+  noLibraries: zod
+    .boolean()
+    .optional()
+    .describe(
+      "True when no video libraries are configured and the root was requested",
+    ),
 });

@@ -5,3 +5,4 @@ export * from "./albumArt";
 export * from "./genres";
 export * from "./tracks";
 export * from "./playlists";
+export * from "./videos";

@@ -4,6 +4,7 @@ import { db } from "@workspace/db";
 import { librariesTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { scanLibrary, getScanStatus } from "../../lib/scanner";
+import { scanVideoLibrary, getVideoScanStatus } from "../../lib/video-scanner";
 
 const router: IRouter = Router();
 
@@ -13,18 +14,21 @@ router.get("/libraries", async (req, res) => {
     id: lib.id,
     name: lib.name,
     path: lib.path,
+    type: lib.type,
     createdAt: lib.createdAt,
     lastScannedAt: lib.lastScannedAt ?? null,
   }))});
 });
 
 router.post("/libraries", async (req, res) => {
-  const { name, path: libPath } = req.body as { name?: string; path?: string };
+  const { name, path: libPath, type } = req.body as { name?: string; path?: string; type?: string };
 
   if (!name || !libPath) {
     res.status(400).json({ error: "name and path are required" });
     return;
   }
+
+  const libraryType = type === "video" ? "video" : "music";
 
   try {
     await access(libPath);
@@ -35,7 +39,7 @@ router.post("/libraries", async (req, res) => {
 
   const [library] = await db
     .insert(librariesTable)
-    .values({ name, path: libPath })
+    .values({ name, path: libPath, type: libraryType })
     .onConflictDoNothing()
     .returning();
 
@@ -44,15 +48,21 @@ router.post("/libraries", async (req, res) => {
     return;
   }
 
-  // Automatically trigger a scan for the newly added library
-  scanLibrary(library.id).catch((err) => {
-    req.log?.error?.({ err }, "Auto-scan error after library add");
-  });
+  if (libraryType === "video") {
+    scanVideoLibrary(library.id).catch((err) => {
+      req.log?.error?.({ err }, "Auto-scan error after video library add");
+    });
+  } else {
+    scanLibrary(library.id).catch((err) => {
+      req.log?.error?.({ err }, "Auto-scan error after library add");
+    });
+  }
 
   res.status(201).json({
     id: library.id,
     name: library.name,
     path: library.path,
+    type: library.type,
     createdAt: library.createdAt,
     lastScannedAt: library.lastScannedAt ?? null,
   });
@@ -96,11 +106,19 @@ router.post("/libraries/:id/scan", async (req, res) => {
     return;
   }
 
-  scanLibrary(id).catch((err) => {
-    req.log.error({ err }, "Scan error");
-  });
+  const library = libraries[0];
 
-  res.status(202).json(getScanStatus());
+  if (library.type === "video") {
+    scanVideoLibrary(id).catch((err) => {
+      req.log.error({ err }, "Video scan error");
+    });
+    res.status(202).json(getVideoScanStatus());
+  } else {
+    scanLibrary(id).catch((err) => {
+      req.log.error({ err }, "Scan error");
+    });
+    res.status(202).json(getScanStatus());
+  }
 });
 
 router.get("/scan/status", (_req, res) => {

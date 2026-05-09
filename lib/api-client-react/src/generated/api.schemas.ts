@@ -13,17 +13,34 @@ export interface ErrorResponse {
   error: string;
 }
 
+export type LibraryType = (typeof LibraryType)[keyof typeof LibraryType];
+
+export const LibraryType = {
+  music: "music",
+  video: "video",
+} as const;
+
 export interface Library {
   id: number;
   name: string;
   path: string;
+  type: LibraryType;
   createdAt: string;
   lastScannedAt?: string | null;
 }
 
+export type AddLibraryRequestType =
+  (typeof AddLibraryRequestType)[keyof typeof AddLibraryRequestType];
+
+export const AddLibraryRequestType = {
+  music: "music",
+  video: "video",
+} as const;
+
 export interface AddLibraryRequest {
   name: string;
   path: string;
+  type?: AddLibraryRequestType;
 }
 
 export interface ScanStatus {
@@ -186,6 +203,102 @@ export interface AddTrackToPlaylistRequest {
   trackId: number;
 }
 
+export type TranscodingStatus =
+  (typeof TranscodingStatus)[keyof typeof TranscodingStatus];
+
+export const TranscodingStatus = {
+  none: "none",
+  pending: "pending",
+  processing: "processing",
+  done: "done",
+} as const;
+
+export type SubtitleTrackType =
+  (typeof SubtitleTrackType)[keyof typeof SubtitleTrackType];
+
+export const SubtitleTrackType = {
+  external: "external",
+  embedded: "embedded",
+} as const;
+
+export interface SubtitleTrack {
+  id: string;
+  label: string;
+  language?: string | null;
+  type: SubtitleTrackType;
+  path?: string | null;
+  streamIndex?: number | null;
+}
+
+export interface Video {
+  id: number;
+  libraryId?: number | null;
+  title: string;
+  filePath: string;
+  durationSeconds?: number | null;
+  width?: number | null;
+  height?: number | null;
+  mimeType: string;
+  genre?: string | null;
+  year?: number | null;
+  transcodingStatus: TranscodingStatus;
+  subtitleTracks: SubtitleTrack[];
+}
+
+export interface VideoDetail {
+  id: number;
+  libraryId?: number | null;
+  title: string;
+  filePath: string;
+  durationSeconds?: number | null;
+  width?: number | null;
+  height?: number | null;
+  videoCodec?: string | null;
+  audioCodec?: string | null;
+  mimeType: string;
+  genre?: string | null;
+  year?: number | null;
+  transcodingStatus: TranscodingStatus;
+  transcodedPath?: string | null;
+  subtitleTracks: SubtitleTrack[];
+  createdAt: string;
+}
+
+export interface VideoListResponse {
+  videos: Video[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface VideoGenre {
+  name: string;
+  videoCount: number;
+}
+
+export type VideoFolderEntryType =
+  (typeof VideoFolderEntryType)[keyof typeof VideoFolderEntryType];
+
+export const VideoFolderEntryType = {
+  directory: "directory",
+  file: "file",
+} as const;
+
+export interface VideoFolderEntry {
+  name: string;
+  path: string;
+  type: VideoFolderEntryType;
+  videoId?: number | null;
+  mimeType?: string | null;
+}
+
+export interface VideoFolderContents {
+  path: string;
+  entries: VideoFolderEntry[];
+  /** True when no video libraries are configured and the root was requested */
+  noLibraries?: boolean;
+}
+
 export type ListLibraries200 = {
   libraries: Library[];
 };
@@ -245,4 +358,20 @@ export type ListPlaylists200 = {
 
 export type ReorderPlaylistTracksBody = {
   trackIds: number[];
+};
+
+export type ListVideosParams = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  libraryId?: number;
+  genre?: string;
+};
+
+export type ListVideoGenres200 = {
+  genres: VideoGenre[];
+};
+
+export type BrowseVideoFolderParams = {
+  path?: string;
 };
