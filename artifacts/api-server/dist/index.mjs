@@ -75670,6 +75670,46 @@ import { createReadStream } from "node:fs";
 import { stat as stat2 } from "node:fs/promises";
 var import_fluent_ffmpeg = __toESM(require_fluent_ffmpeg2(), 1);
 
+// src/lib/transcode-config.ts
+function parseWorkers() {
+  const raw = process.env["TRANSCODE_WORKERS"];
+  if (!raw) return 1;
+  const val = parseInt(raw, 10);
+  if (!Number.isInteger(val) || val <= 0) {
+    logger.warn(
+      { TRANSCODE_WORKERS: raw },
+      "TRANSCODE_WORKERS is not a positive integer \u2014 defaulting to 1"
+    );
+    return 1;
+  }
+  if (val > 8) {
+    logger.warn(
+      { TRANSCODE_WORKERS: val },
+      "TRANSCODE_WORKERS exceeds recommended ceiling of 8 \u2014 this may overload the system"
+    );
+  }
+  return val;
+}
+function parseThreads() {
+  const raw = process.env["FFMPEG_THREADS"];
+  if (!raw) return 0;
+  const val = parseInt(raw, 10);
+  if (!Number.isInteger(val) || val < 0) {
+    logger.warn(
+      { FFMPEG_THREADS: raw },
+      "FFMPEG_THREADS is not a non-negative integer \u2014 defaulting to 0 (auto)"
+    );
+    return 0;
+  }
+  return val;
+}
+var transcodeConfig = {
+  workers: parseWorkers(),
+  threads: parseThreads(),
+  hwaccel: (process.env["FFMPEG_HWACCEL"] ?? "").toLowerCase(),
+  vaapiDevice: process.env["VAAPI_DEVICE"] ?? "/dev/dri/renderD128"
+};
+
 // src/lib/semaphore.ts
 var Semaphore = class {
   constructor(limit) {
@@ -75704,7 +75744,7 @@ var Semaphore = class {
     }
   }
 };
-var transcodeSemaphore = new Semaphore(1);
+var transcodeSemaphore = new Semaphore(transcodeConfig.workers);
 
 // src/routes/music/tracks.ts
 var router5 = (0, import_express5.Router)();
@@ -75853,14 +75893,42 @@ router5.get("/stream/:id", async (req, res) => {
     res.setHeader("Transfer-Encoding", "chunked");
     try {
       await transcodeSemaphore.run(() => new Promise((resolve, reject) => {
-        const proc = (0, import_fluent_ffmpeg.default)(filePath).audioCodec("libopus").audioBitrate(bitrate).format("ogg").on("error", (err) => {
-          logger.warn({ err, filePath }, "FFmpeg transcode error");
-          if (!res.headersSent) {
-            res.status(500).end();
+        const { threads: ffmpegThreads, hwaccel, vaapiDevice } = transcodeConfig;
+        const useVaapi = hwaccel === "vaapi";
+        let proc = (0, import_fluent_ffmpeg.default)(filePath);
+        if (useVaapi) {
+          proc = proc.inputOptions([
+            `-hwaccel vaapi`,
+            `-vaapi_device ${vaapiDevice}`
+          ]);
+        }
+        proc = proc.audioCodec("libopus").audioBitrate(bitrate).format("ogg").outputOptions([`-threads ${ffmpegThreads}`]);
+        proc.on("error", (err) => {
+          if (useVaapi && !res.headersSent) {
+            logger.warn({ err, filePath }, "FFmpeg VAAPI transcode error \u2014 falling back to software encoding");
+            const softProc = (0, import_fluent_ffmpeg.default)(filePath).audioCodec("libopus").audioBitrate(bitrate).format("ogg").outputOptions([`-threads ${ffmpegThreads}`]).on("error", (softErr) => {
+              logger.warn({ err: softErr, filePath }, "FFmpeg software transcode error");
+              if (!res.headersSent) {
+                res.status(500).end();
+              } else {
+                res.destroy();
+              }
+              reject(softErr);
+            }).on("end", () => resolve());
+            softProc.pipe(res, { end: true });
+            req.on("close", () => {
+              softProc.kill("SIGKILL");
+              resolve();
+            });
           } else {
-            res.destroy();
+            logger.warn({ err, filePath }, "FFmpeg transcode error");
+            if (!res.headersSent) {
+              res.status(500).end();
+            } else {
+              res.destroy();
+            }
+            reject(err);
           }
-          reject(err);
         }).on("end", () => resolve());
         const stream = proc.pipe(res, { end: true });
         req.on("close", () => {
@@ -76631,6 +76699,15 @@ execFile("ffmpeg", ["-version"], (err) => {
     logger.info("ffmpeg is available");
   }
 });
+logger.info(
+  {
+    transcodeWorkers: transcodeConfig.workers,
+    ffmpegThreads: transcodeConfig.threads,
+    ffmpegHwaccel: transcodeConfig.hwaccel || "software (default)",
+    ...transcodeConfig.hwaccel === "vaapi" ? { vaapiDevice: transcodeConfig.vaapiDevice } : {}
+  },
+  "Transcoding configuration"
+);
 app_default.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
