@@ -27,6 +27,12 @@ services:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL:-postgres://cadence:changeme@db:5432/cadence_music}
       MUSIC_DIR: ${MUSIC_DIR:-/music}
+      # Transcoding performance tuning — set these in your .env file.
+      # See install/config.example.env for recommended values per hardware tier.
+      TRANSCODE_WORKERS: ${TRANSCODE_WORKERS:-1}
+      FFMPEG_THREADS: ${FFMPEG_THREADS:-0}
+      FFMPEG_HWACCEL: ${FFMPEG_HWACCEL:-}
+      VAAPI_DEVICE: ${VAAPI_DEVICE:-/dev/dri/renderD128}
     ports:
       - "${PORT:-4000}:${PORT:-4000}"
     volumes:
@@ -34,6 +40,11 @@ services:
       # Change ./music to the absolute path of your music directory, e.g.:
       #   - /home/pi/Music:/music
       - ${MUSIC_DIR:-./music}:/music
+    # VAAPI hardware acceleration (Intel/AMD integrated graphics on Linux x86).
+    # Uncomment the devices block below and set FFMPEG_HWACCEL=vaapi in your
+    # .env file to enable GPU-accelerated transcoding.
+    # devices:
+    #   - /dev/dri/renderD128:/dev/dri/renderD128
 
 volumes:
   db_data:

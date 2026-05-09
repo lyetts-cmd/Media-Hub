@@ -8,6 +8,7 @@ import ffmpeg from "fluent-ffmpeg";
 import { Writable } from "node:stream";
 import { logger } from "../../lib/logger";
 import { transcodeSemaphore } from "../../lib/semaphore";
+import { transcodeConfig } from "../../lib/transcode-config";
 import { getCached, setCached } from "../../lib/api-cache";
 
 const router: IRouter = Router();
@@ -193,18 +194,58 @@ router.get("/stream/:id", async (req, res) => {
 
     try {
       await transcodeSemaphore.run(() => new Promise<void>((resolve, reject) => {
-        const proc = ffmpeg(filePath)
+        const { threads: ffmpegThreads, hwaccel, vaapiDevice } = transcodeConfig;
+        const useVaapi = hwaccel === "vaapi";
+
+        let proc = ffmpeg(filePath);
+
+        if (useVaapi) {
+          proc = proc.inputOptions([
+            `-hwaccel vaapi`,
+            `-vaapi_device ${vaapiDevice}`,
+          ]);
+        }
+
+        proc = proc
           .audioCodec("libopus")
           .audioBitrate(bitrate)
           .format("ogg")
+          .outputOptions([`-threads ${ffmpegThreads}`]);
+
+        proc
           .on("error", (err) => {
-            logger.warn({ err, filePath }, "FFmpeg transcode error");
-            if (!res.headersSent) {
-              res.status(500).end();
+            if (useVaapi && !res.headersSent) {
+              logger.warn({ err, filePath }, "FFmpeg VAAPI transcode error — falling back to software encoding");
+              const softProc = ffmpeg(filePath)
+                .audioCodec("libopus")
+                .audioBitrate(bitrate)
+                .format("ogg")
+                .outputOptions([`-threads ${ffmpegThreads}`])
+                .on("error", (softErr) => {
+                  logger.warn({ err: softErr, filePath }, "FFmpeg software transcode error");
+                  if (!res.headersSent) {
+                    res.status(500).end();
+                  } else {
+                    res.destroy();
+                  }
+                  reject(softErr);
+                })
+                .on("end", () => resolve());
+
+              softProc.pipe(res as unknown as Writable, { end: true });
+              req.on("close", () => {
+                softProc.kill("SIGKILL");
+                resolve();
+              });
             } else {
-              res.destroy();
+              logger.warn({ err, filePath }, "FFmpeg transcode error");
+              if (!res.headersSent) {
+                res.status(500).end();
+              } else {
+                res.destroy();
+              }
+              reject(err);
             }
-            reject(err);
           })
           .on("end", () => resolve());
 

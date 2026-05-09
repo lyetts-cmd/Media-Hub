@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import app from "./app";
 import { logger } from "./lib/logger";
+import { transcodeConfig } from "./lib/transcode-config";
 
 const rawPort = process.env["PORT"];
 
@@ -26,6 +27,16 @@ execFile("ffmpeg", ["-version"], (err) => {
     logger.info("ffmpeg is available");
   }
 });
+
+logger.info(
+  {
+    transcodeWorkers: transcodeConfig.workers,
+    ffmpegThreads: transcodeConfig.threads,
+    ffmpegHwaccel: transcodeConfig.hwaccel || "software (default)",
+    ...(transcodeConfig.hwaccel === "vaapi" ? { vaapiDevice: transcodeConfig.vaapiDevice } : {}),
+  },
+  "Transcoding configuration",
+);
 
 app.listen(port, (err) => {
   if (err) {

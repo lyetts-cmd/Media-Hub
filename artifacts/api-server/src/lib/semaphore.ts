@@ -1,3 +1,5 @@
+import { transcodeConfig } from "./transcode-config";
+
 export class Semaphore {
   private queue: Array<() => void> = [];
   private running = 0;
@@ -34,4 +36,4 @@ export class Semaphore {
   }
 }
 
-export const transcodeSemaphore = new Semaphore(1);
+export const transcodeSemaphore = new Semaphore(transcodeConfig.workers);
