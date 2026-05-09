@@ -191,6 +191,120 @@ To find your Pi's IP: `hostname -I`
 
 ---
 
+## Remote Sharing via Cloudflare Tunnel
+
+By default Cadence Music is only reachable on your local network. If you want to share it with guests — without requiring them to install a VPN — you can expose it over a public HTTPS URL using a Cloudflare Tunnel, then gate that URL with Cloudflare Access so only people you approve can get in.
+
+> **Personal access:** Your WireGuard VPN (if set up on a separate Pi) remains the recommended path for your own access. Cloudflare Access is intended as a guest-sharing layer only.
+>
+> **Future note:** Cloudflare Access is a temporary gate. Once Cadence has a built-in login system, access control will move inside the app and the Access layer can be removed while keeping the Tunnel for the public URL.
+
+---
+
+### How it works
+
+`cloudflared` runs as a lightweight daemon on your Pi. It opens an outbound connection to Cloudflare's edge — no port forwarding or public IP exposure required. Cloudflare Access sits in front of the URL: a guest visits the link, enters their email address, receives a one-time code, and is let in. Nothing to install on the guest's side.
+
+Cloudflare Access is free for up to 50 users.
+
+---
+
+### Prerequisites
+
+1. **A free Cloudflare account** — sign up at [dash.cloudflare.com](https://dash.cloudflare.com/sign-up).
+2. **A domain added to Cloudflare** (recommended for a stable URL). If you just want to test, `cloudflared` can generate a temporary `trycloudflare.com` URL with no domain needed — see the script output for details.
+3. Cadence Music must already be running as a service (Step 8 above).
+
+---
+
+### Step A — Run the setup script
+
+On your Pi, from the Cadence Music directory:
+
+```bash
+sudo bash install/cloudflare-setup.sh
+```
+
+The script will:
+
+1. Install `cloudflared` from the official Cloudflare APT repository.
+2. Open a browser (or print a URL for you to open on another device) to authenticate with your Cloudflare account.
+3. Create a named tunnel called `cadence-music`.
+4. Write `/etc/cloudflared/config.yml` pointing the tunnel at `localhost:4000` (or whatever `PORT` you configured).
+5. Install and start `cloudflared` as a systemd service so the tunnel comes back up automatically after a reboot.
+
+Check that it is running:
+
+```bash
+sudo systemctl status cloudflared
+sudo journalctl -u cloudflared -f
+```
+
+---
+
+### Step B — Get a shareable URL
+
+A named Cloudflare Tunnel does not expose a public URL automatically — you need to route a hostname to it. There are two options:
+
+**Option 1 — Custom domain (recommended, stable URL)**
+
+If you have a domain on Cloudflare, map a subdomain to the tunnel:
+
+```bash
+cloudflared tunnel route dns cadence-music music.yourdomain.com
+```
+
+Then edit `/etc/cloudflared/config.yml` to add a hostname rule above the catch-all `- service:` line:
+
+```yaml
+ingress:
+  - hostname: music.yourdomain.com
+    service: http://localhost:4000
+  - service: http://localhost:4000
+```
+
+Restart the service: `sudo systemctl restart cloudflared`
+
+Your tunnel will now be reachable at `https://music.yourdomain.com`. You can confirm it is healthy in the [Zero Trust dashboard](https://one.dash.cloudflare.com) under **Networks → Tunnels**.
+
+**Option 2 — Quick test without a domain (temporary URL)**
+
+If you do not have a domain yet and just want to try things out, stop the cloudflared service and run the quick-tunnel command instead:
+
+```bash
+sudo systemctl stop cloudflared
+cloudflared tunnel --url http://localhost:4000
+```
+
+This prints a randomly generated `trycloudflare.com` URL that works immediately. The URL changes every time you run the command and the tunnel stops when you press Ctrl+C — so this is for testing only, not for sharing with guests long-term.
+
+---
+
+### Step C — Configure Cloudflare Access (email allowlist)
+
+This step gates your tunnel URL so only people you approve can visit it.
+
+1. In the [Zero Trust dashboard](https://one.dash.cloudflare.com), go to **Access → Applications → Add an application**.
+2. Choose **Self-hosted**.
+3. Set the **Application domain** to your tunnel URL or custom domain.
+4. Under **Policies**, create a policy with **Action: Allow** and add an **Include** rule of type **Emails**, listing each guest's email address.
+5. Save. Cloudflare will now show an email-OTP gate before anyone can reach Cadence.
+
+For detailed UI steps, see the [Cloudflare Access documentation](https://developers.cloudflare.com/cloudflare-one/applications/configure-apps/self-hosted-apps/).
+
+---
+
+### Guest experience
+
+1. Guest visits the public URL.
+2. Cloudflare Access shows a login page — guest enters their email.
+3. If their email is on the allowlist, they receive a one-time code by email.
+4. They enter the code and are redirected to Cadence Music.
+
+No app to install, no VPN configuration required.
+
+---
+
 ## Advanced: Building from Source
 
 If you want to build the application yourself (e.g. on a different architecture, or you prefer not to use pre-built binaries), you will need:
