@@ -8,7 +8,7 @@ Type=simple
 User=cadence
 WorkingDirectory=/opt/cadence-music
 EnvironmentFile=/opt/cadence-music/.env
-ExecStart=/usr/bin/node --enable-source-maps artifacts/api-server/dist/index.mjs
+ExecStart=/usr/bin/node artifacts/api-server/dist/index.mjs
 Restart=on-failure
 RestartSec=5
 

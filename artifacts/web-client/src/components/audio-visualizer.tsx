@@ -3,14 +3,16 @@ import React, { useRef, useEffect } from "react";
 interface Props {
   analyserNode: AnalyserNode | null;
   isPlaying: boolean;
+  isExpanded?: boolean;
   barCount?: number;
   className?: string;
 }
 
-export default function AudioVisualizer({ analyserNode, isPlaying, barCount = 48, className = "" }: Props) {
+export default function AudioVisualizer({ analyserNode, isPlaying, isExpanded = false, barCount = 48, className = "" }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef    = useRef<number | undefined>(undefined);
   const idleFrame = useRef(0);
+  const lastDrawRef = useRef(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,12 +20,22 @@ export default function AudioVisualizer({ analyserNode, isPlaying, barCount = 48
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    if (analyserNode) {
+      analyserNode.fftSize = isExpanded ? 2048 : 512;
+    }
+
     const dataArray = analyserNode
       ? new Uint8Array(analyserNode.frequencyBinCount)
       : new Uint8Array(barCount);
 
-    const draw = () => {
+    const FRAME_INTERVAL = 1000 / 30;
+
+    const draw = (timestamp: number) => {
       rafRef.current = requestAnimationFrame(draw);
+
+      const elapsed = timestamp - lastDrawRef.current;
+      if (elapsed < FRAME_INTERVAL) return;
+      lastDrawRef.current = timestamp - (elapsed % FRAME_INTERVAL);
 
       const W = canvas.width;
       const H = canvas.height;
@@ -33,7 +45,6 @@ export default function AudioVisualizer({ analyserNode, isPlaying, barCount = 48
         analyserNode.getByteFrequencyData(dataArray);
         idleFrame.current = 0;
       } else {
-        // Gentle idle animation when paused or no analyser
         idleFrame.current++;
         const t = idleFrame.current * 0.04;
         for (let i = 0; i < barCount; i++) {
@@ -52,7 +63,6 @@ export default function AudioVisualizer({ analyserNode, isPlaying, barCount = 48
         const x      = i * barW + gap / 2;
         const y      = H - barH;
 
-        // Purple → violet gradient per bar
         const alpha  = isPlaying ? 0.85 + value * 0.15 : 0.35;
         const cr     = Math.round(120 + value * 60);
         const cg     = Math.round(40  + value * 20);
@@ -74,11 +84,11 @@ export default function AudioVisualizer({ analyserNode, isPlaying, barCount = 48
       }
     };
 
-    draw();
+    rafRef.current = requestAnimationFrame(draw);
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [analyserNode, isPlaying, barCount]);
+  }, [analyserNode, isPlaying, isExpanded, barCount]);
 
   return (
     <canvas

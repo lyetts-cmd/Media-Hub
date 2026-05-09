@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { artistsTable, albumsTable, tracksTable } from "@workspace/db/schema";
 import { eq, sql, ilike, count } from "drizzle-orm";
+import { getCached, setCached } from "../../lib/api-cache";
 
 const router: IRouter = Router();
 
@@ -10,6 +11,10 @@ router.get("/artists", async (req, res) => {
   const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize) || 50));
   const search = req.query.search as string | undefined;
   const offset = (page - 1) * pageSize;
+
+  const cacheKey = `artists:${page}:${pageSize}:${search ?? ""}`;
+  const cached = getCached<object>(cacheKey);
+  if (cached) { res.json(cached); return; }
 
   const whereClause = search ? ilike(artistsTable.name, `%${search}%`) : undefined;
 
@@ -41,12 +46,15 @@ router.get("/artists", async (req, res) => {
       .offset(offset),
   ]);
 
-  res.json({
+  const result = {
     artists: artists.map(a => ({ ...a, representativeAlbumId: a.representativeAlbumId ?? null })),
     total: Number(totalResult[0].count),
     page,
     pageSize,
-  });
+  };
+
+  setCached(cacheKey, result);
+  res.json(result);
 });
 
 router.get("/artists/:id", async (req, res) => {

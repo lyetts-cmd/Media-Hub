@@ -295,7 +295,7 @@ export default function PlayerExpanded() {
 
             {/* Visualizer */}
             <div className="px-6 mb-4 h-20 shrink-0">
-              <AudioVisualizer analyserNode={analyserNode} isPlaying={isPlaying} barCount={48} />
+              <AudioVisualizer analyserNode={analyserNode} isPlaying={isPlaying} isExpanded={true} barCount={48} />
             </div>
 
             {/* Secondary control buttons */}

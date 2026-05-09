@@ -7,6 +7,7 @@ Cadence Music is a single Node.js process that serves both the API and the web U
 - Raspberry Pi running Raspberry Pi OS (64-bit recommended) or any Debian-based Linux
 - Node.js 20 LTS or later
 - PostgreSQL 14 or later
+- FFmpeg (required for WMA/APE transcoding)
 - A GitHub account (to clone the repository)
 
 ---
@@ -19,7 +20,16 @@ sudo apt-get install -y nodejs
 node --version   # should print v20.x.x or later
 ```
 
-## Step 2 — Install PostgreSQL
+## Step 2 — Install FFmpeg
+
+FFmpeg is required to transcode WMA and APE files for browser playback. All other formats (MP3, FLAC, OGG, AAC, WAV) play directly without transcoding.
+
+```bash
+sudo apt-get install -y ffmpeg
+ffmpeg -version   # should print version info
+```
+
+## Step 3 — Install PostgreSQL
 
 ```bash
 sudo apt-get install -y postgresql postgresql-contrib
@@ -38,7 +48,7 @@ SQL
 
 ---
 
-## Step 3 — Get the code
+## Step 4 — Get the code
 
 Clone the repository to `/opt/cadence-music`. The pre-built server and web UI are included, so no build step is needed.
 
@@ -49,7 +59,7 @@ git clone https://github.com/your-org/cadence-music.git /opt/cadence-music
 cd /opt/cadence-music
 ```
 
-## Step 4 — Configure environment
+## Step 5 — Configure environment
 
 ```bash
 cp install/config.example.env .env
@@ -72,7 +82,7 @@ PORT=4000
 NODE_ENV=production
 ```
 
-## Step 5 — Set up the database
+## Step 6 — Set up the database
 
 This creates all the required tables. It is safe to run again after updates — it only adds what is missing.
 
@@ -97,7 +107,7 @@ Running Cadence Music database migrations...
 Migration complete. Your database is ready.
 ```
 
-## Step 6 — Test the server
+## Step 7 — Test the server
 
 ```bash
 source .env && node artifacts/api-server/dist/index.mjs
@@ -107,7 +117,7 @@ Open `http://<raspberry-pi-ip>:4000` in your browser. You should see Cadence Mus
 
 ---
 
-## Step 7 — Install as a system service
+## Step 8 — Install as a system service
 
 Create a dedicated user:
 

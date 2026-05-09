@@ -1,6 +1,7 @@
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { parseFile } from "music-metadata";
+import sharp from "sharp";
 import { db } from "@workspace/db";
 import {
   librariesTable,
@@ -12,6 +13,7 @@ import {
 } from "@workspace/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { logger } from "./logger";
+import { clearApiCache } from "./api-cache";
 
 const AUDIO_EXTENSIONS = new Set([
   ".mp3", ".flac", ".ogg", ".m4a", ".aac", ".wav", ".wma", ".opus", ".ape",
@@ -65,26 +67,32 @@ interface CollectResult {
   directoryErrors: number;
 }
 
+const BATCH_SIZE = 8;
+
 async function collectAudioFiles(dirPath: string, isRoot = false): Promise<CollectResult> {
   let directoryErrors = 0;
   const files: string[] = [];
   try {
     const entries = await readdir(dirPath, { withFileTypes: true });
-    await Promise.all(
-      entries.map(async (entry) => {
-        const fullPath = path.join(dirPath, entry.name);
-        if (entry.isDirectory()) {
-          const sub = await collectAudioFiles(fullPath, false);
-          files.push(...sub.files);
-          directoryErrors += sub.directoryErrors;
-        } else if (entry.isFile()) {
-          const ext = path.extname(entry.name).toLowerCase();
-          if (AUDIO_EXTENSIONS.has(ext)) {
-            files.push(fullPath);
+
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const batch = entries.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (entry) => {
+          const fullPath = path.join(dirPath, entry.name);
+          if (entry.isDirectory()) {
+            const sub = await collectAudioFiles(fullPath, false);
+            files.push(...sub.files);
+            directoryErrors += sub.directoryErrors;
+          } else if (entry.isFile()) {
+            const ext = path.extname(entry.name).toLowerCase();
+            if (AUDIO_EXTENSIONS.has(ext)) {
+              files.push(fullPath);
+            }
           }
-        }
-      }),
-    );
+        }),
+      );
+    }
   } catch (err) {
     if (isRoot) {
       throw err;
@@ -157,13 +165,32 @@ async function upsertAlbum(
   return inserted[0].id;
 }
 
+async function resizeArtwork(data: Buffer): Promise<{ buffer: Buffer; mimeType: string }> {
+  const buffer = await sharp(data)
+    .resize(500, 500, { fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: 85 })
+    .toBuffer();
+  return { buffer, mimeType: "image/jpeg" };
+}
+
 async function saveAlbumArt(albumId: number, artData: Buffer, mimeType: string) {
+  let finalData = artData;
+  let finalMime = mimeType;
+
+  try {
+    const resized = await resizeArtwork(artData);
+    finalData = resized.buffer;
+    finalMime = resized.mimeType;
+  } catch (err) {
+    logger.warn({ err, albumId }, "Failed to resize album art, storing original");
+  }
+
   await db
     .insert(albumArtTable)
-    .values({ albumId, data: artData, mimeType })
+    .values({ albumId, data: finalData, mimeType: finalMime })
     .onConflictDoUpdate({
       target: albumArtTable.albumId,
-      set: { data: artData, mimeType },
+      set: { data: finalData, mimeType: finalMime },
     });
   await db
     .update(albumsTable)
@@ -345,6 +372,8 @@ export async function scanLibrary(libraryId: number): Promise<void> {
       .update(librariesTable)
       .set({ lastScannedAt: new Date() })
       .where(eq(librariesTable.id, libraryId));
+
+    clearApiCache();
 
     logger.info(
       {

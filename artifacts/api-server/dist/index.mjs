@@ -1985,8 +1985,8 @@ var require_utf32 = __commonJS({
       outerLoop:
         for (var i = 0; i < bufs.length; i++) {
           var buf = bufs[i];
-          for (var j = 0; j < buf.length; j++) {
-            b.push(buf[j]);
+          for (var j2 = 0; j2 < buf.length; j2++) {
+            b.push(buf[j2]);
             if (b.length === 4) {
               if (charsProcessed === 0) {
                 if (b[0] === 255 && b[1] === 254 && b[2] === 0 && b[3] === 0) {
@@ -2048,19 +2048,19 @@ var require_utf16 = __commonJS({
       }
       var buf2 = Buffer2.alloc(buf.length + 1);
       var i = 0;
-      var j = 0;
+      var j2 = 0;
       if (this.overflowByte !== -1) {
         buf2[0] = buf[0];
         buf2[1] = this.overflowByte;
         i = 1;
-        j = 2;
+        j2 = 2;
       }
-      for (; i < buf.length - 1; i += 2, j += 2) {
-        buf2[j] = buf[i + 1];
-        buf2[j + 1] = buf[i];
+      for (; i < buf.length - 1; i += 2, j2 += 2) {
+        buf2[j2] = buf[i + 1];
+        buf2[j2 + 1] = buf[i];
       }
       this.overflowByte = i == buf.length - 1 ? buf[buf.length - 1] : -1;
-      return buf2.slice(0, j).toString("ucs2");
+      return buf2.slice(0, j2).toString("ucs2");
     };
     Utf16BEDecoder.prototype.end = function() {
       this.overflowByte = -1;
@@ -2134,8 +2134,8 @@ var require_utf16 = __commonJS({
       outerLoop:
         for (var i = 0; i < bufs.length; i++) {
           var buf = bufs[i];
-          for (var j = 0; j < buf.length; j++) {
-            b.push(buf[j]);
+          for (var j2 = 0; j2 < buf.length; j2++) {
+            b.push(buf[j2]);
             if (b.length === 2) {
               if (charsProcessed === 0) {
                 if (b[0] === 255 && b[1] === 254) return "utf-16le";
@@ -3086,13 +3086,13 @@ var require_dbcs_codec = __commonJS({
         var firstByteNode = this.decodeTables[0];
         for (var i2 = 129; i2 <= 254; i2++) {
           var secondByteNode = this.decodeTables[NODE_START - firstByteNode[i2]];
-          for (var j = 48; j <= 57; j++) {
-            if (secondByteNode[j] === UNASSIGNED) {
-              secondByteNode[j] = NODE_START - commonThirdByteNodeIdx;
-            } else if (secondByteNode[j] > NODE_START) {
+          for (var j2 = 48; j2 <= 57; j2++) {
+            if (secondByteNode[j2] === UNASSIGNED) {
+              secondByteNode[j2] = NODE_START - commonThirdByteNodeIdx;
+            } else if (secondByteNode[j2] > NODE_START) {
               throw new Error("gb18030 decode tables conflict at byte 2");
             }
-            var thirdByteNode = this.decodeTables[NODE_START - secondByteNode[j]];
+            var thirdByteNode = this.decodeTables[NODE_START - secondByteNode[j2]];
             for (var k = 129; k <= 254; k++) {
               if (thirdByteNode[k] === UNASSIGNED) {
                 thirdByteNode[k] = NODE_START - commonFourthByteNodeIdx;
@@ -3121,8 +3121,8 @@ var require_dbcs_codec = __commonJS({
           if (typeof val === "number") {
             skipEncodeChars[val] = true;
           } else {
-            for (var j = val.from; j <= val.to; j++) {
-              skipEncodeChars[j] = true;
+            for (var j2 = val.from; j2 <= val.to; j2++) {
+              skipEncodeChars[j2] = true;
             }
           }
         }
@@ -3233,7 +3233,7 @@ var require_dbcs_codec = __commonJS({
         bucket[low] = SEQ_START - this.encodeTableSeq.length;
         this.encodeTableSeq.push(node);
       }
-      for (var j = 1; j < seq.length - 1; j++) {
+      for (var j2 = 1; j2 < seq.length - 1; j2++) {
         var oldVal = node[uCode];
         if (typeof oldVal === "object") {
           node = oldVal;
@@ -3291,7 +3291,7 @@ var require_dbcs_codec = __commonJS({
       var seqObj = this.seqObj;
       var nextChar = -1;
       var i2 = 0;
-      var j = 0;
+      var j2 = 0;
       while (true) {
         if (nextChar === -1) {
           if (i2 == str.length) break;
@@ -3352,13 +3352,13 @@ var require_dbcs_codec = __commonJS({
             var idx = findIdx(this.gb18030.uChars, uCode);
             if (idx != -1) {
               var dbcsCode = this.gb18030.gbChars[idx] + (uCode - this.gb18030.uChars[idx]);
-              newBuf[j++] = 129 + Math.floor(dbcsCode / 12600);
+              newBuf[j2++] = 129 + Math.floor(dbcsCode / 12600);
               dbcsCode = dbcsCode % 12600;
-              newBuf[j++] = 48 + Math.floor(dbcsCode / 1260);
+              newBuf[j2++] = 48 + Math.floor(dbcsCode / 1260);
               dbcsCode = dbcsCode % 1260;
-              newBuf[j++] = 129 + Math.floor(dbcsCode / 10);
+              newBuf[j2++] = 129 + Math.floor(dbcsCode / 10);
               dbcsCode = dbcsCode % 10;
-              newBuf[j++] = 48 + dbcsCode;
+              newBuf[j2++] = 48 + dbcsCode;
               continue;
             }
           }
@@ -3367,49 +3367,49 @@ var require_dbcs_codec = __commonJS({
           dbcsCode = this.defaultCharSingleByte;
         }
         if (dbcsCode < 256) {
-          newBuf[j++] = dbcsCode;
+          newBuf[j2++] = dbcsCode;
         } else if (dbcsCode < 65536) {
-          newBuf[j++] = dbcsCode >> 8;
-          newBuf[j++] = dbcsCode & 255;
+          newBuf[j2++] = dbcsCode >> 8;
+          newBuf[j2++] = dbcsCode & 255;
         } else if (dbcsCode < 16777216) {
-          newBuf[j++] = dbcsCode >> 16;
-          newBuf[j++] = dbcsCode >> 8 & 255;
-          newBuf[j++] = dbcsCode & 255;
+          newBuf[j2++] = dbcsCode >> 16;
+          newBuf[j2++] = dbcsCode >> 8 & 255;
+          newBuf[j2++] = dbcsCode & 255;
         } else {
-          newBuf[j++] = dbcsCode >>> 24;
-          newBuf[j++] = dbcsCode >>> 16 & 255;
-          newBuf[j++] = dbcsCode >>> 8 & 255;
-          newBuf[j++] = dbcsCode & 255;
+          newBuf[j2++] = dbcsCode >>> 24;
+          newBuf[j2++] = dbcsCode >>> 16 & 255;
+          newBuf[j2++] = dbcsCode >>> 8 & 255;
+          newBuf[j2++] = dbcsCode & 255;
         }
       }
       this.seqObj = seqObj;
       this.leadSurrogate = leadSurrogate;
-      return newBuf.slice(0, j);
+      return newBuf.slice(0, j2);
     };
     DBCSEncoder.prototype.end = function() {
       if (this.leadSurrogate === -1 && this.seqObj === void 0) {
         return;
       }
       var newBuf = Buffer2.alloc(10);
-      var j = 0;
+      var j2 = 0;
       if (this.seqObj) {
         var dbcsCode = this.seqObj[DEF_CHAR];
         if (dbcsCode !== void 0) {
           if (dbcsCode < 256) {
-            newBuf[j++] = dbcsCode;
+            newBuf[j2++] = dbcsCode;
           } else {
-            newBuf[j++] = dbcsCode >> 8;
-            newBuf[j++] = dbcsCode & 255;
+            newBuf[j2++] = dbcsCode >> 8;
+            newBuf[j2++] = dbcsCode & 255;
           }
         } else {
         }
         this.seqObj = void 0;
       }
       if (this.leadSurrogate !== -1) {
-        newBuf[j++] = this.defaultCharSingleByte;
+        newBuf[j2++] = this.defaultCharSingleByte;
         this.leadSurrogate = -1;
       }
-      return newBuf.slice(0, j);
+      return newBuf.slice(0, j2);
     };
     DBCSEncoder.prototype.findIdx = findIdx;
     function DBCSDecoder(options, codec) {
@@ -3427,7 +3427,7 @@ var require_dbcs_codec = __commonJS({
       var prevOffset = this.prevBytes.length;
       var seqStart = -this.prevBytes.length;
       var uCode;
-      for (var i2 = 0, j = 0; i2 < buf.length; i2++) {
+      for (var i2 = 0, j2 = 0; i2 < buf.length; i2++) {
         var curByte = i2 >= 0 ? buf[i2] : prevBytes[i2 + prevOffset];
         var uCode = this.decodeTables[nodeIdx][curByte];
         if (uCode >= 0) {
@@ -3449,8 +3449,8 @@ var require_dbcs_codec = __commonJS({
           var seq = this.decodeTableSeq[SEQ_START - uCode];
           for (var k = 0; k < seq.length - 1; k++) {
             uCode = seq[k];
-            newBuf[j++] = uCode & 255;
-            newBuf[j++] = uCode >> 8;
+            newBuf[j2++] = uCode & 255;
+            newBuf[j2++] = uCode >> 8;
           }
           uCode = seq[seq.length - 1];
         } else {
@@ -3459,18 +3459,18 @@ var require_dbcs_codec = __commonJS({
         if (uCode >= 65536) {
           uCode -= 65536;
           var uCodeLead = 55296 | uCode >> 10;
-          newBuf[j++] = uCodeLead & 255;
-          newBuf[j++] = uCodeLead >> 8;
+          newBuf[j2++] = uCodeLead & 255;
+          newBuf[j2++] = uCodeLead >> 8;
           uCode = 56320 | uCode & 1023;
         }
-        newBuf[j++] = uCode & 255;
-        newBuf[j++] = uCode >> 8;
+        newBuf[j2++] = uCode & 255;
+        newBuf[j2++] = uCode >> 8;
         nodeIdx = 0;
         seqStart = i2 + 1;
       }
       this.nodeIdx = nodeIdx;
       this.prevBytes = seqStart >= 0 ? Array.prototype.slice.call(buf, seqStart) : prevBytes.slice(seqStart + prevOffset).concat(Array.prototype.slice.call(buf));
-      return newBuf.slice(0, j).toString("ucs2");
+      return newBuf.slice(0, j2).toString("ucs2");
     };
     DBCSDecoder.prototype.end = function() {
       var ret = "";
@@ -5496,8 +5496,8 @@ var require_ee_first = __commonJS({
         if (!Array.isArray(arr) || arr.length < 2)
           throw new TypeError("each array member must be [ee, events...]");
         var ee = arr[0];
-        for (var j = 1; j < arr.length; j++) {
-          var event = arr[j];
+        for (var j2 = 1; j2 < arr.length; j2++) {
+          var event = arr[j2];
           var fn = listener(event, callback);
           ee.on(event, fn);
           cleanups.push({
@@ -15796,8 +15796,8 @@ var require_object_inspect = __commonJS({
     var hasShammedSymbols = typeof Symbol === "function" && typeof Symbol.iterator === "object";
     var toStringTag = typeof Symbol === "function" && Symbol.toStringTag && (typeof Symbol.toStringTag === hasShammedSymbols ? "object" : "symbol") ? Symbol.toStringTag : null;
     var isEnumerable = Object.prototype.propertyIsEnumerable;
-    var gPO = (typeof Reflect === "function" ? Reflect.getPrototypeOf : Object.getPrototypeOf) || ([].__proto__ === Array.prototype ? function(O) {
-      return O.__proto__;
+    var gPO = (typeof Reflect === "function" ? Reflect.getPrototypeOf : Object.getPrototypeOf) || ([].__proto__ === Array.prototype ? function(O2) {
+      return O2.__proto__;
     } : null);
     function addNumericSeparator(num, str) {
       if (num === Infinity || num === -Infinity || num !== num || num && num > -1e3 && num < 1e3 || $test.call(/e/, str)) {
@@ -16280,9 +16280,9 @@ var require_object_inspect = __commonJS({
         }
       }
       if (typeof gOPS === "function") {
-        for (var j = 0; j < syms.length; j++) {
-          if (isEnumerable.call(obj, syms[j])) {
-            xs.push("[" + inspect(syms[j]) + "]: " + inspect(obj[syms[j]], obj));
+        for (var j2 = 0; j2 < syms.length; j2++) {
+          if (isEnumerable.call(obj, syms[j2])) {
+            xs.push("[" + inspect(syms[j2]) + "]: " + inspect(obj[syms[j2]], obj));
           }
         }
       }
@@ -16662,15 +16662,15 @@ var require_implementation = __commonJS({
       for (var i = 0; i < a.length; i += 1) {
         arr[i] = a[i];
       }
-      for (var j = 0; j < b.length; j += 1) {
-        arr[j + a.length] = b[j];
+      for (var j2 = 0; j2 < b.length; j2 += 1) {
+        arr[j2 + a.length] = b[j2];
       }
       return arr;
     };
     var slicy = function slicy2(arrLike, offset) {
       var arr = [];
-      for (var i = offset || 0, j = 0; i < arrLike.length; i += 1, j += 1) {
-        arr[j] = arrLike[i];
+      for (var i = offset || 0, j2 = 0; i < arrLike.length; i += 1, j2 += 1) {
+        arr[j2] = arrLike[i];
       }
       return arr;
     };
@@ -16825,15 +16825,15 @@ var require_get_proto = __commonJS({
     var reflectGetProto = require_Reflect_getPrototypeOf();
     var originalGetProto = require_Object_getPrototypeOf();
     var getDunderProto = require_get();
-    module.exports = reflectGetProto ? function getProto(O) {
-      return reflectGetProto(O);
-    } : originalGetProto ? function getProto(O) {
-      if (!O || typeof O !== "object" && typeof O !== "function") {
+    module.exports = reflectGetProto ? function getProto(O2) {
+      return reflectGetProto(O2);
+    } : originalGetProto ? function getProto(O2) {
+      if (!O2 || typeof O2 !== "object" && typeof O2 !== "function") {
         throw new TypeError("getProto: not an object");
       }
-      return originalGetProto(O);
-    } : getDunderProto ? function getProto(O) {
-      return getDunderProto(O);
+      return originalGetProto(O2);
+    } : getDunderProto ? function getProto(O2) {
+      return getDunderProto(O2);
     } : null;
   }
 });
@@ -17432,9 +17432,9 @@ var require_utils2 = __commonJS({
         var obj = item.obj[item.prop];
         if (isArray(obj)) {
           var compacted = [];
-          for (var j = 0; j < obj.length; ++j) {
-            if (typeof obj[j] !== "undefined") {
-              compacted[compacted.length] = obj[j];
+          for (var j2 = 0; j2 < obj.length; ++j2) {
+            if (typeof obj[j2] !== "undefined") {
+              compacted[compacted.length] = obj[j2];
             }
           }
           item.obj[item.prop] = compacted;
@@ -17564,8 +17564,8 @@ var require_utils2 = __commonJS({
         });
       }
       var out = "";
-      for (var j = 0; j < string4.length; j += limit) {
-        var segment = string4.length >= limit ? string4.slice(j, j + limit) : string4;
+      for (var j2 = 0; j2 < string4.length; j2 += limit) {
+        var segment = string4.length >= limit ? string4.slice(j2, j2 + limit) : string4;
         var arr = [];
         for (var i = 0; i < segment.length; ++i) {
           var c = segment.charCodeAt(i);
@@ -17600,8 +17600,8 @@ var require_utils2 = __commonJS({
         var item = queue[i];
         var obj = item.obj[item.prop];
         var keys = Object.keys(obj);
-        for (var j = 0; j < keys.length; ++j) {
-          var key = keys[j];
+        for (var j2 = 0; j2 < keys.length; ++j2) {
+          var key = keys[j2];
           var val = obj[key];
           if (typeof val === "object" && val !== null && refs.indexOf(val) === -1) {
             queue[queue.length] = { obj, prop: key };
@@ -17781,8 +17781,8 @@ var require_stringify = __commonJS({
       if (allowEmptyArrays && isArray(obj) && obj.length === 0) {
         return adjustedPrefix + "[]";
       }
-      for (var j = 0; j < objKeys.length; ++j) {
-        var key = objKeys[j];
+      for (var j2 = 0; j2 < objKeys.length; ++j2) {
+        var key = objKeys[j2];
         var value = typeof key === "object" && key && typeof key.value !== "undefined" ? key.value : obj[key];
         if (skipNulls && value === null) {
           continue;
@@ -19359,17 +19359,17 @@ var require_ipaddr = __commonJS({
         throw new Error("ipaddr: string is not formatted like an IPv4 CIDR range");
       };
       ipaddr.IPv4.subnetMaskFromPrefixLength = function(prefix) {
-        var filledOctetCount, j, octets;
+        var filledOctetCount, j2, octets;
         prefix = parseInt(prefix);
         if (prefix < 0 || prefix > 32) {
           throw new Error("ipaddr: invalid IPv4 prefix length");
         }
         octets = [0, 0, 0, 0];
-        j = 0;
+        j2 = 0;
         filledOctetCount = Math.floor(prefix / 8);
-        while (j < filledOctetCount) {
-          octets[j] = 255;
-          j++;
+        while (j2 < filledOctetCount) {
+          octets[j2] = 255;
+          j2++;
         }
         if (filledOctetCount < 4) {
           octets[filledOctetCount] = Math.pow(2, prefix % 8) - 1 << 8 - prefix % 8;
@@ -21076,7 +21076,7 @@ var require_application = __commonJS({
       return this;
     };
     app2.render = function render(name, options, callback) {
-      var cache = this.cache;
+      var cache2 = this.cache;
       var done = callback;
       var engines = this.engines;
       var opts = options;
@@ -21090,7 +21090,7 @@ var require_application = __commonJS({
         renderOptions.cache = this.enabled("view cache");
       }
       if (renderOptions.cache) {
-        view = cache[name];
+        view = cache2[name];
       }
       if (!view) {
         var View3 = this.get("view");
@@ -21106,7 +21106,7 @@ var require_application = __commonJS({
           return done(err);
         }
         if (renderOptions.cache) {
-          cache[name] = view;
+          cache2[name] = view;
         }
       }
       tryRender(view, renderOptions, done);
@@ -21142,13 +21142,13 @@ var require_charset = __commonJS({
     var simpleCharsetRegExp = /^\s*([^\s;]+)\s*(?:;(.*))?$/;
     function parseAcceptCharset(accept) {
       var accepts = accept.split(",");
-      for (var i = 0, j = 0; i < accepts.length; i++) {
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
         var charset = parseCharset(accepts[i].trim(), i);
         if (charset) {
-          accepts[j++] = charset;
+          accepts[j2++] = charset;
         }
       }
-      accepts.length = j;
+      accepts.length = j2;
       return accepts;
     }
     function parseCharset(str, i) {
@@ -21158,8 +21158,8 @@ var require_charset = __commonJS({
       var q = 1;
       if (match[2]) {
         var params = match[2].split(";");
-        for (var j = 0; j < params.length; j++) {
-          var p = params[j].trim().split("=");
+        for (var j2 = 0; j2 < params.length; j2++) {
+          var p = params[j2].trim().split("=");
           if (p[0] === "q") {
             q = parseFloat(p[1]);
             break;
@@ -21231,22 +21231,22 @@ var require_encoding = __commonJS({
       var accepts = accept.split(",");
       var hasIdentity = false;
       var minQuality = 1;
-      for (var i = 0, j = 0; i < accepts.length; i++) {
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
         var encoding = parseEncoding(accepts[i].trim(), i);
         if (encoding) {
-          accepts[j++] = encoding;
+          accepts[j2++] = encoding;
           hasIdentity = hasIdentity || specify("identity", encoding);
           minQuality = Math.min(minQuality, encoding.q || 1);
         }
       }
       if (!hasIdentity) {
-        accepts[j++] = {
+        accepts[j2++] = {
           encoding: "identity",
           q: minQuality,
           i
         };
       }
-      accepts.length = j;
+      accepts.length = j2;
       return accepts;
     }
     function parseEncoding(str, i) {
@@ -21256,8 +21256,8 @@ var require_encoding = __commonJS({
       var q = 1;
       if (match[2]) {
         var params = match[2].split(";");
-        for (var j = 0; j < params.length; j++) {
-          var p = params[j].trim().split("=");
+        for (var j2 = 0; j2 < params.length; j2++) {
+          var p = params[j2].trim().split("=");
           if (p[0] === "q") {
             q = parseFloat(p[1]);
             break;
@@ -21342,13 +21342,13 @@ var require_language = __commonJS({
     var simpleLanguageRegExp = /^\s*([^\s\-;]+)(?:-([^\s;]+))?\s*(?:;(.*))?$/;
     function parseAcceptLanguage(accept) {
       var accepts = accept.split(",");
-      for (var i = 0, j = 0; i < accepts.length; i++) {
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
         var language = parseLanguage(accepts[i].trim(), i);
         if (language) {
-          accepts[j++] = language;
+          accepts[j2++] = language;
         }
       }
-      accepts.length = j;
+      accepts.length = j2;
       return accepts;
     }
     function parseLanguage(str, i) {
@@ -21361,8 +21361,8 @@ var require_language = __commonJS({
       var q = 1;
       if (match[3]) {
         var params = match[3].split(";");
-        for (var j = 0; j < params.length; j++) {
-          var p = params[j].split("=");
+        for (var j2 = 0; j2 < params.length; j2++) {
+          var p = params[j2].split("=");
           if (p[0] === "q") q = parseFloat(p[1]);
         }
       }
@@ -21437,13 +21437,13 @@ var require_mediaType = __commonJS({
     var simpleMediaTypeRegExp = /^\s*([^\s\/;]+)\/([^;\s]+)\s*(?:;(.*))?$/;
     function parseAccept(accept) {
       var accepts = splitMediaTypes(accept);
-      for (var i = 0, j = 0; i < accepts.length; i++) {
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
         var mediaType = parseMediaType(accepts[i].trim(), i);
         if (mediaType) {
-          accepts[j++] = mediaType;
+          accepts[j2++] = mediaType;
         }
       }
-      accepts.length = j;
+      accepts.length = j2;
       return accepts;
     }
     function parseMediaType(str, i) {
@@ -21455,8 +21455,8 @@ var require_mediaType = __commonJS({
       var type = match[1];
       if (match[3]) {
         var kvps = splitParameters(match[3]).map(splitKeyValuePair);
-        for (var j = 0; j < kvps.length; j++) {
-          var pair = kvps[j];
+        for (var j2 = 0; j2 < kvps.length; j2++) {
+          var pair = kvps[j2];
           var key = pair[0].toLowerCase();
           var val = pair[1];
           var value = val && val[0] === '"' && val[val.length - 1] === '"' ? val.slice(1, -1) : val;
@@ -21562,26 +21562,26 @@ var require_mediaType = __commonJS({
     }
     function splitMediaTypes(accept) {
       var accepts = accept.split(",");
-      for (var i = 1, j = 0; i < accepts.length; i++) {
-        if (quoteCount(accepts[j]) % 2 == 0) {
-          accepts[++j] = accepts[i];
+      for (var i = 1, j2 = 0; i < accepts.length; i++) {
+        if (quoteCount(accepts[j2]) % 2 == 0) {
+          accepts[++j2] = accepts[i];
         } else {
-          accepts[j] += "," + accepts[i];
+          accepts[j2] += "," + accepts[i];
         }
       }
-      accepts.length = j + 1;
+      accepts.length = j2 + 1;
       return accepts;
     }
     function splitParameters(str) {
       var parameters = str.split(";");
-      for (var i = 1, j = 0; i < parameters.length; i++) {
-        if (quoteCount(parameters[j]) % 2 == 0) {
-          parameters[++j] = parameters[i];
+      for (var i = 1, j2 = 0; i < parameters.length; i++) {
+        if (quoteCount(parameters[j2]) % 2 == 0) {
+          parameters[++j2] = parameters[i];
         } else {
-          parameters[j] += ";" + parameters[i];
+          parameters[j2] += ";" + parameters[i];
         }
       }
-      parameters.length = j + 1;
+      parameters.length = j2 + 1;
       for (var i = 0; i < parameters.length; i++) {
         parameters[i] = parameters[i].trim();
       }
@@ -21843,17 +21843,17 @@ var require_range_parser = __commonJS({
     }
     function combineRanges(ranges) {
       var ordered = ranges.map(mapWithIndex).sort(sortByRangeStart);
-      for (var j = 0, i = 1; i < ordered.length; i++) {
+      for (var j2 = 0, i = 1; i < ordered.length; i++) {
         var range = ordered[i];
-        var current = ordered[j];
+        var current = ordered[j2];
         if (range.start > current.end + 1) {
-          ordered[++j] = range;
+          ordered[++j2] = range;
         } else if (range.end > current.end) {
           current.end = range.end;
           current.index = Math.min(current.index, range.index);
         }
       }
-      ordered.length = j + 1;
+      ordered.length = j2 + 1;
       var combined = ordered.sort(sortByRangeIndex).map(mapWithoutIndex);
       combined.type = ranges.type;
       return combined;
@@ -22873,8 +22873,8 @@ var require_vary = __commonJS({
         throw new TypeError("field argument is required");
       }
       var fields = !Array.isArray(field) ? parse3(String(field)) : field;
-      for (var j = 0; j < fields.length; j++) {
-        if (!FIELD_NAME_REGEXP.test(fields[j])) {
+      for (var j2 = 0; j2 < fields.length; j2++) {
+        if (!FIELD_NAME_REGEXP.test(fields[j2])) {
           throw new TypeError("field argument contains an invalid header name");
         }
       }
@@ -23278,8 +23278,8 @@ var require_response = __commonJS({
           body = statuses.message[status] + ". Redirecting to " + address;
         },
         html: function() {
-          var u = escapeHtml(address);
-          body = "<p>" + statuses.message[status] + ". Redirecting to " + u + "</p>";
+          var u3 = escapeHtml(address);
+          body = "<p>" + statuses.message[status] + ". Redirecting to " + u3 + "</p>";
         },
         default: function() {
           body = "";
@@ -23828,6 +23828,1292 @@ var require_lib3 = __commonJS({
       }
       module.exports = middlewareWrapper;
     })();
+  }
+});
+
+// ../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/charset.js
+var require_charset2 = __commonJS({
+  "../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/charset.js"(exports, module) {
+    "use strict";
+    module.exports = preferredCharsets;
+    module.exports.preferredCharsets = preferredCharsets;
+    var simpleCharsetRegExp = /^\s*([^\s;]+)\s*(?:;(.*))?$/;
+    function parseAcceptCharset(accept) {
+      var accepts = accept.split(",");
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
+        var charset = parseCharset(accepts[i].trim(), i);
+        if (charset) {
+          accepts[j2++] = charset;
+        }
+      }
+      accepts.length = j2;
+      return accepts;
+    }
+    function parseCharset(str, i) {
+      var match = simpleCharsetRegExp.exec(str);
+      if (!match) return null;
+      var charset = match[1];
+      var q = 1;
+      if (match[2]) {
+        var params = match[2].split(";");
+        for (var j2 = 0; j2 < params.length; j2++) {
+          var p = params[j2].trim().split("=");
+          if (p[0] === "q") {
+            q = parseFloat(p[1]);
+            break;
+          }
+        }
+      }
+      return {
+        charset,
+        q,
+        i
+      };
+    }
+    function getCharsetPriority(charset, accepted, index2) {
+      var priority = { o: -1, q: 0, s: 0 };
+      for (var i = 0; i < accepted.length; i++) {
+        var spec = specify(charset, accepted[i], index2);
+        if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
+          priority = spec;
+        }
+      }
+      return priority;
+    }
+    function specify(charset, spec, index2) {
+      var s = 0;
+      if (spec.charset.toLowerCase() === charset.toLowerCase()) {
+        s |= 1;
+      } else if (spec.charset !== "*") {
+        return null;
+      }
+      return {
+        i: index2,
+        o: spec.i,
+        q: spec.q,
+        s
+      };
+    }
+    function preferredCharsets(accept, provided) {
+      var accepts = parseAcceptCharset(accept === void 0 ? "*" : accept || "");
+      if (!provided) {
+        return accepts.filter(isQuality).sort(compareSpecs).map(getFullCharset);
+      }
+      var priorities = provided.map(function getPriority(type, index2) {
+        return getCharsetPriority(type, accepts, index2);
+      });
+      return priorities.filter(isQuality).sort(compareSpecs).map(function getCharset(priority) {
+        return provided[priorities.indexOf(priority)];
+      });
+    }
+    function compareSpecs(a, b) {
+      return b.q - a.q || b.s - a.s || a.o - b.o || a.i - b.i || 0;
+    }
+    function getFullCharset(spec) {
+      return spec.charset;
+    }
+    function isQuality(spec) {
+      return spec.q > 0;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/encoding.js
+var require_encoding2 = __commonJS({
+  "../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/encoding.js"(exports, module) {
+    "use strict";
+    module.exports = preferredEncodings;
+    module.exports.preferredEncodings = preferredEncodings;
+    var simpleEncodingRegExp = /^\s*([^\s;]+)\s*(?:;(.*))?$/;
+    function parseAcceptEncoding(accept) {
+      var accepts = accept.split(",");
+      var hasIdentity = false;
+      var minQuality = 1;
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
+        var encoding = parseEncoding(accepts[i].trim(), i);
+        if (encoding) {
+          accepts[j2++] = encoding;
+          hasIdentity = hasIdentity || specify("identity", encoding);
+          minQuality = Math.min(minQuality, encoding.q || 1);
+        }
+      }
+      if (!hasIdentity) {
+        accepts[j2++] = {
+          encoding: "identity",
+          q: minQuality,
+          i
+        };
+      }
+      accepts.length = j2;
+      return accepts;
+    }
+    function parseEncoding(str, i) {
+      var match = simpleEncodingRegExp.exec(str);
+      if (!match) return null;
+      var encoding = match[1];
+      var q = 1;
+      if (match[2]) {
+        var params = match[2].split(";");
+        for (var j2 = 0; j2 < params.length; j2++) {
+          var p = params[j2].trim().split("=");
+          if (p[0] === "q") {
+            q = parseFloat(p[1]);
+            break;
+          }
+        }
+      }
+      return {
+        encoding,
+        q,
+        i
+      };
+    }
+    function getEncodingPriority(encoding, accepted, index2) {
+      var priority = { encoding, o: -1, q: 0, s: 0 };
+      for (var i = 0; i < accepted.length; i++) {
+        var spec = specify(encoding, accepted[i], index2);
+        if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
+          priority = spec;
+        }
+      }
+      return priority;
+    }
+    function specify(encoding, spec, index2) {
+      var s = 0;
+      if (spec.encoding.toLowerCase() === encoding.toLowerCase()) {
+        s |= 1;
+      } else if (spec.encoding !== "*") {
+        return null;
+      }
+      return {
+        encoding,
+        i: index2,
+        o: spec.i,
+        q: spec.q,
+        s
+      };
+    }
+    function preferredEncodings(accept, provided, preferred) {
+      var accepts = parseAcceptEncoding(accept || "");
+      var comparator = preferred ? function comparator2(a, b) {
+        if (a.q !== b.q) {
+          return b.q - a.q;
+        }
+        var aPreferred = preferred.indexOf(a.encoding);
+        var bPreferred = preferred.indexOf(b.encoding);
+        if (aPreferred === -1 && bPreferred === -1) {
+          return b.s - a.s || a.o - b.o || a.i - b.i;
+        }
+        if (aPreferred !== -1 && bPreferred !== -1) {
+          return aPreferred - bPreferred;
+        }
+        return aPreferred === -1 ? 1 : -1;
+      } : compareSpecs;
+      if (!provided) {
+        return accepts.filter(isQuality).sort(comparator).map(getFullEncoding);
+      }
+      var priorities = provided.map(function getPriority(type, index2) {
+        return getEncodingPriority(type, accepts, index2);
+      });
+      return priorities.filter(isQuality).sort(comparator).map(function getEncoding(priority) {
+        return provided[priorities.indexOf(priority)];
+      });
+    }
+    function compareSpecs(a, b) {
+      return b.q - a.q || b.s - a.s || a.o - b.o || a.i - b.i;
+    }
+    function getFullEncoding(spec) {
+      return spec.encoding;
+    }
+    function isQuality(spec) {
+      return spec.q > 0;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/language.js
+var require_language2 = __commonJS({
+  "../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/language.js"(exports, module) {
+    "use strict";
+    module.exports = preferredLanguages;
+    module.exports.preferredLanguages = preferredLanguages;
+    var simpleLanguageRegExp = /^\s*([^\s\-;]+)(?:-([^\s;]+))?\s*(?:;(.*))?$/;
+    function parseAcceptLanguage(accept) {
+      var accepts = accept.split(",");
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
+        var language = parseLanguage(accepts[i].trim(), i);
+        if (language) {
+          accepts[j2++] = language;
+        }
+      }
+      accepts.length = j2;
+      return accepts;
+    }
+    function parseLanguage(str, i) {
+      var match = simpleLanguageRegExp.exec(str);
+      if (!match) return null;
+      var prefix = match[1];
+      var suffix = match[2];
+      var full = prefix;
+      if (suffix) full += "-" + suffix;
+      var q = 1;
+      if (match[3]) {
+        var params = match[3].split(";");
+        for (var j2 = 0; j2 < params.length; j2++) {
+          var p = params[j2].split("=");
+          if (p[0] === "q") q = parseFloat(p[1]);
+        }
+      }
+      return {
+        prefix,
+        suffix,
+        q,
+        i,
+        full
+      };
+    }
+    function getLanguagePriority(language, accepted, index2) {
+      var priority = { o: -1, q: 0, s: 0 };
+      for (var i = 0; i < accepted.length; i++) {
+        var spec = specify(language, accepted[i], index2);
+        if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
+          priority = spec;
+        }
+      }
+      return priority;
+    }
+    function specify(language, spec, index2) {
+      var p = parseLanguage(language);
+      if (!p) return null;
+      var s = 0;
+      if (spec.full.toLowerCase() === p.full.toLowerCase()) {
+        s |= 4;
+      } else if (spec.prefix.toLowerCase() === p.full.toLowerCase()) {
+        s |= 2;
+      } else if (spec.full.toLowerCase() === p.prefix.toLowerCase()) {
+        s |= 1;
+      } else if (spec.full !== "*") {
+        return null;
+      }
+      return {
+        i: index2,
+        o: spec.i,
+        q: spec.q,
+        s
+      };
+    }
+    function preferredLanguages(accept, provided) {
+      var accepts = parseAcceptLanguage(accept === void 0 ? "*" : accept || "");
+      if (!provided) {
+        return accepts.filter(isQuality).sort(compareSpecs).map(getFullLanguage);
+      }
+      var priorities = provided.map(function getPriority(type, index2) {
+        return getLanguagePriority(type, accepts, index2);
+      });
+      return priorities.filter(isQuality).sort(compareSpecs).map(function getLanguage(priority) {
+        return provided[priorities.indexOf(priority)];
+      });
+    }
+    function compareSpecs(a, b) {
+      return b.q - a.q || b.s - a.s || a.o - b.o || a.i - b.i || 0;
+    }
+    function getFullLanguage(spec) {
+      return spec.full;
+    }
+    function isQuality(spec) {
+      return spec.q > 0;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/mediaType.js
+var require_mediaType2 = __commonJS({
+  "../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/lib/mediaType.js"(exports, module) {
+    "use strict";
+    module.exports = preferredMediaTypes;
+    module.exports.preferredMediaTypes = preferredMediaTypes;
+    var simpleMediaTypeRegExp = /^\s*([^\s\/;]+)\/([^;\s]+)\s*(?:;(.*))?$/;
+    function parseAccept(accept) {
+      var accepts = splitMediaTypes(accept);
+      for (var i = 0, j2 = 0; i < accepts.length; i++) {
+        var mediaType = parseMediaType(accepts[i].trim(), i);
+        if (mediaType) {
+          accepts[j2++] = mediaType;
+        }
+      }
+      accepts.length = j2;
+      return accepts;
+    }
+    function parseMediaType(str, i) {
+      var match = simpleMediaTypeRegExp.exec(str);
+      if (!match) return null;
+      var params = /* @__PURE__ */ Object.create(null);
+      var q = 1;
+      var subtype = match[2];
+      var type = match[1];
+      if (match[3]) {
+        var kvps = splitParameters(match[3]).map(splitKeyValuePair);
+        for (var j2 = 0; j2 < kvps.length; j2++) {
+          var pair = kvps[j2];
+          var key = pair[0].toLowerCase();
+          var val = pair[1];
+          var value = val && val[0] === '"' && val[val.length - 1] === '"' ? val.slice(1, -1) : val;
+          if (key === "q") {
+            q = parseFloat(value);
+            break;
+          }
+          params[key] = value;
+        }
+      }
+      return {
+        type,
+        subtype,
+        params,
+        q,
+        i
+      };
+    }
+    function getMediaTypePriority(type, accepted, index2) {
+      var priority = { o: -1, q: 0, s: 0 };
+      for (var i = 0; i < accepted.length; i++) {
+        var spec = specify(type, accepted[i], index2);
+        if (spec && (priority.s - spec.s || priority.q - spec.q || priority.o - spec.o) < 0) {
+          priority = spec;
+        }
+      }
+      return priority;
+    }
+    function specify(type, spec, index2) {
+      var p = parseMediaType(type);
+      var s = 0;
+      if (!p) {
+        return null;
+      }
+      if (spec.type.toLowerCase() == p.type.toLowerCase()) {
+        s |= 4;
+      } else if (spec.type != "*") {
+        return null;
+      }
+      if (spec.subtype.toLowerCase() == p.subtype.toLowerCase()) {
+        s |= 2;
+      } else if (spec.subtype != "*") {
+        return null;
+      }
+      var keys = Object.keys(spec.params);
+      if (keys.length > 0) {
+        if (keys.every(function(k) {
+          return spec.params[k] == "*" || (spec.params[k] || "").toLowerCase() == (p.params[k] || "").toLowerCase();
+        })) {
+          s |= 1;
+        } else {
+          return null;
+        }
+      }
+      return {
+        i: index2,
+        o: spec.i,
+        q: spec.q,
+        s
+      };
+    }
+    function preferredMediaTypes(accept, provided) {
+      var accepts = parseAccept(accept === void 0 ? "*/*" : accept || "");
+      if (!provided) {
+        return accepts.filter(isQuality).sort(compareSpecs).map(getFullType);
+      }
+      var priorities = provided.map(function getPriority(type, index2) {
+        return getMediaTypePriority(type, accepts, index2);
+      });
+      return priorities.filter(isQuality).sort(compareSpecs).map(function getType(priority) {
+        return provided[priorities.indexOf(priority)];
+      });
+    }
+    function compareSpecs(a, b) {
+      return b.q - a.q || b.s - a.s || a.o - b.o || a.i - b.i || 0;
+    }
+    function getFullType(spec) {
+      return spec.type + "/" + spec.subtype;
+    }
+    function isQuality(spec) {
+      return spec.q > 0;
+    }
+    function quoteCount(string4) {
+      var count2 = 0;
+      var index2 = 0;
+      while ((index2 = string4.indexOf('"', index2)) !== -1) {
+        count2++;
+        index2++;
+      }
+      return count2;
+    }
+    function splitKeyValuePair(str) {
+      var index2 = str.indexOf("=");
+      var key;
+      var val;
+      if (index2 === -1) {
+        key = str;
+      } else {
+        key = str.slice(0, index2);
+        val = str.slice(index2 + 1);
+      }
+      return [key, val];
+    }
+    function splitMediaTypes(accept) {
+      var accepts = accept.split(",");
+      for (var i = 1, j2 = 0; i < accepts.length; i++) {
+        if (quoteCount(accepts[j2]) % 2 == 0) {
+          accepts[++j2] = accepts[i];
+        } else {
+          accepts[j2] += "," + accepts[i];
+        }
+      }
+      accepts.length = j2 + 1;
+      return accepts;
+    }
+    function splitParameters(str) {
+      var parameters = str.split(";");
+      for (var i = 1, j2 = 0; i < parameters.length; i++) {
+        if (quoteCount(parameters[j2]) % 2 == 0) {
+          parameters[++j2] = parameters[i];
+        } else {
+          parameters[j2] += ";" + parameters[i];
+        }
+      }
+      parameters.length = j2 + 1;
+      for (var i = 0; i < parameters.length; i++) {
+        parameters[i] = parameters[i].trim();
+      }
+      return parameters;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/index.js
+var require_negotiator2 = __commonJS({
+  "../../node_modules/.pnpm/negotiator@0.6.4/node_modules/negotiator/index.js"(exports, module) {
+    "use strict";
+    var preferredCharsets = require_charset2();
+    var preferredEncodings = require_encoding2();
+    var preferredLanguages = require_language2();
+    var preferredMediaTypes = require_mediaType2();
+    module.exports = Negotiator;
+    module.exports.Negotiator = Negotiator;
+    function Negotiator(request) {
+      if (!(this instanceof Negotiator)) {
+        return new Negotiator(request);
+      }
+      this.request = request;
+    }
+    Negotiator.prototype.charset = function charset(available) {
+      var set2 = this.charsets(available);
+      return set2 && set2[0];
+    };
+    Negotiator.prototype.charsets = function charsets(available) {
+      return preferredCharsets(this.request.headers["accept-charset"], available);
+    };
+    Negotiator.prototype.encoding = function encoding(available, preferred) {
+      var set2 = this.encodings(available, preferred);
+      return set2 && set2[0];
+    };
+    Negotiator.prototype.encodings = function encodings(available, preferred) {
+      return preferredEncodings(this.request.headers["accept-encoding"], available, preferred);
+    };
+    Negotiator.prototype.language = function language(available) {
+      var set2 = this.languages(available);
+      return set2 && set2[0];
+    };
+    Negotiator.prototype.languages = function languages(available) {
+      return preferredLanguages(this.request.headers["accept-language"], available);
+    };
+    Negotiator.prototype.mediaType = function mediaType(available) {
+      var set2 = this.mediaTypes(available);
+      return set2 && set2[0];
+    };
+    Negotiator.prototype.mediaTypes = function mediaTypes(available) {
+      return preferredMediaTypes(this.request.headers.accept, available);
+    };
+    Negotiator.prototype.preferredCharset = Negotiator.prototype.charset;
+    Negotiator.prototype.preferredCharsets = Negotiator.prototype.charsets;
+    Negotiator.prototype.preferredEncoding = Negotiator.prototype.encoding;
+    Negotiator.prototype.preferredEncodings = Negotiator.prototype.encodings;
+    Negotiator.prototype.preferredLanguage = Negotiator.prototype.language;
+    Negotiator.prototype.preferredLanguages = Negotiator.prototype.languages;
+    Negotiator.prototype.preferredMediaType = Negotiator.prototype.mediaType;
+    Negotiator.prototype.preferredMediaTypes = Negotiator.prototype.mediaTypes;
+  }
+});
+
+// ../../node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js
+var require_safe_buffer = __commonJS({
+  "../../node_modules/.pnpm/safe-buffer@5.2.1/node_modules/safe-buffer/index.js"(exports, module) {
+    var buffer = __require("buffer");
+    var Buffer2 = buffer.Buffer;
+    function copyProps(src, dst) {
+      for (var key in src) {
+        dst[key] = src[key];
+      }
+    }
+    if (Buffer2.from && Buffer2.alloc && Buffer2.allocUnsafe && Buffer2.allocUnsafeSlow) {
+      module.exports = buffer;
+    } else {
+      copyProps(buffer, exports);
+      exports.Buffer = SafeBuffer;
+    }
+    function SafeBuffer(arg, encodingOrOffset, length) {
+      return Buffer2(arg, encodingOrOffset, length);
+    }
+    SafeBuffer.prototype = Object.create(Buffer2.prototype);
+    copyProps(Buffer2, SafeBuffer);
+    SafeBuffer.from = function(arg, encodingOrOffset, length) {
+      if (typeof arg === "number") {
+        throw new TypeError("Argument must not be a number");
+      }
+      return Buffer2(arg, encodingOrOffset, length);
+    };
+    SafeBuffer.alloc = function(size, fill, encoding) {
+      if (typeof size !== "number") {
+        throw new TypeError("Argument must be a number");
+      }
+      var buf = Buffer2(size);
+      if (fill !== void 0) {
+        if (typeof encoding === "string") {
+          buf.fill(fill, encoding);
+        } else {
+          buf.fill(fill);
+        }
+      } else {
+        buf.fill(0);
+      }
+      return buf;
+    };
+    SafeBuffer.allocUnsafe = function(size) {
+      if (typeof size !== "number") {
+        throw new TypeError("Argument must be a number");
+      }
+      return Buffer2(size);
+    };
+    SafeBuffer.allocUnsafeSlow = function(size) {
+      if (typeof size !== "number") {
+        throw new TypeError("Argument must be a number");
+      }
+      return buffer.SlowBuffer(size);
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/compressible@2.0.18/node_modules/compressible/index.js
+var require_compressible = __commonJS({
+  "../../node_modules/.pnpm/compressible@2.0.18/node_modules/compressible/index.js"(exports, module) {
+    "use strict";
+    var db2 = require_mime_db();
+    var COMPRESSIBLE_TYPE_REGEXP = /^text\/|\+(?:json|text|xml)$/i;
+    var EXTRACT_TYPE_REGEXP = /^\s*([^;\s]*)(?:;|\s|$)/;
+    module.exports = compressible;
+    function compressible(type) {
+      if (!type || typeof type !== "string") {
+        return false;
+      }
+      var match = EXTRACT_TYPE_REGEXP.exec(type);
+      var mime = match && match[1].toLowerCase();
+      var data = db2[mime];
+      if (data && data.compressible !== void 0) {
+        return data.compressible;
+      }
+      return COMPRESSIBLE_TYPE_REGEXP.test(mime) || void 0;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/ms@2.0.0/node_modules/ms/index.js
+var require_ms2 = __commonJS({
+  "../../node_modules/.pnpm/ms@2.0.0/node_modules/ms/index.js"(exports, module) {
+    var s = 1e3;
+    var m = s * 60;
+    var h = m * 60;
+    var d = h * 24;
+    var y = d * 365.25;
+    module.exports = function(val, options) {
+      options = options || {};
+      var type = typeof val;
+      if (type === "string" && val.length > 0) {
+        return parse3(val);
+      } else if (type === "number" && isNaN(val) === false) {
+        return options.long ? fmtLong(val) : fmtShort(val);
+      }
+      throw new Error(
+        "val is not a non-empty string or a valid number. val=" + JSON.stringify(val)
+      );
+    };
+    function parse3(str) {
+      str = String(str);
+      if (str.length > 100) {
+        return;
+      }
+      var match = /^((?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|years?|yrs?|y)?$/i.exec(
+        str
+      );
+      if (!match) {
+        return;
+      }
+      var n = parseFloat(match[1]);
+      var type = (match[2] || "ms").toLowerCase();
+      switch (type) {
+        case "years":
+        case "year":
+        case "yrs":
+        case "yr":
+        case "y":
+          return n * y;
+        case "days":
+        case "day":
+        case "d":
+          return n * d;
+        case "hours":
+        case "hour":
+        case "hrs":
+        case "hr":
+        case "h":
+          return n * h;
+        case "minutes":
+        case "minute":
+        case "mins":
+        case "min":
+        case "m":
+          return n * m;
+        case "seconds":
+        case "second":
+        case "secs":
+        case "sec":
+        case "s":
+          return n * s;
+        case "milliseconds":
+        case "millisecond":
+        case "msecs":
+        case "msec":
+        case "ms":
+          return n;
+        default:
+          return void 0;
+      }
+    }
+    function fmtShort(ms) {
+      if (ms >= d) {
+        return Math.round(ms / d) + "d";
+      }
+      if (ms >= h) {
+        return Math.round(ms / h) + "h";
+      }
+      if (ms >= m) {
+        return Math.round(ms / m) + "m";
+      }
+      if (ms >= s) {
+        return Math.round(ms / s) + "s";
+      }
+      return ms + "ms";
+    }
+    function fmtLong(ms) {
+      return plural(ms, d, "day") || plural(ms, h, "hour") || plural(ms, m, "minute") || plural(ms, s, "second") || ms + " ms";
+    }
+    function plural(ms, n, name) {
+      if (ms < n) {
+        return;
+      }
+      if (ms < n * 1.5) {
+        return Math.floor(ms / n) + " " + name;
+      }
+      return Math.ceil(ms / n) + " " + name + "s";
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/debug.js
+var require_debug = __commonJS({
+  "../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/debug.js"(exports, module) {
+    exports = module.exports = createDebug.debug = createDebug["default"] = createDebug;
+    exports.coerce = coerce2;
+    exports.disable = disable;
+    exports.enable = enable;
+    exports.enabled = enabled;
+    exports.humanize = require_ms2();
+    exports.names = [];
+    exports.skips = [];
+    exports.formatters = {};
+    var prevTime;
+    function selectColor(namespace) {
+      var hash = 0, i;
+      for (i in namespace) {
+        hash = (hash << 5) - hash + namespace.charCodeAt(i);
+        hash |= 0;
+      }
+      return exports.colors[Math.abs(hash) % exports.colors.length];
+    }
+    function createDebug(namespace) {
+      function debug31() {
+        if (!debug31.enabled) return;
+        var self = debug31;
+        var curr = +/* @__PURE__ */ new Date();
+        var ms = curr - (prevTime || curr);
+        self.diff = ms;
+        self.prev = prevTime;
+        self.curr = curr;
+        prevTime = curr;
+        var args = new Array(arguments.length);
+        for (var i = 0; i < args.length; i++) {
+          args[i] = arguments[i];
+        }
+        args[0] = exports.coerce(args[0]);
+        if ("string" !== typeof args[0]) {
+          args.unshift("%O");
+        }
+        var index2 = 0;
+        args[0] = args[0].replace(/%([a-zA-Z%])/g, function(match, format) {
+          if (match === "%%") return match;
+          index2++;
+          var formatter = exports.formatters[format];
+          if ("function" === typeof formatter) {
+            var val = args[index2];
+            match = formatter.call(self, val);
+            args.splice(index2, 1);
+            index2--;
+          }
+          return match;
+        });
+        exports.formatArgs.call(self, args);
+        var logFn = debug31.log || exports.log || console.log.bind(console);
+        logFn.apply(self, args);
+      }
+      debug31.namespace = namespace;
+      debug31.enabled = exports.enabled(namespace);
+      debug31.useColors = exports.useColors();
+      debug31.color = selectColor(namespace);
+      if ("function" === typeof exports.init) {
+        exports.init(debug31);
+      }
+      return debug31;
+    }
+    function enable(namespaces) {
+      exports.save(namespaces);
+      exports.names = [];
+      exports.skips = [];
+      var split = (typeof namespaces === "string" ? namespaces : "").split(/[\s,]+/);
+      var len = split.length;
+      for (var i = 0; i < len; i++) {
+        if (!split[i]) continue;
+        namespaces = split[i].replace(/\*/g, ".*?");
+        if (namespaces[0] === "-") {
+          exports.skips.push(new RegExp("^" + namespaces.substr(1) + "$"));
+        } else {
+          exports.names.push(new RegExp("^" + namespaces + "$"));
+        }
+      }
+    }
+    function disable() {
+      exports.enable("");
+    }
+    function enabled(name) {
+      var i, len;
+      for (i = 0, len = exports.skips.length; i < len; i++) {
+        if (exports.skips[i].test(name)) {
+          return false;
+        }
+      }
+      for (i = 0, len = exports.names.length; i < len; i++) {
+        if (exports.names[i].test(name)) {
+          return true;
+        }
+      }
+      return false;
+    }
+    function coerce2(val) {
+      if (val instanceof Error) return val.stack || val.message;
+      return val;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/browser.js
+var require_browser2 = __commonJS({
+  "../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/browser.js"(exports, module) {
+    exports = module.exports = require_debug();
+    exports.log = log;
+    exports.formatArgs = formatArgs;
+    exports.save = save;
+    exports.load = load;
+    exports.useColors = useColors;
+    exports.storage = "undefined" != typeof chrome && "undefined" != typeof chrome.storage ? chrome.storage.local : localstorage();
+    exports.colors = [
+      "lightseagreen",
+      "forestgreen",
+      "goldenrod",
+      "dodgerblue",
+      "darkorchid",
+      "crimson"
+    ];
+    function useColors() {
+      if (typeof window !== "undefined" && window.process && window.process.type === "renderer") {
+        return true;
+      }
+      return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || // is firebug? http://stackoverflow.com/a/398120/376773
+      typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || // is firefox >= v31?
+      // https://developer.mozilla.org/en-US/docs/Tools/Web_Console#Styling_messages
+      typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/) && parseInt(RegExp.$1, 10) >= 31 || // double check webkit in userAgent just in case we are in a worker
+      typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
+    }
+    exports.formatters.j = function(v) {
+      try {
+        return JSON.stringify(v);
+      } catch (err) {
+        return "[UnexpectedJSONParseError]: " + err.message;
+      }
+    };
+    function formatArgs(args) {
+      var useColors2 = this.useColors;
+      args[0] = (useColors2 ? "%c" : "") + this.namespace + (useColors2 ? " %c" : " ") + args[0] + (useColors2 ? "%c " : " ") + "+" + exports.humanize(this.diff);
+      if (!useColors2) return;
+      var c = "color: " + this.color;
+      args.splice(1, 0, c, "color: inherit");
+      var index2 = 0;
+      var lastC = 0;
+      args[0].replace(/%[a-zA-Z%]/g, function(match) {
+        if ("%%" === match) return;
+        index2++;
+        if ("%c" === match) {
+          lastC = index2;
+        }
+      });
+      args.splice(lastC, 0, c);
+    }
+    function log() {
+      return "object" === typeof console && console.log && Function.prototype.apply.call(console.log, console, arguments);
+    }
+    function save(namespaces) {
+      try {
+        if (null == namespaces) {
+          exports.storage.removeItem("debug");
+        } else {
+          exports.storage.debug = namespaces;
+        }
+      } catch (e) {
+      }
+    }
+    function load() {
+      var r;
+      try {
+        r = exports.storage.debug;
+      } catch (e) {
+      }
+      if (!r && typeof process !== "undefined" && "env" in process) {
+        r = process.env.DEBUG;
+      }
+      return r;
+    }
+    exports.enable(load());
+    function localstorage() {
+      try {
+        return window.localStorage;
+      } catch (e) {
+      }
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/node.js
+var require_node2 = __commonJS({
+  "../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/node.js"(exports, module) {
+    var tty = __require("tty");
+    var util2 = __require("util");
+    exports = module.exports = require_debug();
+    exports.init = init;
+    exports.log = log;
+    exports.formatArgs = formatArgs;
+    exports.save = save;
+    exports.load = load;
+    exports.useColors = useColors;
+    exports.colors = [6, 2, 3, 4, 5, 1];
+    exports.inspectOpts = Object.keys(process.env).filter(function(key) {
+      return /^debug_/i.test(key);
+    }).reduce(function(obj, key) {
+      var prop = key.substring(6).toLowerCase().replace(/_([a-z])/g, function(_, k) {
+        return k.toUpperCase();
+      });
+      var val = process.env[key];
+      if (/^(yes|on|true|enabled)$/i.test(val)) val = true;
+      else if (/^(no|off|false|disabled)$/i.test(val)) val = false;
+      else if (val === "null") val = null;
+      else val = Number(val);
+      obj[prop] = val;
+      return obj;
+    }, {});
+    var fd = parseInt(process.env.DEBUG_FD, 10) || 2;
+    if (1 !== fd && 2 !== fd) {
+      util2.deprecate(function() {
+      }, "except for stderr(2) and stdout(1), any other usage of DEBUG_FD is deprecated. Override debug.log if you want to use a different log function (https://git.io/debug_fd)")();
+    }
+    var stream = 1 === fd ? process.stdout : 2 === fd ? process.stderr : createWritableStdioStream(fd);
+    function useColors() {
+      return "colors" in exports.inspectOpts ? Boolean(exports.inspectOpts.colors) : tty.isatty(fd);
+    }
+    exports.formatters.o = function(v) {
+      this.inspectOpts.colors = this.useColors;
+      return util2.inspect(v, this.inspectOpts).split("\n").map(function(str) {
+        return str.trim();
+      }).join(" ");
+    };
+    exports.formatters.O = function(v) {
+      this.inspectOpts.colors = this.useColors;
+      return util2.inspect(v, this.inspectOpts);
+    };
+    function formatArgs(args) {
+      var name = this.namespace;
+      var useColors2 = this.useColors;
+      if (useColors2) {
+        var c = this.color;
+        var prefix = "  \x1B[3" + c + ";1m" + name + " \x1B[0m";
+        args[0] = prefix + args[0].split("\n").join("\n" + prefix);
+        args.push("\x1B[3" + c + "m+" + exports.humanize(this.diff) + "\x1B[0m");
+      } else {
+        args[0] = (/* @__PURE__ */ new Date()).toUTCString() + " " + name + " " + args[0];
+      }
+    }
+    function log() {
+      return stream.write(util2.format.apply(util2, arguments) + "\n");
+    }
+    function save(namespaces) {
+      if (null == namespaces) {
+        delete process.env.DEBUG;
+      } else {
+        process.env.DEBUG = namespaces;
+      }
+    }
+    function load() {
+      return process.env.DEBUG;
+    }
+    function createWritableStdioStream(fd2) {
+      var stream2;
+      var tty_wrap = process.binding("tty_wrap");
+      switch (tty_wrap.guessHandleType(fd2)) {
+        case "TTY":
+          stream2 = new tty.WriteStream(fd2);
+          stream2._type = "tty";
+          if (stream2._handle && stream2._handle.unref) {
+            stream2._handle.unref();
+          }
+          break;
+        case "FILE":
+          var fs = __require("fs");
+          stream2 = new fs.SyncWriteStream(fd2, { autoClose: false });
+          stream2._type = "fs";
+          break;
+        case "PIPE":
+        case "TCP":
+          var net = __require("net");
+          stream2 = new net.Socket({
+            fd: fd2,
+            readable: false,
+            writable: true
+          });
+          stream2.readable = false;
+          stream2.read = null;
+          stream2._type = "pipe";
+          if (stream2._handle && stream2._handle.unref) {
+            stream2._handle.unref();
+          }
+          break;
+        default:
+          throw new Error("Implement me. Unknown stream file type!");
+      }
+      stream2.fd = fd2;
+      stream2._isStdio = true;
+      return stream2;
+    }
+    function init(debug31) {
+      debug31.inspectOpts = {};
+      var keys = Object.keys(exports.inspectOpts);
+      for (var i = 0; i < keys.length; i++) {
+        debug31.inspectOpts[keys[i]] = exports.inspectOpts[keys[i]];
+      }
+    }
+    exports.enable(load());
+  }
+});
+
+// ../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/index.js
+var require_src2 = __commonJS({
+  "../../node_modules/.pnpm/debug@2.6.9/node_modules/debug/src/index.js"(exports, module) {
+    if (typeof process !== "undefined" && process.type === "renderer") {
+      module.exports = require_browser2();
+    } else {
+      module.exports = require_node2();
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/on-headers@1.1.0/node_modules/on-headers/index.js
+var require_on_headers = __commonJS({
+  "../../node_modules/.pnpm/on-headers@1.1.0/node_modules/on-headers/index.js"(exports, module) {
+    "use strict";
+    module.exports = onHeaders;
+    var http = __require("http");
+    var isAppendHeaderSupported = typeof http.ServerResponse.prototype.appendHeader === "function";
+    var set1dArray = isAppendHeaderSupported ? set1dArrayWithAppend : set1dArrayWithSet;
+    function createWriteHead(prevWriteHead, listener) {
+      var fired = false;
+      return function writeHead(statusCode) {
+        var args = setWriteHeadHeaders.apply(this, arguments);
+        if (!fired) {
+          fired = true;
+          listener.call(this);
+          if (typeof args[0] === "number" && this.statusCode !== args[0]) {
+            args[0] = this.statusCode;
+            args.length = 1;
+          }
+        }
+        return prevWriteHead.apply(this, args);
+      };
+    }
+    function onHeaders(res, listener) {
+      if (!res) {
+        throw new TypeError("argument res is required");
+      }
+      if (typeof listener !== "function") {
+        throw new TypeError("argument listener must be a function");
+      }
+      res.writeHead = createWriteHead(res.writeHead, listener);
+    }
+    function setHeadersFromArray(res, headers) {
+      if (headers.length && Array.isArray(headers[0])) {
+        set2dArray(res, headers);
+      } else {
+        if (headers.length % 2 !== 0) {
+          throw new TypeError("headers array is malformed");
+        }
+        set1dArray(res, headers);
+      }
+    }
+    function setHeadersFromObject(res, headers) {
+      var keys = Object.keys(headers);
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        if (k) res.setHeader(k, headers[k]);
+      }
+    }
+    function setWriteHeadHeaders(statusCode) {
+      var length = arguments.length;
+      var headerIndex = length > 1 && typeof arguments[1] === "string" ? 2 : 1;
+      var headers = length >= headerIndex + 1 ? arguments[headerIndex] : void 0;
+      this.statusCode = statusCode;
+      if (Array.isArray(headers)) {
+        setHeadersFromArray(this, headers);
+      } else if (headers) {
+        setHeadersFromObject(this, headers);
+      }
+      var args = new Array(Math.min(length, headerIndex));
+      for (var i = 0; i < args.length; i++) {
+        args[i] = arguments[i];
+      }
+      return args;
+    }
+    function set2dArray(res, headers) {
+      var key;
+      for (var i = 0; i < headers.length; i++) {
+        key = headers[i][0];
+        if (key) {
+          res.setHeader(key, headers[i][1]);
+        }
+      }
+    }
+    function set1dArrayWithAppend(res, headers) {
+      for (var i = 0; i < headers.length; i += 2) {
+        res.removeHeader(headers[i]);
+      }
+      var key;
+      for (var j2 = 0; j2 < headers.length; j2 += 2) {
+        key = headers[j2];
+        if (key) {
+          res.appendHeader(key, headers[j2 + 1]);
+        }
+      }
+    }
+    function set1dArrayWithSet(res, headers) {
+      var key;
+      for (var i = 0; i < headers.length; i += 2) {
+        key = headers[i];
+        if (key) {
+          res.setHeader(key, headers[i + 1]);
+        }
+      }
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/compression@1.8.1/node_modules/compression/index.js
+var require_compression = __commonJS({
+  "../../node_modules/.pnpm/compression@1.8.1/node_modules/compression/index.js"(exports, module) {
+    "use strict";
+    var Negotiator = require_negotiator2();
+    var Buffer2 = require_safe_buffer().Buffer;
+    var bytes = require_bytes();
+    var compressible = require_compressible();
+    var debug31 = require_src2()("compression");
+    var onHeaders = require_on_headers();
+    var vary = require_vary();
+    var zlib = __require("zlib");
+    module.exports = compression2;
+    module.exports.filter = shouldCompress;
+    var hasBrotliSupport = "createBrotliCompress" in zlib;
+    var cacheControlNoTransformRegExp = /(?:^|,)\s*?no-transform\s*?(?:,|$)/;
+    var SUPPORTED_ENCODING = hasBrotliSupport ? ["br", "gzip", "deflate", "identity"] : ["gzip", "deflate", "identity"];
+    var PREFERRED_ENCODING = hasBrotliSupport ? ["br", "gzip"] : ["gzip"];
+    var encodingSupported = ["gzip", "deflate", "identity", "br"];
+    function compression2(options) {
+      var opts = options || {};
+      var optsBrotli = {};
+      if (hasBrotliSupport) {
+        Object.assign(optsBrotli, opts.brotli);
+        var brotliParams = {};
+        brotliParams[zlib.constants.BROTLI_PARAM_QUALITY] = 4;
+        optsBrotli.params = Object.assign(brotliParams, optsBrotli.params);
+      }
+      var filter = opts.filter || shouldCompress;
+      var threshold = bytes.parse(opts.threshold);
+      var enforceEncoding = opts.enforceEncoding || "identity";
+      if (threshold == null) {
+        threshold = 1024;
+      }
+      return function compression3(req, res, next) {
+        var ended = false;
+        var length;
+        var listeners = [];
+        var stream;
+        var _end = res.end;
+        var _on = res.on;
+        var _write = res.write;
+        res.flush = function flush() {
+          if (stream) {
+            stream.flush();
+          }
+        };
+        res.write = function write2(chunk, encoding) {
+          if (ended) {
+            return false;
+          }
+          if (!headersSent(res)) {
+            this.writeHead(this.statusCode);
+          }
+          return stream ? stream.write(toBuffer(chunk, encoding)) : _write.call(this, chunk, encoding);
+        };
+        res.end = function end(chunk, encoding) {
+          if (ended) {
+            return false;
+          }
+          if (!headersSent(res)) {
+            if (!this.getHeader("Content-Length")) {
+              length = chunkLength(chunk, encoding);
+            }
+            this.writeHead(this.statusCode);
+          }
+          if (!stream) {
+            return _end.call(this, chunk, encoding);
+          }
+          ended = true;
+          return chunk ? stream.end(toBuffer(chunk, encoding)) : stream.end();
+        };
+        res.on = function on(type, listener) {
+          if (!listeners || type !== "drain") {
+            return _on.call(this, type, listener);
+          }
+          if (stream) {
+            return stream.on(type, listener);
+          }
+          listeners.push([type, listener]);
+          return this;
+        };
+        function nocompress(msg) {
+          debug31("no compression: %s", msg);
+          addListeners(res, _on, listeners);
+          listeners = null;
+        }
+        onHeaders(res, function onResponseHeaders() {
+          if (!filter(req, res)) {
+            nocompress("filtered");
+            return;
+          }
+          if (!shouldTransform(req, res)) {
+            nocompress("no transform");
+            return;
+          }
+          vary(res, "Accept-Encoding");
+          if (Number(res.getHeader("Content-Length")) < threshold || length < threshold) {
+            nocompress("size below threshold");
+            return;
+          }
+          var encoding = res.getHeader("Content-Encoding") || "identity";
+          if (encoding !== "identity") {
+            nocompress("already encoded");
+            return;
+          }
+          if (req.method === "HEAD") {
+            nocompress("HEAD request");
+            return;
+          }
+          var negotiator = new Negotiator(req);
+          var method = negotiator.encoding(SUPPORTED_ENCODING, PREFERRED_ENCODING);
+          if (!req.headers["accept-encoding"] && encodingSupported.indexOf(enforceEncoding) !== -1) {
+            method = enforceEncoding;
+          }
+          if (!method || method === "identity") {
+            nocompress("not acceptable");
+            return;
+          }
+          debug31("%s compression", method);
+          stream = method === "gzip" ? zlib.createGzip(opts) : method === "br" ? zlib.createBrotliCompress(optsBrotli) : zlib.createDeflate(opts);
+          addListeners(stream, stream.on, listeners);
+          res.setHeader("Content-Encoding", method);
+          res.removeHeader("Content-Length");
+          stream.on("data", function onStreamData(chunk) {
+            if (_write.call(res, chunk) === false) {
+              stream.pause();
+            }
+          });
+          stream.on("end", function onStreamEnd() {
+            _end.call(res);
+          });
+          _on.call(res, "drain", function onResponseDrain() {
+            stream.resume();
+          });
+        });
+        next();
+      };
+    }
+    function addListeners(stream, on, listeners) {
+      for (var i = 0; i < listeners.length; i++) {
+        on.apply(stream, listeners[i]);
+      }
+    }
+    function chunkLength(chunk, encoding) {
+      if (!chunk) {
+        return 0;
+      }
+      return Buffer2.isBuffer(chunk) ? chunk.length : Buffer2.byteLength(chunk, encoding);
+    }
+    function shouldCompress(req, res) {
+      var type = res.getHeader("Content-Type");
+      if (type === void 0 || !compressible(type)) {
+        debug31("%s not compressible", type);
+        return false;
+      }
+      return true;
+    }
+    function shouldTransform(req, res) {
+      var cacheControl = res.getHeader("Cache-Control");
+      return !cacheControl || !cacheControlNoTransformRegExp.test(cacheControl);
+    }
+    function toBuffer(chunk, encoding) {
+      return Buffer2.isBuffer(chunk) ? chunk : Buffer2.from(chunk, encoding);
+    }
+    function headersSent(res) {
+      return typeof res.headersSent !== "boolean" ? Boolean(res._header) : res.headersSent;
+    }
   }
 });
 
@@ -26776,12 +28062,12 @@ var require_levels = __commonJS({
     function genLsCache(instance) {
       const formatter = instance[formattersSym].level;
       const { labels } = instance.levels;
-      const cache = {};
+      const cache2 = {};
       for (const label in labels) {
         const level = formatter(labels[label], Number(label));
-        cache[label] = JSON.stringify(level).slice(0, -1);
+        cache2[label] = JSON.stringify(level).slice(0, -1);
       }
-      instance[lsCacheSym] = cache;
+      instance[lsCacheSym] = cache2;
       return instance;
     }
     function isStandardLevel(level, useOnlyCustomLevels) {
@@ -34450,10 +35736,10 @@ function decodeUTF16LE(bytes) {
     i += 2;
     if (u1 >= 55296 && u1 <= 56319) {
       if (i + 1 < len) {
-        const u2 = bytes[i] | bytes[i + 1] << 8;
-        if (u2 >= 56320 && u2 <= 57343) {
+        const u22 = bytes[i] | bytes[i + 1] << 8;
+        if (u22 >= 56320 && u22 <= 57343) {
           pushCodeUnit(parts, chunk, u1);
-          pushCodeUnit(parts, chunk, u2);
+          pushCodeUnit(parts, chunk, u22);
           i += 2;
         } else {
           pushCodeUnit(parts, chunk, REPLACEMENT);
@@ -34480,8 +35766,8 @@ function decodeASCII(bytes) {
   for (let i = 0; i < bytes.length; i += CHUNK) {
     const end = Math.min(bytes.length, i + CHUNK);
     const codes = new Array(end - i);
-    for (let j = i, k = 0; j < end; j++, k++) {
-      codes[k] = bytes[j] & 127;
+    for (let j2 = i, k = 0; j2 < end; j2++, k++) {
+      codes[k] = bytes[j2] & 127;
     }
     parts.push(String.fromCharCode.apply(null, codes));
   }
@@ -34492,8 +35778,8 @@ function decodeLatin1(bytes) {
   for (let i = 0; i < bytes.length; i += CHUNK) {
     const end = Math.min(bytes.length, i + CHUNK);
     const codes = new Array(end - i);
-    for (let j = i, k = 0; j < end; j++, k++) {
-      codes[k] = bytes[j];
+    for (let j2 = i, k = 0; j2 < end; j2++, k++) {
+      codes[k] = bytes[j2];
     }
     parts.push(String.fromCharCode.apply(null, codes));
   }
@@ -34549,12 +35835,12 @@ function encodeUTF8(str) {
 function encodeUTF16LE(str) {
   const units = [];
   for (let i = 0; i < str.length; i++) {
-    const u = str.charCodeAt(i);
-    if (u >= 55296 && u <= 56319) {
+    const u3 = str.charCodeAt(i);
+    if (u3 >= 55296 && u3 <= 56319) {
       if (i + 1 < str.length) {
         const lo = str.charCodeAt(i + 1);
         if (lo >= 56320 && lo <= 57343) {
-          units.push(u, lo);
+          units.push(u3, lo);
           i++;
         } else {
           units.push(REPLACEMENT);
@@ -34564,11 +35850,11 @@ function encodeUTF16LE(str) {
       }
       continue;
     }
-    if (u >= 56320 && u <= 57343) {
+    if (u3 >= 56320 && u3 <= 57343) {
       units.push(REPLACEMENT);
       continue;
     }
-    units.push(u);
+    units.push(u3);
   }
   const out = new Uint8Array(units.length * 2);
   for (let i = 0; i < units.length; i++) {
@@ -42096,9 +43382,3385 @@ var init_WaveParser = __esm({
   }
 });
 
+// ../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/windows.js
+var require_windows = __commonJS({
+  "../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/windows.js"(exports, module) {
+    module.exports = isexe;
+    isexe.sync = sync;
+    var fs = __require("fs");
+    function checkPathExt(path4, options) {
+      var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
+      if (!pathext) {
+        return true;
+      }
+      pathext = pathext.split(";");
+      if (pathext.indexOf("") !== -1) {
+        return true;
+      }
+      for (var i = 0; i < pathext.length; i++) {
+        var p = pathext[i].toLowerCase();
+        if (p && path4.substr(-p.length).toLowerCase() === p) {
+          return true;
+        }
+      }
+      return false;
+    }
+    function checkStat(stat4, path4, options) {
+      if (!stat4.isSymbolicLink() && !stat4.isFile()) {
+        return false;
+      }
+      return checkPathExt(path4, options);
+    }
+    function isexe(path4, options, cb) {
+      fs.stat(path4, function(er, stat4) {
+        cb(er, er ? false : checkStat(stat4, path4, options));
+      });
+    }
+    function sync(path4, options) {
+      return checkStat(fs.statSync(path4), path4, options);
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/mode.js
+var require_mode = __commonJS({
+  "../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/mode.js"(exports, module) {
+    module.exports = isexe;
+    isexe.sync = sync;
+    var fs = __require("fs");
+    function isexe(path4, options, cb) {
+      fs.stat(path4, function(er, stat4) {
+        cb(er, er ? false : checkStat(stat4, options));
+      });
+    }
+    function sync(path4, options) {
+      return checkStat(fs.statSync(path4), options);
+    }
+    function checkStat(stat4, options) {
+      return stat4.isFile() && checkMode(stat4, options);
+    }
+    function checkMode(stat4, options) {
+      var mod = stat4.mode;
+      var uid = stat4.uid;
+      var gid = stat4.gid;
+      var myUid = options.uid !== void 0 ? options.uid : process.getuid && process.getuid();
+      var myGid = options.gid !== void 0 ? options.gid : process.getgid && process.getgid();
+      var u3 = parseInt("100", 8);
+      var g = parseInt("010", 8);
+      var o = parseInt("001", 8);
+      var ug = u3 | g;
+      var ret = mod & o || mod & g && gid === myGid || mod & u3 && uid === myUid || mod & ug && myUid === 0;
+      return ret;
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/index.js
+var require_isexe = __commonJS({
+  "../../node_modules/.pnpm/isexe@2.0.0/node_modules/isexe/index.js"(exports, module) {
+    var fs = __require("fs");
+    var core;
+    if (process.platform === "win32" || global.TESTING_WINDOWS) {
+      core = require_windows();
+    } else {
+      core = require_mode();
+    }
+    module.exports = isexe;
+    isexe.sync = sync;
+    function isexe(path4, options, cb) {
+      if (typeof options === "function") {
+        cb = options;
+        options = {};
+      }
+      if (!cb) {
+        if (typeof Promise !== "function") {
+          throw new TypeError("callback not provided");
+        }
+        return new Promise(function(resolve, reject) {
+          isexe(path4, options || {}, function(er, is2) {
+            if (er) {
+              reject(er);
+            } else {
+              resolve(is2);
+            }
+          });
+        });
+      }
+      core(path4, options || {}, function(er, is2) {
+        if (er) {
+          if (er.code === "EACCES" || options && options.ignoreErrors) {
+            er = null;
+            is2 = false;
+          }
+        }
+        cb(er, is2);
+      });
+    }
+    function sync(path4, options) {
+      try {
+        return core.sync(path4, options || {});
+      } catch (er) {
+        if (options && options.ignoreErrors || er.code === "EACCES") {
+          return false;
+        } else {
+          throw er;
+        }
+      }
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/which@1.3.1/node_modules/which/which.js
+var require_which = __commonJS({
+  "../../node_modules/.pnpm/which@1.3.1/node_modules/which/which.js"(exports, module) {
+    module.exports = which;
+    which.sync = whichSync;
+    var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys";
+    var path4 = __require("path");
+    var COLON = isWindows ? ";" : ":";
+    var isexe = require_isexe();
+    function getNotFoundError(cmd) {
+      var er = new Error("not found: " + cmd);
+      er.code = "ENOENT";
+      return er;
+    }
+    function getPathInfo(cmd, opt) {
+      var colon = opt.colon || COLON;
+      var pathEnv = opt.path || process.env.PATH || "";
+      var pathExt = [""];
+      pathEnv = pathEnv.split(colon);
+      var pathExtExe = "";
+      if (isWindows) {
+        pathEnv.unshift(process.cwd());
+        pathExtExe = opt.pathExt || process.env.PATHEXT || ".EXE;.CMD;.BAT;.COM";
+        pathExt = pathExtExe.split(colon);
+        if (cmd.indexOf(".") !== -1 && pathExt[0] !== "")
+          pathExt.unshift("");
+      }
+      if (cmd.match(/\//) || isWindows && cmd.match(/\\/))
+        pathEnv = [""];
+      return {
+        env: pathEnv,
+        ext: pathExt,
+        extExe: pathExtExe
+      };
+    }
+    function which(cmd, opt, cb) {
+      if (typeof opt === "function") {
+        cb = opt;
+        opt = {};
+      }
+      var info = getPathInfo(cmd, opt);
+      var pathEnv = info.env;
+      var pathExt = info.ext;
+      var pathExtExe = info.extExe;
+      var found = [];
+      (function F2(i, l) {
+        if (i === l) {
+          if (opt.all && found.length)
+            return cb(null, found);
+          else
+            return cb(getNotFoundError(cmd));
+        }
+        var pathPart = pathEnv[i];
+        if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
+          pathPart = pathPart.slice(1, -1);
+        var p = path4.join(pathPart, cmd);
+        if (!pathPart && /^\.[\\\/]/.test(cmd)) {
+          p = cmd.slice(0, 2) + p;
+        }
+        ;
+        (function E(ii, ll) {
+          if (ii === ll) return F2(i + 1, l);
+          var ext = pathExt[ii];
+          isexe(p + ext, { pathExt: pathExtExe }, function(er, is2) {
+            if (!er && is2) {
+              if (opt.all)
+                found.push(p + ext);
+              else
+                return cb(null, p + ext);
+            }
+            return E(ii + 1, ll);
+          });
+        })(0, pathExt.length);
+      })(0, pathEnv.length);
+    }
+    function whichSync(cmd, opt) {
+      opt = opt || {};
+      var info = getPathInfo(cmd, opt);
+      var pathEnv = info.env;
+      var pathExt = info.ext;
+      var pathExtExe = info.extExe;
+      var found = [];
+      for (var i = 0, l = pathEnv.length; i < l; i++) {
+        var pathPart = pathEnv[i];
+        if (pathPart.charAt(0) === '"' && pathPart.slice(-1) === '"')
+          pathPart = pathPart.slice(1, -1);
+        var p = path4.join(pathPart, cmd);
+        if (!pathPart && /^\.[\\\/]/.test(cmd)) {
+          p = cmd.slice(0, 2) + p;
+        }
+        for (var j2 = 0, ll = pathExt.length; j2 < ll; j2++) {
+          var cur = p + pathExt[j2];
+          var is2;
+          try {
+            is2 = isexe.sync(cur, { pathExt: pathExtExe });
+            if (is2) {
+              if (opt.all)
+                found.push(cur);
+              else
+                return cur;
+            }
+          } catch (ex) {
+          }
+        }
+      }
+      if (opt.all && found.length)
+        return found;
+      if (opt.nothrow)
+        return null;
+      throw getNotFoundError(cmd);
+    }
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/utils.js
+var require_utils6 = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/utils.js"(exports, module) {
+    "use strict";
+    var exec = __require("child_process").exec;
+    var isWindows = __require("os").platform().match(/win(32|64)/);
+    var which = require_which();
+    var nlRegexp = /\r\n|\r|\n/g;
+    var streamRegexp = /^\[?(.*?)\]?$/;
+    var filterEscapeRegexp = /[,]/;
+    var whichCache = {};
+    function parseProgressLine(line2) {
+      var progress = {};
+      line2 = line2.replace(/=\s+/g, "=").trim();
+      var progressParts = line2.split(" ");
+      for (var i = 0; i < progressParts.length; i++) {
+        var progressSplit = progressParts[i].split("=", 2);
+        var key = progressSplit[0];
+        var value = progressSplit[1];
+        if (typeof value === "undefined")
+          return null;
+        progress[key] = value;
+      }
+      return progress;
+    }
+    var utils = module.exports = {
+      isWindows,
+      streamRegexp,
+      /**
+       * Copy an object keys into another one
+       *
+       * @param {Object} source source object
+       * @param {Object} dest destination object
+       * @private
+       */
+      copy: function(source, dest) {
+        Object.keys(source).forEach(function(key) {
+          dest[key] = source[key];
+        });
+      },
+      /**
+       * Create an argument list
+       *
+       * Returns a function that adds new arguments to the list.
+       * It also has the following methods:
+       * - clear() empties the argument list
+       * - get() returns the argument list
+       * - find(arg, count) finds 'arg' in the list and return the following 'count' items, or undefined if not found
+       * - remove(arg, count) remove 'arg' in the list as well as the following 'count' items
+       *
+       * @private
+       */
+      args: function() {
+        var list = [];
+        var argfunc = function() {
+          if (arguments.length === 1 && Array.isArray(arguments[0])) {
+            list = list.concat(arguments[0]);
+          } else {
+            list = list.concat([].slice.call(arguments));
+          }
+        };
+        argfunc.clear = function() {
+          list = [];
+        };
+        argfunc.get = function() {
+          return list;
+        };
+        argfunc.find = function(arg, count2) {
+          var index2 = list.indexOf(arg);
+          if (index2 !== -1) {
+            return list.slice(index2 + 1, index2 + 1 + (count2 || 0));
+          }
+        };
+        argfunc.remove = function(arg, count2) {
+          var index2 = list.indexOf(arg);
+          if (index2 !== -1) {
+            list.splice(index2, (count2 || 0) + 1);
+          }
+        };
+        argfunc.clone = function() {
+          var cloned = utils.args();
+          cloned(list);
+          return cloned;
+        };
+        return argfunc;
+      },
+      /**
+       * Generate filter strings
+       *
+       * @param {String[]|Object[]} filters filter specifications. When using objects,
+       *   each must have the following properties:
+       * @param {String} filters.filter filter name
+       * @param {String|Array} [filters.inputs] (array of) input stream specifier(s) for the filter,
+       *   defaults to ffmpeg automatically choosing the first unused matching streams
+       * @param {String|Array} [filters.outputs] (array of) output stream specifier(s) for the filter,
+       *   defaults to ffmpeg automatically assigning the output to the output file
+       * @param {Object|String|Array} [filters.options] filter options, can be omitted to not set any options
+       * @return String[]
+       * @private
+       */
+      makeFilterStrings: function(filters) {
+        return filters.map(function(filterSpec) {
+          if (typeof filterSpec === "string") {
+            return filterSpec;
+          }
+          var filterString = "";
+          if (Array.isArray(filterSpec.inputs)) {
+            filterString += filterSpec.inputs.map(function(streamSpec) {
+              return streamSpec.replace(streamRegexp, "[$1]");
+            }).join("");
+          } else if (typeof filterSpec.inputs === "string") {
+            filterString += filterSpec.inputs.replace(streamRegexp, "[$1]");
+          }
+          filterString += filterSpec.filter;
+          if (filterSpec.options) {
+            if (typeof filterSpec.options === "string" || typeof filterSpec.options === "number") {
+              filterString += "=" + filterSpec.options;
+            } else if (Array.isArray(filterSpec.options)) {
+              filterString += "=" + filterSpec.options.map(function(option) {
+                if (typeof option === "string" && option.match(filterEscapeRegexp)) {
+                  return "'" + option + "'";
+                } else {
+                  return option;
+                }
+              }).join(":");
+            } else if (Object.keys(filterSpec.options).length) {
+              filterString += "=" + Object.keys(filterSpec.options).map(function(option) {
+                var value = filterSpec.options[option];
+                if (typeof value === "string" && value.match(filterEscapeRegexp)) {
+                  value = "'" + value + "'";
+                }
+                return option + "=" + value;
+              }).join(":");
+            }
+          }
+          if (Array.isArray(filterSpec.outputs)) {
+            filterString += filterSpec.outputs.map(function(streamSpec) {
+              return streamSpec.replace(streamRegexp, "[$1]");
+            }).join("");
+          } else if (typeof filterSpec.outputs === "string") {
+            filterString += filterSpec.outputs.replace(streamRegexp, "[$1]");
+          }
+          return filterString;
+        });
+      },
+      /**
+       * Search for an executable
+       *
+       * Uses 'which' or 'where' depending on platform
+       *
+       * @param {String} name executable name
+       * @param {Function} callback callback with signature (err, path)
+       * @private
+       */
+      which: function(name, callback) {
+        if (name in whichCache) {
+          return callback(null, whichCache[name]);
+        }
+        which(name, function(err, result) {
+          if (err) {
+            return callback(null, whichCache[name] = "");
+          }
+          callback(null, whichCache[name] = result);
+        });
+      },
+      /**
+       * Convert a [[hh:]mm:]ss[.xxx] timemark into seconds
+       *
+       * @param {String} timemark timemark string
+       * @return Number
+       * @private
+       */
+      timemarkToSeconds: function(timemark) {
+        if (typeof timemark === "number") {
+          return timemark;
+        }
+        if (timemark.indexOf(":") === -1 && timemark.indexOf(".") >= 0) {
+          return Number(timemark);
+        }
+        var parts = timemark.split(":");
+        var secs = Number(parts.pop());
+        if (parts.length) {
+          secs += Number(parts.pop()) * 60;
+        }
+        if (parts.length) {
+          secs += Number(parts.pop()) * 3600;
+        }
+        return secs;
+      },
+      /**
+       * Extract codec data from ffmpeg stderr and emit 'codecData' event if appropriate
+       * Call it with an initially empty codec object once with each line of stderr output until it returns true
+       *
+       * @param {FfmpegCommand} command event emitter
+       * @param {String} stderrLine ffmpeg stderr output line
+       * @param {Object} codecObject object used to accumulate codec data between calls
+       * @return {Boolean} true if codec data is complete (and event was emitted), false otherwise
+       * @private
+       */
+      extractCodecData: function(command, stderrLine, codecsObject) {
+        var inputPattern = /Input #[0-9]+, ([^ ]+),/;
+        var durPattern = /Duration\: ([^,]+)/;
+        var audioPattern = /Audio\: (.*)/;
+        var videoPattern = /Video\: (.*)/;
+        if (!("inputStack" in codecsObject)) {
+          codecsObject.inputStack = [];
+          codecsObject.inputIndex = -1;
+          codecsObject.inInput = false;
+        }
+        var inputStack = codecsObject.inputStack;
+        var inputIndex = codecsObject.inputIndex;
+        var inInput = codecsObject.inInput;
+        var format, dur, audio, video;
+        if (format = stderrLine.match(inputPattern)) {
+          inInput = codecsObject.inInput = true;
+          inputIndex = codecsObject.inputIndex = codecsObject.inputIndex + 1;
+          inputStack[inputIndex] = { format: format[1], audio: "", video: "", duration: "" };
+        } else if (inInput && (dur = stderrLine.match(durPattern))) {
+          inputStack[inputIndex].duration = dur[1];
+        } else if (inInput && (audio = stderrLine.match(audioPattern))) {
+          audio = audio[1].split(", ");
+          inputStack[inputIndex].audio = audio[0];
+          inputStack[inputIndex].audio_details = audio;
+        } else if (inInput && (video = stderrLine.match(videoPattern))) {
+          video = video[1].split(", ");
+          inputStack[inputIndex].video = video[0];
+          inputStack[inputIndex].video_details = video;
+        } else if (/Output #\d+/.test(stderrLine)) {
+          inInput = codecsObject.inInput = false;
+        } else if (/Stream mapping:|Press (\[q\]|ctrl-c) to stop/.test(stderrLine)) {
+          command.emit.apply(command, ["codecData"].concat(inputStack));
+          return true;
+        }
+        return false;
+      },
+      /**
+       * Extract progress data from ffmpeg stderr and emit 'progress' event if appropriate
+       *
+       * @param {FfmpegCommand} command event emitter
+       * @param {String} stderrLine ffmpeg stderr data
+       * @private
+       */
+      extractProgress: function(command, stderrLine) {
+        var progress = parseProgressLine(stderrLine);
+        if (progress) {
+          var ret = {
+            frames: parseInt(progress.frame, 10),
+            currentFps: parseInt(progress.fps, 10),
+            currentKbps: progress.bitrate ? parseFloat(progress.bitrate.replace("kbits/s", "")) : 0,
+            targetSize: parseInt(progress.size || progress.Lsize, 10),
+            timemark: progress.time
+          };
+          if (command._ffprobeData && command._ffprobeData.format && command._ffprobeData.format.duration) {
+            var duration3 = Number(command._ffprobeData.format.duration);
+            if (!isNaN(duration3))
+              ret.percent = utils.timemarkToSeconds(ret.timemark) / duration3 * 100;
+          }
+          command.emit("progress", ret);
+        }
+      },
+      /**
+       * Extract error message(s) from ffmpeg stderr
+       *
+       * @param {String} stderr ffmpeg stderr data
+       * @return {String}
+       * @private
+       */
+      extractError: function(stderr) {
+        return stderr.split(nlRegexp).reduce(function(messages, message) {
+          if (message.charAt(0) === " " || message.charAt(0) === "[") {
+            return [];
+          } else {
+            messages.push(message);
+            return messages;
+          }
+        }, []).join("\n");
+      },
+      /**
+       * Creates a line ring buffer object with the following methods:
+       * - append(str) : appends a string or buffer
+       * - get() : returns the whole string
+       * - close() : prevents further append() calls and does a last call to callbacks
+       * - callback(cb) : calls cb for each line (incl. those already in the ring)
+       *
+       * @param {Number} maxLines maximum number of lines to store (<= 0 for unlimited)
+       */
+      linesRing: function(maxLines) {
+        var cbs = [];
+        var lines = [];
+        var current = null;
+        var closed = false;
+        var max = maxLines - 1;
+        function emit(line2) {
+          cbs.forEach(function(cb) {
+            cb(line2);
+          });
+        }
+        return {
+          callback: function(cb) {
+            lines.forEach(function(l) {
+              cb(l);
+            });
+            cbs.push(cb);
+          },
+          append: function(str) {
+            if (closed) return;
+            if (str instanceof Buffer) str = "" + str;
+            if (!str || str.length === 0) return;
+            var newLines = str.split(nlRegexp);
+            if (newLines.length === 1) {
+              if (current !== null) {
+                current = current + newLines.shift();
+              } else {
+                current = newLines.shift();
+              }
+            } else {
+              if (current !== null) {
+                current = current + newLines.shift();
+                emit(current);
+                lines.push(current);
+              }
+              current = newLines.pop();
+              newLines.forEach(function(l) {
+                emit(l);
+                lines.push(l);
+              });
+              if (max > -1 && lines.length > max) {
+                lines.splice(0, lines.length - max);
+              }
+            }
+          },
+          get: function() {
+            if (current !== null) {
+              return lines.concat([current]).join("\n");
+            } else {
+              return lines.join("\n");
+            }
+          },
+          close: function() {
+            if (closed) return;
+            if (current !== null) {
+              emit(current);
+              lines.push(current);
+              if (max > -1 && lines.length > max) {
+                lines.shift();
+              }
+              current = null;
+            }
+            closed = true;
+          }
+        };
+      }
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/inputs.js
+var require_inputs = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/inputs.js"(exports, module) {
+    "use strict";
+    var utils = require_utils6();
+    module.exports = function(proto) {
+      proto.mergeAdd = proto.addInput = proto.input = function(source) {
+        var isFile = false;
+        var isStream = false;
+        if (typeof source !== "string") {
+          if (!("readable" in source) || !source.readable) {
+            throw new Error("Invalid input");
+          }
+          var hasInputStream = this._inputs.some(function(input) {
+            return input.isStream;
+          });
+          if (hasInputStream) {
+            throw new Error("Only one input stream is supported");
+          }
+          isStream = true;
+          source.pause();
+        } else {
+          var protocol = source.match(/^([a-z]{2,}):/i);
+          isFile = !protocol || protocol[0] === "file";
+        }
+        this._inputs.push(this._currentInput = {
+          source,
+          isFile,
+          isStream,
+          options: utils.args()
+        });
+        return this;
+      };
+      proto.withInputFormat = proto.inputFormat = proto.fromFormat = function(format) {
+        if (!this._currentInput) {
+          throw new Error("No input specified");
+        }
+        this._currentInput.options("-f", format);
+        return this;
+      };
+      proto.withInputFps = proto.withInputFPS = proto.withFpsInput = proto.withFPSInput = proto.inputFPS = proto.inputFps = proto.fpsInput = proto.FPSInput = function(fps) {
+        if (!this._currentInput) {
+          throw new Error("No input specified");
+        }
+        this._currentInput.options("-r", fps);
+        return this;
+      };
+      proto.nativeFramerate = proto.withNativeFramerate = proto.native = function() {
+        if (!this._currentInput) {
+          throw new Error("No input specified");
+        }
+        this._currentInput.options("-re");
+        return this;
+      };
+      proto.setStartTime = proto.seekInput = function(seek) {
+        if (!this._currentInput) {
+          throw new Error("No input specified");
+        }
+        this._currentInput.options("-ss", seek);
+        return this;
+      };
+      proto.loop = function(duration3) {
+        if (!this._currentInput) {
+          throw new Error("No input specified");
+        }
+        this._currentInput.options("-loop", "1");
+        if (typeof duration3 !== "undefined") {
+          this.duration(duration3);
+        }
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/audio.js
+var require_audio = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/audio.js"(exports, module) {
+    "use strict";
+    var utils = require_utils6();
+    module.exports = function(proto) {
+      proto.withNoAudio = proto.noAudio = function() {
+        this._currentOutput.audio.clear();
+        this._currentOutput.audioFilters.clear();
+        this._currentOutput.audio("-an");
+        return this;
+      };
+      proto.withAudioCodec = proto.audioCodec = function(codec) {
+        this._currentOutput.audio("-acodec", codec);
+        return this;
+      };
+      proto.withAudioBitrate = proto.audioBitrate = function(bitrate) {
+        this._currentOutput.audio("-b:a", ("" + bitrate).replace(/k?$/, "k"));
+        return this;
+      };
+      proto.withAudioChannels = proto.audioChannels = function(channels) {
+        this._currentOutput.audio("-ac", channels);
+        return this;
+      };
+      proto.withAudioFrequency = proto.audioFrequency = function(freq) {
+        this._currentOutput.audio("-ar", freq);
+        return this;
+      };
+      proto.withAudioQuality = proto.audioQuality = function(quality) {
+        this._currentOutput.audio("-aq", quality);
+        return this;
+      };
+      proto.withAudioFilter = proto.withAudioFilters = proto.audioFilter = proto.audioFilters = function(filters) {
+        if (arguments.length > 1) {
+          filters = [].slice.call(arguments);
+        }
+        if (!Array.isArray(filters)) {
+          filters = [filters];
+        }
+        this._currentOutput.audioFilters(utils.makeFilterStrings(filters));
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/video.js
+var require_video = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/video.js"(exports, module) {
+    "use strict";
+    var utils = require_utils6();
+    module.exports = function(proto) {
+      proto.withNoVideo = proto.noVideo = function() {
+        this._currentOutput.video.clear();
+        this._currentOutput.videoFilters.clear();
+        this._currentOutput.video("-vn");
+        return this;
+      };
+      proto.withVideoCodec = proto.videoCodec = function(codec) {
+        this._currentOutput.video("-vcodec", codec);
+        return this;
+      };
+      proto.withVideoBitrate = proto.videoBitrate = function(bitrate, constant) {
+        bitrate = ("" + bitrate).replace(/k?$/, "k");
+        this._currentOutput.video("-b:v", bitrate);
+        if (constant) {
+          this._currentOutput.video(
+            "-maxrate",
+            bitrate,
+            "-minrate",
+            bitrate,
+            "-bufsize",
+            "3M"
+          );
+        }
+        return this;
+      };
+      proto.withVideoFilter = proto.withVideoFilters = proto.videoFilter = proto.videoFilters = function(filters) {
+        if (arguments.length > 1) {
+          filters = [].slice.call(arguments);
+        }
+        if (!Array.isArray(filters)) {
+          filters = [filters];
+        }
+        this._currentOutput.videoFilters(utils.makeFilterStrings(filters));
+        return this;
+      };
+      proto.withOutputFps = proto.withOutputFPS = proto.withFpsOutput = proto.withFPSOutput = proto.withFps = proto.withFPS = proto.outputFPS = proto.outputFps = proto.fpsOutput = proto.FPSOutput = proto.fps = proto.FPS = function(fps) {
+        this._currentOutput.video("-r", fps);
+        return this;
+      };
+      proto.takeFrames = proto.withFrames = proto.frames = function(frames) {
+        this._currentOutput.video("-vframes", frames);
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/videosize.js
+var require_videosize = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/videosize.js"(exports, module) {
+    "use strict";
+    function getScalePadFilters(width, height, aspect, color) {
+      return [
+        /*
+          In both cases, we first have to scale the input to match the requested size.
+          When using computed width/height, we truncate them to multiples of 2
+         */
+        {
+          filter: "scale",
+          options: {
+            w: "if(gt(a," + aspect + ")," + width + ",trunc(" + height + "*a/2)*2)",
+            h: "if(lt(a," + aspect + ")," + height + ",trunc(" + width + "/a/2)*2)"
+          }
+        },
+        /*
+          Then we pad the scaled input to match the target size
+          (here iw and ih refer to the padding input, i.e the scaled output)
+         */
+        {
+          filter: "pad",
+          options: {
+            w: width,
+            h: height,
+            x: "if(gt(a," + aspect + "),0,(" + width + "-iw)/2)",
+            y: "if(lt(a," + aspect + "),0,(" + height + "-ih)/2)",
+            color
+          }
+        }
+      ];
+    }
+    function createSizeFilters(output, key, value) {
+      var data = output.sizeData = output.sizeData || {};
+      data[key] = value;
+      if (!("size" in data)) {
+        return [];
+      }
+      var fixedSize = data.size.match(/([0-9]+)x([0-9]+)/);
+      var fixedWidth = data.size.match(/([0-9]+)x\?/);
+      var fixedHeight = data.size.match(/\?x([0-9]+)/);
+      var percentRatio = data.size.match(/\b([0-9]{1,3})%/);
+      var width, height, aspect;
+      if (percentRatio) {
+        var ratio = Number(percentRatio[1]) / 100;
+        return [{
+          filter: "scale",
+          options: {
+            w: "trunc(iw*" + ratio + "/2)*2",
+            h: "trunc(ih*" + ratio + "/2)*2"
+          }
+        }];
+      } else if (fixedSize) {
+        width = Math.round(Number(fixedSize[1]) / 2) * 2;
+        height = Math.round(Number(fixedSize[2]) / 2) * 2;
+        aspect = width / height;
+        if (data.pad) {
+          return getScalePadFilters(width, height, aspect, data.pad);
+        } else {
+          return [{ filter: "scale", options: { w: width, h: height } }];
+        }
+      } else if (fixedWidth || fixedHeight) {
+        if ("aspect" in data) {
+          width = fixedWidth ? fixedWidth[1] : Math.round(Number(fixedHeight[1]) * data.aspect);
+          height = fixedHeight ? fixedHeight[1] : Math.round(Number(fixedWidth[1]) / data.aspect);
+          width = Math.round(width / 2) * 2;
+          height = Math.round(height / 2) * 2;
+          if (data.pad) {
+            return getScalePadFilters(width, height, data.aspect, data.pad);
+          } else {
+            return [{ filter: "scale", options: { w: width, h: height } }];
+          }
+        } else {
+          if (fixedWidth) {
+            return [{
+              filter: "scale",
+              options: {
+                w: Math.round(Number(fixedWidth[1]) / 2) * 2,
+                h: "trunc(ow/a/2)*2"
+              }
+            }];
+          } else {
+            return [{
+              filter: "scale",
+              options: {
+                w: "trunc(oh*a/2)*2",
+                h: Math.round(Number(fixedHeight[1]) / 2) * 2
+              }
+            }];
+          }
+        }
+      } else {
+        throw new Error("Invalid size specified: " + data.size);
+      }
+    }
+    module.exports = function(proto) {
+      proto.keepPixelAspect = // Only for compatibility, this is not about keeping _pixel_ aspect ratio
+      proto.keepDisplayAspect = proto.keepDisplayAspectRatio = proto.keepDAR = function() {
+        return this.videoFilters([
+          {
+            filter: "scale",
+            options: {
+              w: "if(gt(sar,1),iw*sar,iw)",
+              h: "if(lt(sar,1),ih/sar,ih)"
+            }
+          },
+          {
+            filter: "setsar",
+            options: "1"
+          }
+        ]);
+      };
+      proto.withSize = proto.setSize = proto.size = function(size) {
+        var filters = createSizeFilters(this._currentOutput, "size", size);
+        this._currentOutput.sizeFilters.clear();
+        this._currentOutput.sizeFilters(filters);
+        return this;
+      };
+      proto.withAspect = proto.withAspectRatio = proto.setAspect = proto.setAspectRatio = proto.aspect = proto.aspectRatio = function(aspect) {
+        var a = Number(aspect);
+        if (isNaN(a)) {
+          var match = aspect.match(/^(\d+):(\d+)$/);
+          if (match) {
+            a = Number(match[1]) / Number(match[2]);
+          } else {
+            throw new Error("Invalid aspect ratio: " + aspect);
+          }
+        }
+        var filters = createSizeFilters(this._currentOutput, "aspect", a);
+        this._currentOutput.sizeFilters.clear();
+        this._currentOutput.sizeFilters(filters);
+        return this;
+      };
+      proto.applyAutopadding = proto.applyAutoPadding = proto.applyAutopad = proto.applyAutoPad = proto.withAutopadding = proto.withAutoPadding = proto.withAutopad = proto.withAutoPad = proto.autoPad = proto.autopad = function(pad, color) {
+        if (typeof pad === "string") {
+          color = pad;
+          pad = true;
+        }
+        if (typeof pad === "undefined") {
+          pad = true;
+        }
+        var filters = createSizeFilters(this._currentOutput, "pad", pad ? color || "black" : false);
+        this._currentOutput.sizeFilters.clear();
+        this._currentOutput.sizeFilters(filters);
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/output.js
+var require_output = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/output.js"(exports, module) {
+    "use strict";
+    var utils = require_utils6();
+    module.exports = function(proto) {
+      proto.addOutput = proto.output = function(target, pipeopts) {
+        var isFile = false;
+        if (!target && this._currentOutput) {
+          throw new Error("Invalid output");
+        }
+        if (target && typeof target !== "string") {
+          if (!("writable" in target) || !target.writable) {
+            throw new Error("Invalid output");
+          }
+        } else if (typeof target === "string") {
+          var protocol = target.match(/^([a-z]{2,}):/i);
+          isFile = !protocol || protocol[0] === "file";
+        }
+        if (target && !("target" in this._currentOutput)) {
+          this._currentOutput.target = target;
+          this._currentOutput.isFile = isFile;
+          this._currentOutput.pipeopts = pipeopts || {};
+        } else {
+          if (target && typeof target !== "string") {
+            var hasOutputStream = this._outputs.some(function(output) {
+              return typeof output.target !== "string";
+            });
+            if (hasOutputStream) {
+              throw new Error("Only one output stream is supported");
+            }
+          }
+          this._outputs.push(this._currentOutput = {
+            target,
+            isFile,
+            flags: {},
+            pipeopts: pipeopts || {}
+          });
+          var self = this;
+          ["audio", "audioFilters", "video", "videoFilters", "sizeFilters", "options"].forEach(function(key) {
+            self._currentOutput[key] = utils.args();
+          });
+          if (!target) {
+            delete this._currentOutput.target;
+          }
+        }
+        return this;
+      };
+      proto.seekOutput = proto.seek = function(seek) {
+        this._currentOutput.options("-ss", seek);
+        return this;
+      };
+      proto.withDuration = proto.setDuration = proto.duration = function(duration3) {
+        this._currentOutput.options("-t", duration3);
+        return this;
+      };
+      proto.toFormat = proto.withOutputFormat = proto.outputFormat = proto.format = function(format) {
+        this._currentOutput.options("-f", format);
+        return this;
+      };
+      proto.map = function(spec) {
+        this._currentOutput.options("-map", spec.replace(utils.streamRegexp, "[$1]"));
+        return this;
+      };
+      proto.updateFlvMetadata = proto.flvmeta = function() {
+        this._currentOutput.flags.flvmeta = true;
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/custom.js
+var require_custom = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/custom.js"(exports, module) {
+    "use strict";
+    var utils = require_utils6();
+    module.exports = function(proto) {
+      proto.addInputOption = proto.addInputOptions = proto.withInputOption = proto.withInputOptions = proto.inputOption = proto.inputOptions = function(options) {
+        if (!this._currentInput) {
+          throw new Error("No input specified");
+        }
+        var doSplit = true;
+        if (arguments.length > 1) {
+          options = [].slice.call(arguments);
+          doSplit = false;
+        }
+        if (!Array.isArray(options)) {
+          options = [options];
+        }
+        this._currentInput.options(options.reduce(function(options2, option) {
+          var split = String(option).split(" ");
+          if (doSplit && split.length === 2) {
+            options2.push(split[0], split[1]);
+          } else {
+            options2.push(option);
+          }
+          return options2;
+        }, []));
+        return this;
+      };
+      proto.addOutputOption = proto.addOutputOptions = proto.addOption = proto.addOptions = proto.withOutputOption = proto.withOutputOptions = proto.withOption = proto.withOptions = proto.outputOption = proto.outputOptions = function(options) {
+        var doSplit = true;
+        if (arguments.length > 1) {
+          options = [].slice.call(arguments);
+          doSplit = false;
+        }
+        if (!Array.isArray(options)) {
+          options = [options];
+        }
+        this._currentOutput.options(options.reduce(function(options2, option) {
+          var split = String(option).split(" ");
+          if (doSplit && split.length === 2) {
+            options2.push(split[0], split[1]);
+          } else {
+            options2.push(option);
+          }
+          return options2;
+        }, []));
+        return this;
+      };
+      proto.filterGraph = proto.complexFilter = function(spec, map2) {
+        this._complexFilters.clear();
+        if (!Array.isArray(spec)) {
+          spec = [spec];
+        }
+        this._complexFilters("-filter_complex", utils.makeFilterStrings(spec).join(";"));
+        if (Array.isArray(map2)) {
+          var self = this;
+          map2.forEach(function(streamSpec) {
+            self._complexFilters("-map", streamSpec.replace(utils.streamRegexp, "[$1]"));
+          });
+        } else if (typeof map2 === "string") {
+          this._complexFilters("-map", map2.replace(utils.streamRegexp, "[$1]"));
+        }
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/misc.js
+var require_misc = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/options/misc.js"(exports, module) {
+    "use strict";
+    var path4 = __require("path");
+    module.exports = function(proto) {
+      proto.usingPreset = proto.preset = function(preset) {
+        if (typeof preset === "function") {
+          preset(this);
+        } else {
+          try {
+            var modulePath = path4.join(this.options.presets, preset);
+            var module2 = __require(modulePath);
+            if (typeof module2.load === "function") {
+              module2.load(this);
+            } else {
+              throw new Error("preset " + modulePath + " has no load() function");
+            }
+          } catch (err) {
+            throw new Error("preset " + modulePath + " could not be loaded: " + err.message);
+          }
+        }
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/async@0.2.10/node_modules/async/lib/async.js
+var require_async = __commonJS({
+  "../../node_modules/.pnpm/async@0.2.10/node_modules/async/lib/async.js"(exports, module) {
+    (function() {
+      var async = {};
+      var root, previous_async;
+      root = this;
+      if (root != null) {
+        previous_async = root.async;
+      }
+      async.noConflict = function() {
+        root.async = previous_async;
+        return async;
+      };
+      function only_once(fn) {
+        var called = false;
+        return function() {
+          if (called) throw new Error("Callback was already called.");
+          called = true;
+          fn.apply(root, arguments);
+        };
+      }
+      var _each = function(arr, iterator) {
+        if (arr.forEach) {
+          return arr.forEach(iterator);
+        }
+        for (var i = 0; i < arr.length; i += 1) {
+          iterator(arr[i], i, arr);
+        }
+      };
+      var _map2 = function(arr, iterator) {
+        if (arr.map) {
+          return arr.map(iterator);
+        }
+        var results = [];
+        _each(arr, function(x, i, a) {
+          results.push(iterator(x, i, a));
+        });
+        return results;
+      };
+      var _reduce = function(arr, iterator, memo) {
+        if (arr.reduce) {
+          return arr.reduce(iterator, memo);
+        }
+        _each(arr, function(x, i, a) {
+          memo = iterator(memo, x, i, a);
+        });
+        return memo;
+      };
+      var _keys = function(obj) {
+        if (Object.keys) {
+          return Object.keys(obj);
+        }
+        var keys = [];
+        for (var k in obj) {
+          if (obj.hasOwnProperty(k)) {
+            keys.push(k);
+          }
+        }
+        return keys;
+      };
+      if (typeof process === "undefined" || !process.nextTick) {
+        if (typeof setImmediate === "function") {
+          async.nextTick = function(fn) {
+            setImmediate(fn);
+          };
+          async.setImmediate = async.nextTick;
+        } else {
+          async.nextTick = function(fn) {
+            setTimeout(fn, 0);
+          };
+          async.setImmediate = async.nextTick;
+        }
+      } else {
+        async.nextTick = process.nextTick;
+        if (typeof setImmediate !== "undefined") {
+          async.setImmediate = function(fn) {
+            setImmediate(fn);
+          };
+        } else {
+          async.setImmediate = async.nextTick;
+        }
+      }
+      async.each = function(arr, iterator, callback) {
+        callback = callback || function() {
+        };
+        if (!arr.length) {
+          return callback();
+        }
+        var completed = 0;
+        _each(arr, function(x) {
+          iterator(x, only_once(function(err) {
+            if (err) {
+              callback(err);
+              callback = function() {
+              };
+            } else {
+              completed += 1;
+              if (completed >= arr.length) {
+                callback(null);
+              }
+            }
+          }));
+        });
+      };
+      async.forEach = async.each;
+      async.eachSeries = function(arr, iterator, callback) {
+        callback = callback || function() {
+        };
+        if (!arr.length) {
+          return callback();
+        }
+        var completed = 0;
+        var iterate = function() {
+          iterator(arr[completed], function(err) {
+            if (err) {
+              callback(err);
+              callback = function() {
+              };
+            } else {
+              completed += 1;
+              if (completed >= arr.length) {
+                callback(null);
+              } else {
+                iterate();
+              }
+            }
+          });
+        };
+        iterate();
+      };
+      async.forEachSeries = async.eachSeries;
+      async.eachLimit = function(arr, limit, iterator, callback) {
+        var fn = _eachLimit(limit);
+        fn.apply(null, [arr, iterator, callback]);
+      };
+      async.forEachLimit = async.eachLimit;
+      var _eachLimit = function(limit) {
+        return function(arr, iterator, callback) {
+          callback = callback || function() {
+          };
+          if (!arr.length || limit <= 0) {
+            return callback();
+          }
+          var completed = 0;
+          var started = 0;
+          var running = 0;
+          (function replenish() {
+            if (completed >= arr.length) {
+              return callback();
+            }
+            while (running < limit && started < arr.length) {
+              started += 1;
+              running += 1;
+              iterator(arr[started - 1], function(err) {
+                if (err) {
+                  callback(err);
+                  callback = function() {
+                  };
+                } else {
+                  completed += 1;
+                  running -= 1;
+                  if (completed >= arr.length) {
+                    callback();
+                  } else {
+                    replenish();
+                  }
+                }
+              });
+            }
+          })();
+        };
+      };
+      var doParallel = function(fn) {
+        return function() {
+          var args = Array.prototype.slice.call(arguments);
+          return fn.apply(null, [async.each].concat(args));
+        };
+      };
+      var doParallelLimit = function(limit, fn) {
+        return function() {
+          var args = Array.prototype.slice.call(arguments);
+          return fn.apply(null, [_eachLimit(limit)].concat(args));
+        };
+      };
+      var doSeries = function(fn) {
+        return function() {
+          var args = Array.prototype.slice.call(arguments);
+          return fn.apply(null, [async.eachSeries].concat(args));
+        };
+      };
+      var _asyncMap = function(eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map2(arr, function(x, i) {
+          return { index: i, value: x };
+        });
+        eachfn(arr, function(x, callback2) {
+          iterator(x.value, function(err, v) {
+            results[x.index] = v;
+            callback2(err);
+          });
+        }, function(err) {
+          callback(err, results);
+        });
+      };
+      async.map = doParallel(_asyncMap);
+      async.mapSeries = doSeries(_asyncMap);
+      async.mapLimit = function(arr, limit, iterator, callback) {
+        return _mapLimit(limit)(arr, iterator, callback);
+      };
+      var _mapLimit = function(limit) {
+        return doParallelLimit(limit, _asyncMap);
+      };
+      async.reduce = function(arr, memo, iterator, callback) {
+        async.eachSeries(arr, function(x, callback2) {
+          iterator(memo, x, function(err, v) {
+            memo = v;
+            callback2(err);
+          });
+        }, function(err) {
+          callback(err, memo);
+        });
+      };
+      async.inject = async.reduce;
+      async.foldl = async.reduce;
+      async.reduceRight = function(arr, memo, iterator, callback) {
+        var reversed = _map2(arr, function(x) {
+          return x;
+        }).reverse();
+        async.reduce(reversed, memo, iterator, callback);
+      };
+      async.foldr = async.reduceRight;
+      var _filter = function(eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map2(arr, function(x, i) {
+          return { index: i, value: x };
+        });
+        eachfn(arr, function(x, callback2) {
+          iterator(x.value, function(v) {
+            if (v) {
+              results.push(x);
+            }
+            callback2();
+          });
+        }, function(err) {
+          callback(_map2(results.sort(function(a, b) {
+            return a.index - b.index;
+          }), function(x) {
+            return x.value;
+          }));
+        });
+      };
+      async.filter = doParallel(_filter);
+      async.filterSeries = doSeries(_filter);
+      async.select = async.filter;
+      async.selectSeries = async.filterSeries;
+      var _reject = function(eachfn, arr, iterator, callback) {
+        var results = [];
+        arr = _map2(arr, function(x, i) {
+          return { index: i, value: x };
+        });
+        eachfn(arr, function(x, callback2) {
+          iterator(x.value, function(v) {
+            if (!v) {
+              results.push(x);
+            }
+            callback2();
+          });
+        }, function(err) {
+          callback(_map2(results.sort(function(a, b) {
+            return a.index - b.index;
+          }), function(x) {
+            return x.value;
+          }));
+        });
+      };
+      async.reject = doParallel(_reject);
+      async.rejectSeries = doSeries(_reject);
+      var _detect = function(eachfn, arr, iterator, main_callback) {
+        eachfn(arr, function(x, callback) {
+          iterator(x, function(result) {
+            if (result) {
+              main_callback(x);
+              main_callback = function() {
+              };
+            } else {
+              callback();
+            }
+          });
+        }, function(err) {
+          main_callback();
+        });
+      };
+      async.detect = doParallel(_detect);
+      async.detectSeries = doSeries(_detect);
+      async.some = function(arr, iterator, main_callback) {
+        async.each(arr, function(x, callback) {
+          iterator(x, function(v) {
+            if (v) {
+              main_callback(true);
+              main_callback = function() {
+              };
+            }
+            callback();
+          });
+        }, function(err) {
+          main_callback(false);
+        });
+      };
+      async.any = async.some;
+      async.every = function(arr, iterator, main_callback) {
+        async.each(arr, function(x, callback) {
+          iterator(x, function(v) {
+            if (!v) {
+              main_callback(false);
+              main_callback = function() {
+              };
+            }
+            callback();
+          });
+        }, function(err) {
+          main_callback(true);
+        });
+      };
+      async.all = async.every;
+      async.sortBy = function(arr, iterator, callback) {
+        async.map(arr, function(x, callback2) {
+          iterator(x, function(err, criteria) {
+            if (err) {
+              callback2(err);
+            } else {
+              callback2(null, { value: x, criteria });
+            }
+          });
+        }, function(err, results) {
+          if (err) {
+            return callback(err);
+          } else {
+            var fn = function(left, right) {
+              var a = left.criteria, b = right.criteria;
+              return a < b ? -1 : a > b ? 1 : 0;
+            };
+            callback(null, _map2(results.sort(fn), function(x) {
+              return x.value;
+            }));
+          }
+        });
+      };
+      async.auto = function(tasks, callback) {
+        callback = callback || function() {
+        };
+        var keys = _keys(tasks);
+        if (!keys.length) {
+          return callback(null);
+        }
+        var results = {};
+        var listeners = [];
+        var addListener = function(fn) {
+          listeners.unshift(fn);
+        };
+        var removeListener = function(fn) {
+          for (var i = 0; i < listeners.length; i += 1) {
+            if (listeners[i] === fn) {
+              listeners.splice(i, 1);
+              return;
+            }
+          }
+        };
+        var taskComplete = function() {
+          _each(listeners.slice(0), function(fn) {
+            fn();
+          });
+        };
+        addListener(function() {
+          if (_keys(results).length === keys.length) {
+            callback(null, results);
+            callback = function() {
+            };
+          }
+        });
+        _each(keys, function(k) {
+          var task = tasks[k] instanceof Function ? [tasks[k]] : tasks[k];
+          var taskCallback = function(err) {
+            var args = Array.prototype.slice.call(arguments, 1);
+            if (args.length <= 1) {
+              args = args[0];
+            }
+            if (err) {
+              var safeResults = {};
+              _each(_keys(results), function(rkey) {
+                safeResults[rkey] = results[rkey];
+              });
+              safeResults[k] = args;
+              callback(err, safeResults);
+              callback = function() {
+              };
+            } else {
+              results[k] = args;
+              async.setImmediate(taskComplete);
+            }
+          };
+          var requires = task.slice(0, Math.abs(task.length - 1)) || [];
+          var ready = function() {
+            return _reduce(requires, function(a, x) {
+              return a && results.hasOwnProperty(x);
+            }, true) && !results.hasOwnProperty(k);
+          };
+          if (ready()) {
+            task[task.length - 1](taskCallback, results);
+          } else {
+            var listener = function() {
+              if (ready()) {
+                removeListener(listener);
+                task[task.length - 1](taskCallback, results);
+              }
+            };
+            addListener(listener);
+          }
+        });
+      };
+      async.waterfall = function(tasks, callback) {
+        callback = callback || function() {
+        };
+        if (tasks.constructor !== Array) {
+          var err = new Error("First argument to waterfall must be an array of functions");
+          return callback(err);
+        }
+        if (!tasks.length) {
+          return callback();
+        }
+        var wrapIterator = function(iterator) {
+          return function(err2) {
+            if (err2) {
+              callback.apply(null, arguments);
+              callback = function() {
+              };
+            } else {
+              var args = Array.prototype.slice.call(arguments, 1);
+              var next = iterator.next();
+              if (next) {
+                args.push(wrapIterator(next));
+              } else {
+                args.push(callback);
+              }
+              async.setImmediate(function() {
+                iterator.apply(null, args);
+              });
+            }
+          };
+        };
+        wrapIterator(async.iterator(tasks))();
+      };
+      var _parallel = function(eachfn, tasks, callback) {
+        callback = callback || function() {
+        };
+        if (tasks.constructor === Array) {
+          eachfn.map(tasks, function(fn, callback2) {
+            if (fn) {
+              fn(function(err) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                if (args.length <= 1) {
+                  args = args[0];
+                }
+                callback2.call(null, err, args);
+              });
+            }
+          }, callback);
+        } else {
+          var results = {};
+          eachfn.each(_keys(tasks), function(k, callback2) {
+            tasks[k](function(err) {
+              var args = Array.prototype.slice.call(arguments, 1);
+              if (args.length <= 1) {
+                args = args[0];
+              }
+              results[k] = args;
+              callback2(err);
+            });
+          }, function(err) {
+            callback(err, results);
+          });
+        }
+      };
+      async.parallel = function(tasks, callback) {
+        _parallel({ map: async.map, each: async.each }, tasks, callback);
+      };
+      async.parallelLimit = function(tasks, limit, callback) {
+        _parallel({ map: _mapLimit(limit), each: _eachLimit(limit) }, tasks, callback);
+      };
+      async.series = function(tasks, callback) {
+        callback = callback || function() {
+        };
+        if (tasks.constructor === Array) {
+          async.mapSeries(tasks, function(fn, callback2) {
+            if (fn) {
+              fn(function(err) {
+                var args = Array.prototype.slice.call(arguments, 1);
+                if (args.length <= 1) {
+                  args = args[0];
+                }
+                callback2.call(null, err, args);
+              });
+            }
+          }, callback);
+        } else {
+          var results = {};
+          async.eachSeries(_keys(tasks), function(k, callback2) {
+            tasks[k](function(err) {
+              var args = Array.prototype.slice.call(arguments, 1);
+              if (args.length <= 1) {
+                args = args[0];
+              }
+              results[k] = args;
+              callback2(err);
+            });
+          }, function(err) {
+            callback(err, results);
+          });
+        }
+      };
+      async.iterator = function(tasks) {
+        var makeCallback = function(index2) {
+          var fn = function() {
+            if (tasks.length) {
+              tasks[index2].apply(null, arguments);
+            }
+            return fn.next();
+          };
+          fn.next = function() {
+            return index2 < tasks.length - 1 ? makeCallback(index2 + 1) : null;
+          };
+          return fn;
+        };
+        return makeCallback(0);
+      };
+      async.apply = function(fn) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        return function() {
+          return fn.apply(
+            null,
+            args.concat(Array.prototype.slice.call(arguments))
+          );
+        };
+      };
+      var _concat = function(eachfn, arr, fn, callback) {
+        var r = [];
+        eachfn(arr, function(x, cb) {
+          fn(x, function(err, y) {
+            r = r.concat(y || []);
+            cb(err);
+          });
+        }, function(err) {
+          callback(err, r);
+        });
+      };
+      async.concat = doParallel(_concat);
+      async.concatSeries = doSeries(_concat);
+      async.whilst = function(test, iterator, callback) {
+        if (test()) {
+          iterator(function(err) {
+            if (err) {
+              return callback(err);
+            }
+            async.whilst(test, iterator, callback);
+          });
+        } else {
+          callback();
+        }
+      };
+      async.doWhilst = function(iterator, test, callback) {
+        iterator(function(err) {
+          if (err) {
+            return callback(err);
+          }
+          if (test()) {
+            async.doWhilst(iterator, test, callback);
+          } else {
+            callback();
+          }
+        });
+      };
+      async.until = function(test, iterator, callback) {
+        if (!test()) {
+          iterator(function(err) {
+            if (err) {
+              return callback(err);
+            }
+            async.until(test, iterator, callback);
+          });
+        } else {
+          callback();
+        }
+      };
+      async.doUntil = function(iterator, test, callback) {
+        iterator(function(err) {
+          if (err) {
+            return callback(err);
+          }
+          if (!test()) {
+            async.doUntil(iterator, test, callback);
+          } else {
+            callback();
+          }
+        });
+      };
+      async.queue = function(worker, concurrency) {
+        if (concurrency === void 0) {
+          concurrency = 1;
+        }
+        function _insert(q2, data, pos, callback) {
+          if (data.constructor !== Array) {
+            data = [data];
+          }
+          _each(data, function(task) {
+            var item = {
+              data: task,
+              callback: typeof callback === "function" ? callback : null
+            };
+            if (pos) {
+              q2.tasks.unshift(item);
+            } else {
+              q2.tasks.push(item);
+            }
+            if (q2.saturated && q2.tasks.length === concurrency) {
+              q2.saturated();
+            }
+            async.setImmediate(q2.process);
+          });
+        }
+        var workers = 0;
+        var q = {
+          tasks: [],
+          concurrency,
+          saturated: null,
+          empty: null,
+          drain: null,
+          push: function(data, callback) {
+            _insert(q, data, false, callback);
+          },
+          unshift: function(data, callback) {
+            _insert(q, data, true, callback);
+          },
+          process: function() {
+            if (workers < q.concurrency && q.tasks.length) {
+              var task = q.tasks.shift();
+              if (q.empty && q.tasks.length === 0) {
+                q.empty();
+              }
+              workers += 1;
+              var next = function() {
+                workers -= 1;
+                if (task.callback) {
+                  task.callback.apply(task, arguments);
+                }
+                if (q.drain && q.tasks.length + workers === 0) {
+                  q.drain();
+                }
+                q.process();
+              };
+              var cb = only_once(next);
+              worker(task.data, cb);
+            }
+          },
+          length: function() {
+            return q.tasks.length;
+          },
+          running: function() {
+            return workers;
+          }
+        };
+        return q;
+      };
+      async.cargo = function(worker, payload) {
+        var working = false, tasks = [];
+        var cargo = {
+          tasks,
+          payload,
+          saturated: null,
+          empty: null,
+          drain: null,
+          push: function(data, callback) {
+            if (data.constructor !== Array) {
+              data = [data];
+            }
+            _each(data, function(task) {
+              tasks.push({
+                data: task,
+                callback: typeof callback === "function" ? callback : null
+              });
+              if (cargo.saturated && tasks.length === payload) {
+                cargo.saturated();
+              }
+            });
+            async.setImmediate(cargo.process);
+          },
+          process: function process2() {
+            if (working) return;
+            if (tasks.length === 0) {
+              if (cargo.drain) cargo.drain();
+              return;
+            }
+            var ts = typeof payload === "number" ? tasks.splice(0, payload) : tasks.splice(0);
+            var ds = _map2(ts, function(task) {
+              return task.data;
+            });
+            if (cargo.empty) cargo.empty();
+            working = true;
+            worker(ds, function() {
+              working = false;
+              var args = arguments;
+              _each(ts, function(data) {
+                if (data.callback) {
+                  data.callback.apply(null, args);
+                }
+              });
+              process2();
+            });
+          },
+          length: function() {
+            return tasks.length;
+          },
+          running: function() {
+            return working;
+          }
+        };
+        return cargo;
+      };
+      var _console_fn = function(name) {
+        return function(fn) {
+          var args = Array.prototype.slice.call(arguments, 1);
+          fn.apply(null, args.concat([function(err) {
+            var args2 = Array.prototype.slice.call(arguments, 1);
+            if (typeof console !== "undefined") {
+              if (err) {
+                if (console.error) {
+                  console.error(err);
+                }
+              } else if (console[name]) {
+                _each(args2, function(x) {
+                  console[name](x);
+                });
+              }
+            }
+          }]));
+        };
+      };
+      async.log = _console_fn("log");
+      async.dir = _console_fn("dir");
+      async.memoize = function(fn, hasher) {
+        var memo = {};
+        var queues = {};
+        hasher = hasher || function(x) {
+          return x;
+        };
+        var memoized = function() {
+          var args = Array.prototype.slice.call(arguments);
+          var callback = args.pop();
+          var key = hasher.apply(null, args);
+          if (key in memo) {
+            callback.apply(null, memo[key]);
+          } else if (key in queues) {
+            queues[key].push(callback);
+          } else {
+            queues[key] = [callback];
+            fn.apply(null, args.concat([function() {
+              memo[key] = arguments;
+              var q = queues[key];
+              delete queues[key];
+              for (var i = 0, l = q.length; i < l; i++) {
+                q[i].apply(null, arguments);
+              }
+            }]));
+          }
+        };
+        memoized.memo = memo;
+        memoized.unmemoized = fn;
+        return memoized;
+      };
+      async.unmemoize = function(fn) {
+        return function() {
+          return (fn.unmemoized || fn).apply(null, arguments);
+        };
+      };
+      async.times = function(count2, iterator, callback) {
+        var counter = [];
+        for (var i = 0; i < count2; i++) {
+          counter.push(i);
+        }
+        return async.map(counter, iterator, callback);
+      };
+      async.timesSeries = function(count2, iterator, callback) {
+        var counter = [];
+        for (var i = 0; i < count2; i++) {
+          counter.push(i);
+        }
+        return async.mapSeries(counter, iterator, callback);
+      };
+      async.compose = function() {
+        var fns = Array.prototype.reverse.call(arguments);
+        return function() {
+          var that = this;
+          var args = Array.prototype.slice.call(arguments);
+          var callback = args.pop();
+          async.reduce(
+            fns,
+            args,
+            function(newargs, fn, cb) {
+              fn.apply(that, newargs.concat([function() {
+                var err = arguments[0];
+                var nextargs = Array.prototype.slice.call(arguments, 1);
+                cb(err, nextargs);
+              }]));
+            },
+            function(err, results) {
+              callback.apply(that, [err].concat(results));
+            }
+          );
+        };
+      };
+      var _applyEach = function(eachfn, fns) {
+        var go = function() {
+          var that = this;
+          var args2 = Array.prototype.slice.call(arguments);
+          var callback = args2.pop();
+          return eachfn(
+            fns,
+            function(fn, cb) {
+              fn.apply(that, args2.concat([cb]));
+            },
+            callback
+          );
+        };
+        if (arguments.length > 2) {
+          var args = Array.prototype.slice.call(arguments, 2);
+          return go.apply(this, args);
+        } else {
+          return go;
+        }
+      };
+      async.applyEach = doParallel(_applyEach);
+      async.applyEachSeries = doSeries(_applyEach);
+      async.forever = function(fn, callback) {
+        function next(err) {
+          if (err) {
+            if (callback) {
+              return callback(err);
+            }
+            throw err;
+          }
+          fn(next);
+        }
+        next();
+      };
+      if (typeof define !== "undefined" && define.amd) {
+        define([], function() {
+          return async;
+        });
+      } else if (typeof module !== "undefined" && module.exports) {
+        module.exports = async;
+      } else {
+        root.async = async;
+      }
+    })();
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/processor.js
+var require_processor = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/processor.js"(exports, module) {
+    "use strict";
+    var spawn = __require("child_process").spawn;
+    var path4 = __require("path");
+    var fs = __require("fs");
+    var async = require_async();
+    var utils = require_utils6();
+    function runFfprobe(command) {
+      const inputProbeIndex = 0;
+      if (command._inputs[inputProbeIndex].isStream) {
+        return;
+      }
+      command.ffprobe(inputProbeIndex, function(err, data) {
+        command._ffprobeData = data;
+      });
+    }
+    module.exports = function(proto) {
+      proto._spawnFfmpeg = function(args, options, processCB, endCB) {
+        if (typeof options === "function") {
+          endCB = processCB;
+          processCB = options;
+          options = {};
+        }
+        if (typeof endCB === "undefined") {
+          endCB = processCB;
+          processCB = function() {
+          };
+        }
+        var maxLines = "stdoutLines" in options ? options.stdoutLines : this.options.stdoutLines;
+        this._getFfmpegPath(function(err, command) {
+          if (err) {
+            return endCB(err);
+          } else if (!command || command.length === 0) {
+            return endCB(new Error("Cannot find ffmpeg"));
+          }
+          if (options.niceness && options.niceness !== 0 && !utils.isWindows) {
+            args.unshift("-n", options.niceness, command);
+            command = "nice";
+          }
+          var stdoutRing = utils.linesRing(maxLines);
+          var stdoutClosed = false;
+          var stderrRing = utils.linesRing(maxLines);
+          var stderrClosed = false;
+          var ffmpegProc = spawn(command, args, options);
+          if (ffmpegProc.stderr) {
+            ffmpegProc.stderr.setEncoding("utf8");
+          }
+          ffmpegProc.on("error", function(err2) {
+            endCB(err2);
+          });
+          var exitError = null;
+          function handleExit(err2) {
+            if (err2) {
+              exitError = err2;
+            }
+            if (processExited && (stdoutClosed || !options.captureStdout) && stderrClosed) {
+              endCB(exitError, stdoutRing, stderrRing);
+            }
+          }
+          var processExited = false;
+          ffmpegProc.on("exit", function(code, signal) {
+            processExited = true;
+            if (signal) {
+              handleExit(new Error("ffmpeg was killed with signal " + signal));
+            } else if (code) {
+              handleExit(new Error("ffmpeg exited with code " + code));
+            } else {
+              handleExit();
+            }
+          });
+          if (options.captureStdout) {
+            ffmpegProc.stdout.on("data", function(data) {
+              stdoutRing.append(data);
+            });
+            ffmpegProc.stdout.on("close", function() {
+              stdoutRing.close();
+              stdoutClosed = true;
+              handleExit();
+            });
+          }
+          ffmpegProc.stderr.on("data", function(data) {
+            stderrRing.append(data);
+          });
+          ffmpegProc.stderr.on("close", function() {
+            stderrRing.close();
+            stderrClosed = true;
+            handleExit();
+          });
+          processCB(ffmpegProc, stdoutRing, stderrRing);
+        });
+      };
+      proto._getArguments = function() {
+        var complexFilters = this._complexFilters.get();
+        var fileOutput = this._outputs.some(function(output) {
+          return output.isFile;
+        });
+        return [].concat(
+          // Inputs and input options
+          this._inputs.reduce(function(args, input) {
+            var source = typeof input.source === "string" ? input.source : "pipe:0";
+            return args.concat(
+              input.options.get(),
+              ["-i", source]
+            );
+          }, []),
+          // Global options
+          this._global.get(),
+          // Overwrite if we have file outputs
+          fileOutput ? ["-y"] : [],
+          // Complex filters
+          complexFilters,
+          // Outputs, filters and output options
+          this._outputs.reduce(function(args, output) {
+            var sizeFilters = utils.makeFilterStrings(output.sizeFilters.get());
+            var audioFilters = output.audioFilters.get();
+            var videoFilters = output.videoFilters.get().concat(sizeFilters);
+            var outputArg;
+            if (!output.target) {
+              outputArg = [];
+            } else if (typeof output.target === "string") {
+              outputArg = [output.target];
+            } else {
+              outputArg = ["pipe:1"];
+            }
+            return args.concat(
+              output.audio.get(),
+              audioFilters.length ? ["-filter:a", audioFilters.join(",")] : [],
+              output.video.get(),
+              videoFilters.length ? ["-filter:v", videoFilters.join(",")] : [],
+              output.options.get(),
+              outputArg
+            );
+          }, [])
+        );
+      };
+      proto._prepare = function(callback, readMetadata) {
+        var self = this;
+        async.waterfall([
+          // Check codecs and formats
+          function(cb) {
+            self._checkCapabilities(cb);
+          },
+          // Read metadata if required
+          function(cb) {
+            if (!readMetadata) {
+              return cb();
+            }
+            self.ffprobe(0, function(err, data) {
+              if (!err) {
+                self._ffprobeData = data;
+              }
+              cb();
+            });
+          },
+          // Check for flvtool2/flvmeta if necessary
+          function(cb) {
+            var flvmeta = self._outputs.some(function(output) {
+              if (output.flags.flvmeta && !output.isFile) {
+                self.logger.warn("Updating flv metadata is only supported for files");
+                output.flags.flvmeta = false;
+              }
+              return output.flags.flvmeta;
+            });
+            if (flvmeta) {
+              self._getFlvtoolPath(function(err) {
+                cb(err);
+              });
+            } else {
+              cb();
+            }
+          },
+          // Build argument list
+          function(cb) {
+            var args;
+            try {
+              args = self._getArguments();
+            } catch (e) {
+              return cb(e);
+            }
+            cb(null, args);
+          },
+          // Add "-strict experimental" option where needed
+          function(args, cb) {
+            self.availableEncoders(function(err, encoders) {
+              for (var i = 0; i < args.length; i++) {
+                if (args[i] === "-acodec" || args[i] === "-vcodec") {
+                  i++;
+                  if (args[i] in encoders && encoders[args[i]].experimental) {
+                    args.splice(i + 1, 0, "-strict", "experimental");
+                    i += 2;
+                  }
+                }
+              }
+              cb(null, args);
+            });
+          }
+        ], callback);
+        if (!readMetadata) {
+          if (this.listeners("progress").length > 0) {
+            runFfprobe(this);
+          } else {
+            this.once("newListener", function(event) {
+              if (event === "progress") {
+                runFfprobe(this);
+              }
+            });
+          }
+        }
+      };
+      proto.exec = proto.execute = proto.run = function() {
+        var self = this;
+        var outputPresent = this._outputs.some(function(output) {
+          return "target" in output;
+        });
+        if (!outputPresent) {
+          throw new Error("No output specified");
+        }
+        var outputStream = this._outputs.filter(function(output) {
+          return typeof output.target !== "string";
+        })[0];
+        var inputStream = this._inputs.filter(function(input) {
+          return typeof input.source !== "string";
+        })[0];
+        var ended = false;
+        function emitEnd(err, stdout, stderr) {
+          if (!ended) {
+            ended = true;
+            if (err) {
+              self.emit("error", err, stdout, stderr);
+            } else {
+              self.emit("end", stdout, stderr);
+            }
+          }
+        }
+        self._prepare(function(err, args) {
+          if (err) {
+            return emitEnd(err);
+          }
+          self._spawnFfmpeg(
+            args,
+            {
+              captureStdout: !outputStream,
+              niceness: self.options.niceness,
+              cwd: self.options.cwd,
+              windowsHide: true
+            },
+            function processCB(ffmpegProc, stdoutRing, stderrRing) {
+              self.ffmpegProc = ffmpegProc;
+              self.emit("start", "ffmpeg " + args.join(" "));
+              if (inputStream) {
+                inputStream.source.on("error", function(err2) {
+                  var reportingErr = new Error("Input stream error: " + err2.message);
+                  reportingErr.inputStreamError = err2;
+                  emitEnd(reportingErr);
+                  ffmpegProc.kill();
+                });
+                inputStream.source.resume();
+                inputStream.source.pipe(ffmpegProc.stdin);
+                ffmpegProc.stdin.on("error", function() {
+                });
+              }
+              if (self.options.timeout) {
+                self.processTimer = setTimeout(function() {
+                  var msg = "process ran into a timeout (" + self.options.timeout + "s)";
+                  emitEnd(new Error(msg), stdoutRing.get(), stderrRing.get());
+                  ffmpegProc.kill();
+                }, self.options.timeout * 1e3);
+              }
+              if (outputStream) {
+                ffmpegProc.stdout.pipe(outputStream.target, outputStream.pipeopts);
+                outputStream.target.on("close", function() {
+                  self.logger.debug("Output stream closed, scheduling kill for ffmpeg process");
+                  setTimeout(function() {
+                    emitEnd(new Error("Output stream closed"));
+                    ffmpegProc.kill();
+                  }, 20);
+                });
+                outputStream.target.on("error", function(err2) {
+                  self.logger.debug("Output stream error, killing ffmpeg process");
+                  var reportingErr = new Error("Output stream error: " + err2.message);
+                  reportingErr.outputStreamError = err2;
+                  emitEnd(reportingErr, stdoutRing.get(), stderrRing.get());
+                  ffmpegProc.kill("SIGKILL");
+                });
+              }
+              if (stderrRing) {
+                if (self.listeners("stderr").length) {
+                  stderrRing.callback(function(line2) {
+                    self.emit("stderr", line2);
+                  });
+                }
+                if (self.listeners("codecData").length) {
+                  var codecDataSent = false;
+                  var codecObject = {};
+                  stderrRing.callback(function(line2) {
+                    if (!codecDataSent)
+                      codecDataSent = utils.extractCodecData(self, line2, codecObject);
+                  });
+                }
+                if (self.listeners("progress").length) {
+                  stderrRing.callback(function(line2) {
+                    utils.extractProgress(self, line2);
+                  });
+                }
+              }
+            },
+            function endCB(err2, stdoutRing, stderrRing) {
+              clearTimeout(self.processTimer);
+              delete self.ffmpegProc;
+              if (err2) {
+                if (err2.message.match(/ffmpeg exited with code/)) {
+                  err2.message += ": " + utils.extractError(stderrRing.get());
+                }
+                emitEnd(err2, stdoutRing.get(), stderrRing.get());
+              } else {
+                var flvmeta = self._outputs.filter(function(output) {
+                  return output.flags.flvmeta;
+                });
+                if (flvmeta.length) {
+                  self._getFlvtoolPath(function(err3, flvtool) {
+                    if (err3) {
+                      return emitEnd(err3);
+                    }
+                    async.each(
+                      flvmeta,
+                      function(output, cb) {
+                        spawn(flvtool, ["-U", output.target], { windowsHide: true }).on("error", function(err4) {
+                          cb(new Error("Error running " + flvtool + " on " + output.target + ": " + err4.message));
+                        }).on("exit", function(code, signal) {
+                          if (code !== 0 || signal) {
+                            cb(
+                              new Error(flvtool + " " + (signal ? "received signal " + signal : "exited with code " + code)) + " when running on " + output.target
+                            );
+                          } else {
+                            cb();
+                          }
+                        });
+                      },
+                      function(err4) {
+                        if (err4) {
+                          emitEnd(err4);
+                        } else {
+                          emitEnd(null, stdoutRing.get(), stderrRing.get());
+                        }
+                      }
+                    );
+                  });
+                } else {
+                  emitEnd(null, stdoutRing.get(), stderrRing.get());
+                }
+              }
+            }
+          );
+        });
+        return this;
+      };
+      proto.renice = function(niceness) {
+        if (!utils.isWindows) {
+          niceness = niceness || 0;
+          if (niceness < -20 || niceness > 20) {
+            this.logger.warn("Invalid niceness value: " + niceness + ", must be between -20 and 20");
+          }
+          niceness = Math.min(20, Math.max(-20, niceness));
+          this.options.niceness = niceness;
+          if (this.ffmpegProc) {
+            var logger2 = this.logger;
+            var pid = this.ffmpegProc.pid;
+            var renice = spawn("renice", [niceness, "-p", pid], { windowsHide: true });
+            renice.on("error", function(err) {
+              logger2.warn("could not renice process " + pid + ": " + err.message);
+            });
+            renice.on("exit", function(code, signal) {
+              if (signal) {
+                logger2.warn("could not renice process " + pid + ": renice was killed by signal " + signal);
+              } else if (code) {
+                logger2.warn("could not renice process " + pid + ": renice exited with " + code);
+              } else {
+                logger2.info("successfully reniced process " + pid + " to " + niceness + " niceness");
+              }
+            });
+          }
+        }
+        return this;
+      };
+      proto.kill = function(signal) {
+        if (!this.ffmpegProc) {
+          this.logger.warn("No running ffmpeg process, cannot send signal");
+        } else {
+          this.ffmpegProc.kill(signal || "SIGKILL");
+        }
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/capabilities.js
+var require_capabilities = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/capabilities.js"(exports, module) {
+    "use strict";
+    var fs = __require("fs");
+    var path4 = __require("path");
+    var async = require_async();
+    var utils = require_utils6();
+    var avCodecRegexp = /^\s*([D ])([E ])([VAS])([S ])([D ])([T ]) ([^ ]+) +(.*)$/;
+    var ffCodecRegexp = /^\s*([D\.])([E\.])([VAS])([I\.])([L\.])([S\.]) ([^ ]+) +(.*)$/;
+    var ffEncodersRegexp = /\(encoders:([^\)]+)\)/;
+    var ffDecodersRegexp = /\(decoders:([^\)]+)\)/;
+    var encodersRegexp = /^\s*([VAS\.])([F\.])([S\.])([X\.])([B\.])([D\.]) ([^ ]+) +(.*)$/;
+    var formatRegexp = /^\s*([D ])([E ])\s+([^ ]+)\s+(.*)$/;
+    var lineBreakRegexp = /\r\n|\r|\n/;
+    var filterRegexp = /^(?: [T\.][S\.][C\.] )?([^ ]+) +(AA?|VV?|\|)->(AA?|VV?|\|) +(.*)$/;
+    var cache2 = {};
+    module.exports = function(proto) {
+      proto.setFfmpegPath = function(ffmpegPath) {
+        cache2.ffmpegPath = ffmpegPath;
+        return this;
+      };
+      proto.setFfprobePath = function(ffprobePath) {
+        cache2.ffprobePath = ffprobePath;
+        return this;
+      };
+      proto.setFlvtoolPath = function(flvtool) {
+        cache2.flvtoolPath = flvtool;
+        return this;
+      };
+      proto._forgetPaths = function() {
+        delete cache2.ffmpegPath;
+        delete cache2.ffprobePath;
+        delete cache2.flvtoolPath;
+      };
+      proto._getFfmpegPath = function(callback) {
+        if ("ffmpegPath" in cache2) {
+          return callback(null, cache2.ffmpegPath);
+        }
+        async.waterfall([
+          // Try FFMPEG_PATH
+          function(cb) {
+            if (process.env.FFMPEG_PATH) {
+              fs.exists(process.env.FFMPEG_PATH, function(exists2) {
+                if (exists2) {
+                  cb(null, process.env.FFMPEG_PATH);
+                } else {
+                  cb(null, "");
+                }
+              });
+            } else {
+              cb(null, "");
+            }
+          },
+          // Search in the PATH
+          function(ffmpeg2, cb) {
+            if (ffmpeg2.length) {
+              return cb(null, ffmpeg2);
+            }
+            utils.which("ffmpeg", function(err, ffmpeg3) {
+              cb(err, ffmpeg3);
+            });
+          }
+        ], function(err, ffmpeg2) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, cache2.ffmpegPath = ffmpeg2 || "");
+          }
+        });
+      };
+      proto._getFfprobePath = function(callback) {
+        var self = this;
+        if ("ffprobePath" in cache2) {
+          return callback(null, cache2.ffprobePath);
+        }
+        async.waterfall([
+          // Try FFPROBE_PATH
+          function(cb) {
+            if (process.env.FFPROBE_PATH) {
+              fs.exists(process.env.FFPROBE_PATH, function(exists2) {
+                cb(null, exists2 ? process.env.FFPROBE_PATH : "");
+              });
+            } else {
+              cb(null, "");
+            }
+          },
+          // Search in the PATH
+          function(ffprobe, cb) {
+            if (ffprobe.length) {
+              return cb(null, ffprobe);
+            }
+            utils.which("ffprobe", function(err, ffprobe2) {
+              cb(err, ffprobe2);
+            });
+          },
+          // Search in the same directory as ffmpeg
+          function(ffprobe, cb) {
+            if (ffprobe.length) {
+              return cb(null, ffprobe);
+            }
+            self._getFfmpegPath(function(err, ffmpeg2) {
+              if (err) {
+                cb(err);
+              } else if (ffmpeg2.length) {
+                var name = utils.isWindows ? "ffprobe.exe" : "ffprobe";
+                var ffprobe2 = path4.join(path4.dirname(ffmpeg2), name);
+                fs.exists(ffprobe2, function(exists2) {
+                  cb(null, exists2 ? ffprobe2 : "");
+                });
+              } else {
+                cb(null, "");
+              }
+            });
+          }
+        ], function(err, ffprobe) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, cache2.ffprobePath = ffprobe || "");
+          }
+        });
+      };
+      proto._getFlvtoolPath = function(callback) {
+        if ("flvtoolPath" in cache2) {
+          return callback(null, cache2.flvtoolPath);
+        }
+        async.waterfall([
+          // Try FLVMETA_PATH
+          function(cb) {
+            if (process.env.FLVMETA_PATH) {
+              fs.exists(process.env.FLVMETA_PATH, function(exists2) {
+                cb(null, exists2 ? process.env.FLVMETA_PATH : "");
+              });
+            } else {
+              cb(null, "");
+            }
+          },
+          // Try FLVTOOL2_PATH
+          function(flvtool, cb) {
+            if (flvtool.length) {
+              return cb(null, flvtool);
+            }
+            if (process.env.FLVTOOL2_PATH) {
+              fs.exists(process.env.FLVTOOL2_PATH, function(exists2) {
+                cb(null, exists2 ? process.env.FLVTOOL2_PATH : "");
+              });
+            } else {
+              cb(null, "");
+            }
+          },
+          // Search for flvmeta in the PATH
+          function(flvtool, cb) {
+            if (flvtool.length) {
+              return cb(null, flvtool);
+            }
+            utils.which("flvmeta", function(err, flvmeta) {
+              cb(err, flvmeta);
+            });
+          },
+          // Search for flvtool2 in the PATH
+          function(flvtool, cb) {
+            if (flvtool.length) {
+              return cb(null, flvtool);
+            }
+            utils.which("flvtool2", function(err, flvtool2) {
+              cb(err, flvtool2);
+            });
+          }
+        ], function(err, flvtool) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, cache2.flvtoolPath = flvtool || "");
+          }
+        });
+      };
+      proto.availableFilters = proto.getAvailableFilters = function(callback) {
+        if ("filters" in cache2) {
+          return callback(null, cache2.filters);
+        }
+        this._spawnFfmpeg(["-filters"], { captureStdout: true, stdoutLines: 0 }, function(err, stdoutRing) {
+          if (err) {
+            return callback(err);
+          }
+          var stdout = stdoutRing.get();
+          var lines = stdout.split("\n");
+          var data = {};
+          var types3 = { A: "audio", V: "video", "|": "none" };
+          lines.forEach(function(line2) {
+            var match = line2.match(filterRegexp);
+            if (match) {
+              data[match[1]] = {
+                description: match[4],
+                input: types3[match[2].charAt(0)],
+                multipleInputs: match[2].length > 1,
+                output: types3[match[3].charAt(0)],
+                multipleOutputs: match[3].length > 1
+              };
+            }
+          });
+          callback(null, cache2.filters = data);
+        });
+      };
+      proto.availableCodecs = proto.getAvailableCodecs = function(callback) {
+        if ("codecs" in cache2) {
+          return callback(null, cache2.codecs);
+        }
+        this._spawnFfmpeg(["-codecs"], { captureStdout: true, stdoutLines: 0 }, function(err, stdoutRing) {
+          if (err) {
+            return callback(err);
+          }
+          var stdout = stdoutRing.get();
+          var lines = stdout.split(lineBreakRegexp);
+          var data = {};
+          lines.forEach(function(line2) {
+            var match = line2.match(avCodecRegexp);
+            if (match && match[7] !== "=") {
+              data[match[7]] = {
+                type: { "V": "video", "A": "audio", "S": "subtitle" }[match[3]],
+                description: match[8],
+                canDecode: match[1] === "D",
+                canEncode: match[2] === "E",
+                drawHorizBand: match[4] === "S",
+                directRendering: match[5] === "D",
+                weirdFrameTruncation: match[6] === "T"
+              };
+            }
+            match = line2.match(ffCodecRegexp);
+            if (match && match[7] !== "=") {
+              var codecData = data[match[7]] = {
+                type: { "V": "video", "A": "audio", "S": "subtitle" }[match[3]],
+                description: match[8],
+                canDecode: match[1] === "D",
+                canEncode: match[2] === "E",
+                intraFrameOnly: match[4] === "I",
+                isLossy: match[5] === "L",
+                isLossless: match[6] === "S"
+              };
+              var encoders = codecData.description.match(ffEncodersRegexp);
+              encoders = encoders ? encoders[1].trim().split(" ") : [];
+              var decoders = codecData.description.match(ffDecodersRegexp);
+              decoders = decoders ? decoders[1].trim().split(" ") : [];
+              if (encoders.length || decoders.length) {
+                var coderData = {};
+                utils.copy(codecData, coderData);
+                delete coderData.canEncode;
+                delete coderData.canDecode;
+                encoders.forEach(function(name) {
+                  data[name] = {};
+                  utils.copy(coderData, data[name]);
+                  data[name].canEncode = true;
+                });
+                decoders.forEach(function(name) {
+                  if (name in data) {
+                    data[name].canDecode = true;
+                  } else {
+                    data[name] = {};
+                    utils.copy(coderData, data[name]);
+                    data[name].canDecode = true;
+                  }
+                });
+              }
+            }
+          });
+          callback(null, cache2.codecs = data);
+        });
+      };
+      proto.availableEncoders = proto.getAvailableEncoders = function(callback) {
+        if ("encoders" in cache2) {
+          return callback(null, cache2.encoders);
+        }
+        this._spawnFfmpeg(["-encoders"], { captureStdout: true, stdoutLines: 0 }, function(err, stdoutRing) {
+          if (err) {
+            return callback(err);
+          }
+          var stdout = stdoutRing.get();
+          var lines = stdout.split(lineBreakRegexp);
+          var data = {};
+          lines.forEach(function(line2) {
+            var match = line2.match(encodersRegexp);
+            if (match && match[7] !== "=") {
+              data[match[7]] = {
+                type: { "V": "video", "A": "audio", "S": "subtitle" }[match[1]],
+                description: match[8],
+                frameMT: match[2] === "F",
+                sliceMT: match[3] === "S",
+                experimental: match[4] === "X",
+                drawHorizBand: match[5] === "B",
+                directRendering: match[6] === "D"
+              };
+            }
+          });
+          callback(null, cache2.encoders = data);
+        });
+      };
+      proto.availableFormats = proto.getAvailableFormats = function(callback) {
+        if ("formats" in cache2) {
+          return callback(null, cache2.formats);
+        }
+        this._spawnFfmpeg(["-formats"], { captureStdout: true, stdoutLines: 0 }, function(err, stdoutRing) {
+          if (err) {
+            return callback(err);
+          }
+          var stdout = stdoutRing.get();
+          var lines = stdout.split(lineBreakRegexp);
+          var data = {};
+          lines.forEach(function(line2) {
+            var match = line2.match(formatRegexp);
+            if (match) {
+              match[3].split(",").forEach(function(format) {
+                if (!(format in data)) {
+                  data[format] = {
+                    description: match[4],
+                    canDemux: false,
+                    canMux: false
+                  };
+                }
+                if (match[1] === "D") {
+                  data[format].canDemux = true;
+                }
+                if (match[2] === "E") {
+                  data[format].canMux = true;
+                }
+              });
+            }
+          });
+          callback(null, cache2.formats = data);
+        });
+      };
+      proto._checkCapabilities = function(callback) {
+        var self = this;
+        async.waterfall([
+          // Get available formats
+          function(cb) {
+            self.availableFormats(cb);
+          },
+          // Check whether specified formats are available
+          function(formats, cb) {
+            var unavailable;
+            unavailable = self._outputs.reduce(function(fmts, output) {
+              var format = output.options.find("-f", 1);
+              if (format) {
+                if (!(format[0] in formats) || !formats[format[0]].canMux) {
+                  fmts.push(format);
+                }
+              }
+              return fmts;
+            }, []);
+            if (unavailable.length === 1) {
+              return cb(new Error("Output format " + unavailable[0] + " is not available"));
+            } else if (unavailable.length > 1) {
+              return cb(new Error("Output formats " + unavailable.join(", ") + " are not available"));
+            }
+            unavailable = self._inputs.reduce(function(fmts, input) {
+              var format = input.options.find("-f", 1);
+              if (format) {
+                if (!(format[0] in formats) || !formats[format[0]].canDemux) {
+                  fmts.push(format[0]);
+                }
+              }
+              return fmts;
+            }, []);
+            if (unavailable.length === 1) {
+              return cb(new Error("Input format " + unavailable[0] + " is not available"));
+            } else if (unavailable.length > 1) {
+              return cb(new Error("Input formats " + unavailable.join(", ") + " are not available"));
+            }
+            cb();
+          },
+          // Get available codecs
+          function(cb) {
+            self.availableEncoders(cb);
+          },
+          // Check whether specified codecs are available and add strict experimental options if needed
+          function(encoders, cb) {
+            var unavailable;
+            unavailable = self._outputs.reduce(function(cdcs, output) {
+              var acodec = output.audio.find("-acodec", 1);
+              if (acodec && acodec[0] !== "copy") {
+                if (!(acodec[0] in encoders) || encoders[acodec[0]].type !== "audio") {
+                  cdcs.push(acodec[0]);
+                }
+              }
+              return cdcs;
+            }, []);
+            if (unavailable.length === 1) {
+              return cb(new Error("Audio codec " + unavailable[0] + " is not available"));
+            } else if (unavailable.length > 1) {
+              return cb(new Error("Audio codecs " + unavailable.join(", ") + " are not available"));
+            }
+            unavailable = self._outputs.reduce(function(cdcs, output) {
+              var vcodec = output.video.find("-vcodec", 1);
+              if (vcodec && vcodec[0] !== "copy") {
+                if (!(vcodec[0] in encoders) || encoders[vcodec[0]].type !== "video") {
+                  cdcs.push(vcodec[0]);
+                }
+              }
+              return cdcs;
+            }, []);
+            if (unavailable.length === 1) {
+              return cb(new Error("Video codec " + unavailable[0] + " is not available"));
+            } else if (unavailable.length > 1) {
+              return cb(new Error("Video codecs " + unavailable.join(", ") + " are not available"));
+            }
+            cb();
+          }
+        ], callback);
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/ffprobe.js
+var require_ffprobe = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/ffprobe.js"(exports, module) {
+    "use strict";
+    var spawn = __require("child_process").spawn;
+    function legacyTag(key) {
+      return key.match(/^TAG:/);
+    }
+    function legacyDisposition(key) {
+      return key.match(/^DISPOSITION:/);
+    }
+    function parseFfprobeOutput(out) {
+      var lines = out.split(/\r\n|\r|\n/);
+      lines = lines.filter(function(line3) {
+        return line3.length > 0;
+      });
+      var data = {
+        streams: [],
+        format: {},
+        chapters: []
+      };
+      function parseBlock(name) {
+        var data2 = {};
+        var line3 = lines.shift();
+        while (typeof line3 !== "undefined") {
+          if (line3.toLowerCase() == "[/" + name + "]") {
+            return data2;
+          } else if (line3.match(/^\[/)) {
+            line3 = lines.shift();
+            continue;
+          }
+          var kv = line3.match(/^([^=]+)=(.*)$/);
+          if (kv) {
+            if (!kv[1].match(/^TAG:/) && kv[2].match(/^[0-9]+(\.[0-9]+)?$/)) {
+              data2[kv[1]] = Number(kv[2]);
+            } else {
+              data2[kv[1]] = kv[2];
+            }
+          }
+          line3 = lines.shift();
+        }
+        return data2;
+      }
+      var line2 = lines.shift();
+      while (typeof line2 !== "undefined") {
+        if (line2.match(/^\[stream/i)) {
+          var stream = parseBlock("stream");
+          data.streams.push(stream);
+        } else if (line2.match(/^\[chapter/i)) {
+          var chapter = parseBlock("chapter");
+          data.chapters.push(chapter);
+        } else if (line2.toLowerCase() === "[format]") {
+          data.format = parseBlock("format");
+        }
+        line2 = lines.shift();
+      }
+      return data;
+    }
+    module.exports = function(proto) {
+      proto.ffprobe = function() {
+        var input, index2 = null, options = [], callback;
+        var callback = arguments[arguments.length - 1];
+        var ended = false;
+        function handleCallback(err, data) {
+          if (!ended) {
+            ended = true;
+            callback(err, data);
+          }
+        }
+        ;
+        switch (arguments.length) {
+          case 3:
+            index2 = arguments[0];
+            options = arguments[1];
+            break;
+          case 2:
+            if (typeof arguments[0] === "number") {
+              index2 = arguments[0];
+            } else if (Array.isArray(arguments[0])) {
+              options = arguments[0];
+            }
+            break;
+        }
+        if (index2 === null) {
+          if (!this._currentInput) {
+            return handleCallback(new Error("No input specified"));
+          }
+          input = this._currentInput;
+        } else {
+          input = this._inputs[index2];
+          if (!input) {
+            return handleCallback(new Error("Invalid input index"));
+          }
+        }
+        this._getFfprobePath(function(err, path4) {
+          if (err) {
+            return handleCallback(err);
+          } else if (!path4) {
+            return handleCallback(new Error("Cannot find ffprobe"));
+          }
+          var stdout = "";
+          var stdoutClosed = false;
+          var stderr = "";
+          var stderrClosed = false;
+          var src = input.isStream ? "pipe:0" : input.source;
+          var ffprobe = spawn(path4, ["-show_streams", "-show_format"].concat(options, src), { windowsHide: true });
+          if (input.isStream) {
+            ffprobe.stdin.on("error", function(err2) {
+              if (["ECONNRESET", "EPIPE", "EOF"].indexOf(err2.code) >= 0) {
+                return;
+              }
+              handleCallback(err2);
+            });
+            ffprobe.stdin.on("close", function() {
+              input.source.pause();
+              input.source.unpipe(ffprobe.stdin);
+            });
+            input.source.pipe(ffprobe.stdin);
+          }
+          ffprobe.on("error", callback);
+          var exitError = null;
+          function handleExit(err2) {
+            if (err2) {
+              exitError = err2;
+            }
+            if (processExited && stdoutClosed && stderrClosed) {
+              if (exitError) {
+                if (stderr) {
+                  exitError.message += "\n" + stderr;
+                }
+                return handleCallback(exitError);
+              }
+              var data = parseFfprobeOutput(stdout);
+              [data.format].concat(data.streams).forEach(function(target) {
+                if (target) {
+                  var legacyTagKeys = Object.keys(target).filter(legacyTag);
+                  if (legacyTagKeys.length) {
+                    target.tags = target.tags || {};
+                    legacyTagKeys.forEach(function(tagKey) {
+                      target.tags[tagKey.substr(4)] = target[tagKey];
+                      delete target[tagKey];
+                    });
+                  }
+                  var legacyDispositionKeys = Object.keys(target).filter(legacyDisposition);
+                  if (legacyDispositionKeys.length) {
+                    target.disposition = target.disposition || {};
+                    legacyDispositionKeys.forEach(function(dispositionKey) {
+                      target.disposition[dispositionKey.substr(12)] = target[dispositionKey];
+                      delete target[dispositionKey];
+                    });
+                  }
+                }
+              });
+              handleCallback(null, data);
+            }
+          }
+          var processExited = false;
+          ffprobe.on("exit", function(code, signal) {
+            processExited = true;
+            if (code) {
+              handleExit(new Error("ffprobe exited with code " + code));
+            } else if (signal) {
+              handleExit(new Error("ffprobe was killed with signal " + signal));
+            } else {
+              handleExit();
+            }
+          });
+          ffprobe.stdout.on("data", function(data) {
+            stdout += data;
+          });
+          ffprobe.stdout.on("close", function() {
+            stdoutClosed = true;
+            handleExit();
+          });
+          ffprobe.stderr.on("data", function(data) {
+            stderr += data;
+          });
+          ffprobe.stderr.on("close", function() {
+            stderrClosed = true;
+            handleExit();
+          });
+        });
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/recipes.js
+var require_recipes = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/recipes.js"(exports, module) {
+    "use strict";
+    var fs = __require("fs");
+    var path4 = __require("path");
+    var PassThrough = __require("stream").PassThrough;
+    var async = require_async();
+    var utils = require_utils6();
+    module.exports = function recipes(proto) {
+      proto.saveToFile = proto.save = function(output) {
+        this.output(output).run();
+        return this;
+      };
+      proto.writeToStream = proto.pipe = proto.stream = function(stream, options) {
+        if (stream && !("writable" in stream)) {
+          options = stream;
+          stream = void 0;
+        }
+        if (!stream) {
+          if (process.version.match(/v0\.8\./)) {
+            throw new Error("PassThrough stream is not supported on node v0.8");
+          }
+          stream = new PassThrough();
+        }
+        this.output(stream, options).run();
+        return stream;
+      };
+      proto.takeScreenshots = proto.thumbnail = proto.thumbnails = proto.screenshot = proto.screenshots = function(config2, folder) {
+        var self = this;
+        var source = this._currentInput.source;
+        config2 = config2 || { count: 1 };
+        if (typeof config2 === "number") {
+          config2 = {
+            count: config2
+          };
+        }
+        if (!("folder" in config2)) {
+          config2.folder = folder || ".";
+        }
+        if ("timestamps" in config2) {
+          config2.timemarks = config2.timestamps;
+        }
+        if (!("timemarks" in config2)) {
+          if (!config2.count) {
+            throw new Error("Cannot take screenshots: neither a count nor a timemark list are specified");
+          }
+          var interval2 = 100 / (1 + config2.count);
+          config2.timemarks = [];
+          for (var i = 0; i < config2.count; i++) {
+            config2.timemarks.push(interval2 * (i + 1) + "%");
+          }
+        }
+        if ("size" in config2) {
+          var fixedSize = config2.size.match(/^(\d+)x(\d+)$/);
+          var fixedWidth = config2.size.match(/^(\d+)x\?$/);
+          var fixedHeight = config2.size.match(/^\?x(\d+)$/);
+          var percentSize = config2.size.match(/^(\d+)%$/);
+          if (!fixedSize && !fixedWidth && !fixedHeight && !percentSize) {
+            throw new Error("Invalid size parameter: " + config2.size);
+          }
+        }
+        var metadata;
+        function getMetadata(cb) {
+          if (metadata) {
+            cb(null, metadata);
+          } else {
+            self.ffprobe(function(err, meta) {
+              metadata = meta;
+              cb(err, meta);
+            });
+          }
+        }
+        async.waterfall([
+          // Compute percent timemarks if any
+          function computeTimemarks(next) {
+            if (config2.timemarks.some(function(t) {
+              return ("" + t).match(/^[\d.]+%$/);
+            })) {
+              if (typeof source !== "string") {
+                return next(new Error("Cannot compute screenshot timemarks with an input stream, please specify fixed timemarks"));
+              }
+              getMetadata(function(err, meta) {
+                if (err) {
+                  next(err);
+                } else {
+                  var vstream = meta.streams.reduce(function(biggest, stream) {
+                    if (stream.codec_type === "video" && stream.width * stream.height > biggest.width * biggest.height) {
+                      return stream;
+                    } else {
+                      return biggest;
+                    }
+                  }, { width: 0, height: 0 });
+                  if (vstream.width === 0) {
+                    return next(new Error("No video stream in input, cannot take screenshots"));
+                  }
+                  var duration3 = Number(vstream.duration);
+                  if (isNaN(duration3)) {
+                    duration3 = Number(meta.format.duration);
+                  }
+                  if (isNaN(duration3)) {
+                    return next(new Error("Could not get input duration, please specify fixed timemarks"));
+                  }
+                  config2.timemarks = config2.timemarks.map(function(mark) {
+                    if (("" + mark).match(/^([\d.]+)%$/)) {
+                      return duration3 * parseFloat(mark) / 100;
+                    } else {
+                      return mark;
+                    }
+                  });
+                  next();
+                }
+              });
+            } else {
+              next();
+            }
+          },
+          // Turn all timemarks into numbers and sort them
+          function normalizeTimemarks(next) {
+            config2.timemarks = config2.timemarks.map(function(mark) {
+              return utils.timemarkToSeconds(mark);
+            }).sort(function(a, b) {
+              return a - b;
+            });
+            next();
+          },
+          // Add '_%i' to pattern when requesting multiple screenshots and no variable token is present
+          function fixPattern(next) {
+            var pattern = config2.filename || "tn.png";
+            if (pattern.indexOf(".") === -1) {
+              pattern += ".png";
+            }
+            if (config2.timemarks.length > 1 && !pattern.match(/%(s|0*i)/)) {
+              var ext = path4.extname(pattern);
+              pattern = path4.join(path4.dirname(pattern), path4.basename(pattern, ext) + "_%i" + ext);
+            }
+            next(null, pattern);
+          },
+          // Replace filename tokens (%f, %b) in pattern
+          function replaceFilenameTokens(pattern, next) {
+            if (pattern.match(/%[bf]/)) {
+              if (typeof source !== "string") {
+                return next(new Error("Cannot replace %f or %b when using an input stream"));
+              }
+              pattern = pattern.replace(/%f/g, path4.basename(source)).replace(/%b/g, path4.basename(source, path4.extname(source)));
+            }
+            next(null, pattern);
+          },
+          // Compute size if needed
+          function getSize(pattern, next) {
+            if (pattern.match(/%[whr]/)) {
+              if (fixedSize) {
+                return next(null, pattern, fixedSize[1], fixedSize[2]);
+              }
+              getMetadata(function(err, meta) {
+                if (err) {
+                  return next(new Error("Could not determine video resolution to replace %w, %h or %r"));
+                }
+                var vstream = meta.streams.reduce(function(biggest, stream) {
+                  if (stream.codec_type === "video" && stream.width * stream.height > biggest.width * biggest.height) {
+                    return stream;
+                  } else {
+                    return biggest;
+                  }
+                }, { width: 0, height: 0 });
+                if (vstream.width === 0) {
+                  return next(new Error("No video stream in input, cannot replace %w, %h or %r"));
+                }
+                var width = vstream.width;
+                var height = vstream.height;
+                if (fixedWidth) {
+                  height = height * Number(fixedWidth[1]) / width;
+                  width = Number(fixedWidth[1]);
+                } else if (fixedHeight) {
+                  width = width * Number(fixedHeight[1]) / height;
+                  height = Number(fixedHeight[1]);
+                } else if (percentSize) {
+                  width = width * Number(percentSize[1]) / 100;
+                  height = height * Number(percentSize[1]) / 100;
+                }
+                next(null, pattern, Math.round(width / 2) * 2, Math.round(height / 2) * 2);
+              });
+            } else {
+              next(null, pattern, -1, -1);
+            }
+          },
+          // Replace size tokens (%w, %h, %r) in pattern
+          function replaceSizeTokens(pattern, width, height, next) {
+            pattern = pattern.replace(/%r/g, "%wx%h").replace(/%w/g, width).replace(/%h/g, height);
+            next(null, pattern);
+          },
+          // Replace variable tokens in pattern (%s, %i) and generate filename list
+          function replaceVariableTokens(pattern, next) {
+            var filenames = config2.timemarks.map(function(t, i2) {
+              return pattern.replace(/%s/g, utils.timemarkToSeconds(t)).replace(/%(0*)i/g, function(match, padding) {
+                var idx = "" + (i2 + 1);
+                return padding.substr(0, Math.max(0, padding.length + 1 - idx.length)) + idx;
+              });
+            });
+            self.emit("filenames", filenames);
+            next(null, filenames);
+          },
+          // Create output directory
+          function createDirectory(filenames, next) {
+            fs.exists(config2.folder, function(exists2) {
+              if (!exists2) {
+                fs.mkdir(config2.folder, function(err) {
+                  if (err) {
+                    next(err);
+                  } else {
+                    next(null, filenames);
+                  }
+                });
+              } else {
+                next(null, filenames);
+              }
+            });
+          }
+        ], function runCommand(err, filenames) {
+          if (err) {
+            return self.emit("error", err);
+          }
+          var count2 = config2.timemarks.length;
+          var split;
+          var filters = [split = {
+            filter: "split",
+            options: count2,
+            outputs: []
+          }];
+          if ("size" in config2) {
+            self.size(config2.size);
+            var sizeFilters = self._currentOutput.sizeFilters.get().map(function(f, i3) {
+              if (i3 > 0) {
+                f.inputs = "size" + (i3 - 1);
+              }
+              f.outputs = "size" + i3;
+              return f;
+            });
+            split.inputs = "size" + (sizeFilters.length - 1);
+            filters = sizeFilters.concat(filters);
+            self._currentOutput.sizeFilters.clear();
+          }
+          var first = 0;
+          for (var i2 = 0; i2 < count2; i2++) {
+            var stream = "screen" + i2;
+            split.outputs.push(stream);
+            if (i2 === 0) {
+              first = config2.timemarks[i2];
+              self.seekInput(first);
+            }
+            self.output(path4.join(config2.folder, filenames[i2])).frames(1).map(stream);
+            if (i2 > 0) {
+              self.seek(config2.timemarks[i2] - first);
+            }
+          }
+          self.complexFilter(filters);
+          self.run();
+        });
+        return this;
+      };
+      proto.mergeToFile = proto.concatenate = proto.concat = function(target, options) {
+        var fileInput = this._inputs.filter(function(input) {
+          return !input.isStream;
+        })[0];
+        var self = this;
+        this.ffprobe(this._inputs.indexOf(fileInput), function(err, data) {
+          if (err) {
+            return self.emit("error", err);
+          }
+          var hasAudioStreams = data.streams.some(function(stream) {
+            return stream.codec_type === "audio";
+          });
+          var hasVideoStreams = data.streams.some(function(stream) {
+            return stream.codec_type === "video";
+          });
+          self.output(target, options).complexFilter({
+            filter: "concat",
+            options: {
+              n: self._inputs.length,
+              v: hasVideoStreams ? 1 : 0,
+              a: hasAudioStreams ? 1 : 0
+            }
+          }).run();
+        });
+        return this;
+      };
+    };
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/fluent-ffmpeg.js
+var require_fluent_ffmpeg = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/lib/fluent-ffmpeg.js"(exports, module) {
+    "use strict";
+    var path4 = __require("path");
+    var util2 = __require("util");
+    var EventEmitter = __require("events").EventEmitter;
+    var utils = require_utils6();
+    function FfmpegCommand(input, options) {
+      if (!(this instanceof FfmpegCommand)) {
+        return new FfmpegCommand(input, options);
+      }
+      EventEmitter.call(this);
+      if (typeof input === "object" && !("readable" in input)) {
+        options = input;
+      } else {
+        options = options || {};
+        options.source = input;
+      }
+      this._inputs = [];
+      if (options.source) {
+        this.input(options.source);
+      }
+      this._outputs = [];
+      this.output();
+      var self = this;
+      ["_global", "_complexFilters"].forEach(function(prop) {
+        self[prop] = utils.args();
+      });
+      options.stdoutLines = "stdoutLines" in options ? options.stdoutLines : 100;
+      options.presets = options.presets || options.preset || path4.join(__dirname, "presets");
+      options.niceness = options.niceness || options.priority || 0;
+      this.options = options;
+      this.logger = options.logger || {
+        debug: function() {
+        },
+        info: function() {
+        },
+        warn: function() {
+        },
+        error: function() {
+        }
+      };
+    }
+    util2.inherits(FfmpegCommand, EventEmitter);
+    module.exports = FfmpegCommand;
+    FfmpegCommand.prototype.clone = function() {
+      var clone2 = new FfmpegCommand();
+      var self = this;
+      clone2.options = this.options;
+      clone2.logger = this.logger;
+      clone2._inputs = this._inputs.map(function(input) {
+        return {
+          source: input.source,
+          options: input.options.clone()
+        };
+      });
+      if ("target" in this._outputs[0]) {
+        clone2._outputs = [];
+        clone2.output();
+      } else {
+        clone2._outputs = [
+          clone2._currentOutput = {
+            flags: {}
+          }
+        ];
+        ["audio", "audioFilters", "video", "videoFilters", "sizeFilters", "options"].forEach(function(key) {
+          clone2._currentOutput[key] = self._currentOutput[key].clone();
+        });
+        if (this._currentOutput.sizeData) {
+          clone2._currentOutput.sizeData = {};
+          utils.copy(this._currentOutput.sizeData, clone2._currentOutput.sizeData);
+        }
+        utils.copy(this._currentOutput.flags, clone2._currentOutput.flags);
+      }
+      ["_global", "_complexFilters"].forEach(function(prop) {
+        clone2[prop] = self[prop].clone();
+      });
+      return clone2;
+    };
+    require_inputs()(FfmpegCommand.prototype);
+    require_audio()(FfmpegCommand.prototype);
+    require_video()(FfmpegCommand.prototype);
+    require_videosize()(FfmpegCommand.prototype);
+    require_output()(FfmpegCommand.prototype);
+    require_custom()(FfmpegCommand.prototype);
+    require_misc()(FfmpegCommand.prototype);
+    require_processor()(FfmpegCommand.prototype);
+    require_capabilities()(FfmpegCommand.prototype);
+    FfmpegCommand.setFfmpegPath = function(path5) {
+      new FfmpegCommand().setFfmpegPath(path5);
+    };
+    FfmpegCommand.setFfprobePath = function(path5) {
+      new FfmpegCommand().setFfprobePath(path5);
+    };
+    FfmpegCommand.setFlvtoolPath = function(path5) {
+      new FfmpegCommand().setFlvtoolPath(path5);
+    };
+    FfmpegCommand.availableFilters = FfmpegCommand.getAvailableFilters = function(callback) {
+      new FfmpegCommand().availableFilters(callback);
+    };
+    FfmpegCommand.availableCodecs = FfmpegCommand.getAvailableCodecs = function(callback) {
+      new FfmpegCommand().availableCodecs(callback);
+    };
+    FfmpegCommand.availableFormats = FfmpegCommand.getAvailableFormats = function(callback) {
+      new FfmpegCommand().availableFormats(callback);
+    };
+    FfmpegCommand.availableEncoders = FfmpegCommand.getAvailableEncoders = function(callback) {
+      new FfmpegCommand().availableEncoders(callback);
+    };
+    require_ffprobe()(FfmpegCommand.prototype);
+    FfmpegCommand.ffprobe = function(file2) {
+      var instance = new FfmpegCommand(file2);
+      instance.ffprobe.apply(instance, Array.prototype.slice.call(arguments, 1));
+    };
+    require_recipes()(FfmpegCommand.prototype);
+  }
+});
+
+// ../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/index.js
+var require_fluent_ffmpeg2 = __commonJS({
+  "../../node_modules/.pnpm/fluent-ffmpeg@2.1.3/node_modules/fluent-ffmpeg/index.js"(exports, module) {
+    module.exports = require_fluent_ffmpeg();
+  }
+});
+
+// src/index.ts
+import { execFile } from "node:child_process";
+
 // src/app.ts
 var import_express12 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
+var import_compression = __toESM(require_compression(), 1);
 var import_pino_http = __toESM(require_logger(), 1);
 import path3 from "node:path";
 import { fileURLToPath } from "node:url";
@@ -53208,12 +57870,12 @@ async function hashQuery(sql2, params) {
 
 // ../../node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/drizzle-orm/pg-core/session.js
 var PgPreparedQuery = class {
-  constructor(query, cache, queryMetadata, cacheConfig) {
+  constructor(query, cache2, queryMetadata, cacheConfig) {
     this.query = query;
-    this.cache = cache;
+    this.cache = cache2;
     this.queryMetadata = queryMetadata;
     this.cacheConfig = cacheConfig;
-    if (cache && cache.strategy() === "all" && cacheConfig === void 0) {
+    if (cache2 && cache2.strategy() === "all" && cacheConfig === void 0) {
       this.cacheConfig = { enable: true, autoInvalidate: true };
     }
     if (!this.cacheConfig?.enable) {
@@ -53369,8 +58031,8 @@ var PgTransaction = class extends PgDatabase {
 // ../../node_modules/.pnpm/drizzle-orm@0.45.1_@types+pg@8.18.0_pg@8.20.0/node_modules/drizzle-orm/node-postgres/session.js
 var { Pool: Pool2, types: types2 } = esm_default;
 var NodePgPreparedQuery = class extends PgPreparedQuery {
-  constructor(client, queryString, params, logger2, cache, queryMetadata, cacheConfig, fields, name, _isResponseInArrayMode, customResultMapper) {
-    super({ sql: queryString, params }, cache, queryMetadata, cacheConfig);
+  constructor(client, queryString, params, logger2, cache2, queryMetadata, cacheConfig, fields, name, _isResponseInArrayMode, customResultMapper) {
+    super({ sql: queryString, params }, cache2, queryMetadata, cacheConfig);
     this.client = client;
     this.queryString = queryString;
     this.params = params;
@@ -54361,8 +59023,8 @@ var allowsEval = cached(() => {
     return false;
   }
   try {
-    const F = Function;
-    new F("");
+    const F2 = Function;
+    new F2("");
     return true;
   } catch (_) {
     return false;
@@ -55587,11 +60249,11 @@ var Doc = class {
     }
   }
   compile() {
-    const F = Function;
+    const F2 = Function;
     const args = this?.args;
     const content = this?.content ?? [``];
     const lines = [...content.map((x) => `  ${x}`)];
-    return new F(...args, lines.join("\n"));
+    return new F2(...args, lines.join("\n"));
   }
 };
 
@@ -62937,9 +67599,9 @@ var $ZodFunction = class {
     return impl;
   }
   input(...args) {
-    const F = this.constructor;
+    const F2 = this.constructor;
     if (Array.isArray(args[0])) {
-      return new F({
+      return new F2({
         type: "function",
         input: new $ZodTuple({
           type: "tuple",
@@ -62949,15 +67611,15 @@ var $ZodFunction = class {
         output: this._def.output
       });
     }
-    return new F({
+    return new F2({
       type: "function",
       input: args[0],
       output: this._def.output
     });
   }
   output(output) {
-    const F = this.constructor;
-    return new F({
+    const F2 = this.constructor;
+    return new F2({
       type: "function",
       input: this._def.input,
       output
@@ -65448,8 +70110,8 @@ function indexOf(buffer, portion) {
     return -1;
   for (let i = 0; i <= bufferLength - portionLength; i++) {
     let found = true;
-    for (let j = 0; j < portionLength; j++) {
-      if (buffer[i + j] !== portion[j]) {
+    for (let j2 = 0; j2 < portionLength; j2++) {
+      if (buffer[i + j2] !== portion[j2]) {
         found = false;
         break;
       }
@@ -69756,11 +74418,14 @@ async function parseFile(filePath, options = {}) {
   }
 }
 
+// src/lib/scanner.ts
+import sharp from "sharp";
+
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
 var isProduction = process.env.NODE_ENV === "production";
 var logger = (0, import_pino.default)({
-  level: process.env.LOG_LEVEL ?? "info",
+  level: process.env.LOG_LEVEL ?? (isProduction ? "warn" : "info"),
   redact: [
     "req.headers.authorization",
     "req.headers.cookie",
@@ -69773,6 +74438,601 @@ var logger = (0, import_pino.default)({
     }
   }
 });
+
+// ../../node_modules/.pnpm/lru-cache@11.3.6/node_modules/lru-cache/dist/esm/node/index.min.js
+import { tracingChannel as I, channel as G } from "node:diagnostics_channel";
+var S = G("lru-cache:metrics");
+var W = I("lru-cache");
+var C = typeof performance == "object" && performance && typeof performance.now == "function" ? performance : Date;
+var D = () => S.hasSubscribers || W.hasSubscribers;
+var U = /* @__PURE__ */ new Set();
+var L = typeof process == "object" && process ? process : {};
+var P = (u3, e, t, i) => {
+  typeof L.emitWarning == "function" ? L.emitWarning(u3, e, t, i) : console.error(`[${t}] ${e}: ${u3}`);
+};
+var H = (u3) => !U.has(u3);
+var F = (u3) => !!u3 && u3 === Math.floor(u3) && u3 > 0 && isFinite(u3);
+var j = (u3) => F(u3) ? u3 <= Math.pow(2, 8) ? Uint8Array : u3 <= Math.pow(2, 16) ? Uint16Array : u3 <= Math.pow(2, 32) ? Uint32Array : u3 <= Number.MAX_SAFE_INTEGER ? O : null : null;
+var O = class extends Array {
+  constructor(e) {
+    super(e), this.fill(0);
+  }
+};
+var R = class u {
+  heap;
+  length;
+  static #o = false;
+  static create(e) {
+    let t = j(e);
+    if (!t) return [];
+    u.#o = true;
+    let i = new u(e, t);
+    return u.#o = false, i;
+  }
+  constructor(e, t) {
+    if (!u.#o) throw new TypeError("instantiate Stack using Stack.create(n)");
+    this.heap = new t(e), this.length = 0;
+  }
+  push(e) {
+    this.heap[this.length++] = e;
+  }
+  pop() {
+    return this.heap[--this.length];
+  }
+};
+var M = class u2 {
+  #o;
+  #u;
+  #w;
+  #x;
+  #S;
+  #M;
+  #U;
+  #m;
+  get perf() {
+    return this.#m;
+  }
+  ttl;
+  ttlResolution;
+  ttlAutopurge;
+  updateAgeOnGet;
+  updateAgeOnHas;
+  allowStale;
+  noDisposeOnSet;
+  noUpdateTTL;
+  maxEntrySize;
+  sizeCalculation;
+  noDeleteOnFetchRejection;
+  noDeleteOnStaleGet;
+  allowStaleOnFetchAbort;
+  allowStaleOnFetchRejection;
+  ignoreFetchAbort;
+  #n;
+  #b;
+  #s;
+  #i;
+  #t;
+  #a;
+  #c;
+  #l;
+  #h;
+  #y;
+  #r;
+  #_;
+  #F;
+  #d;
+  #g;
+  #T;
+  #W;
+  #f;
+  #j;
+  static unsafeExposeInternals(e) {
+    return { starts: e.#F, ttls: e.#d, autopurgeTimers: e.#g, sizes: e.#_, keyMap: e.#s, keyList: e.#i, valList: e.#t, next: e.#a, prev: e.#c, get head() {
+      return e.#l;
+    }, get tail() {
+      return e.#h;
+    }, free: e.#y, isBackgroundFetch: (t) => e.#e(t), backgroundFetch: (t, i, s, n) => e.#P(t, i, s, n), moveToTail: (t) => e.#L(t), indexes: (t) => e.#A(t), rindexes: (t) => e.#z(t), isStale: (t) => e.#p(t) };
+  }
+  get max() {
+    return this.#o;
+  }
+  get maxSize() {
+    return this.#u;
+  }
+  get calculatedSize() {
+    return this.#b;
+  }
+  get size() {
+    return this.#n;
+  }
+  get fetchMethod() {
+    return this.#M;
+  }
+  get memoMethod() {
+    return this.#U;
+  }
+  get dispose() {
+    return this.#w;
+  }
+  get onInsert() {
+    return this.#x;
+  }
+  get disposeAfter() {
+    return this.#S;
+  }
+  constructor(e) {
+    let { max: t = 0, ttl: i, ttlResolution: s = 1, ttlAutopurge: n, updateAgeOnGet: o, updateAgeOnHas: r, allowStale: h, dispose: l, onInsert: c, disposeAfter: f, noDisposeOnSet: g, noUpdateTTL: p, maxSize: T = 0, maxEntrySize: w = 0, sizeCalculation: y, fetchMethod: a, memoMethod: m, noDeleteOnFetchRejection: _, noDeleteOnStaleGet: b, allowStaleOnFetchRejection: d, allowStaleOnFetchAbort: A, ignoreFetchAbort: z, perf: x } = e;
+    if (x !== void 0 && typeof x?.now != "function") throw new TypeError("perf option must have a now() method if specified");
+    if (this.#m = x ?? C, t !== 0 && !F(t)) throw new TypeError("max option must be a nonnegative integer");
+    let v = t ? j(t) : Array;
+    if (!v) throw new Error("invalid max value: " + t);
+    if (this.#o = t, this.#u = T, this.maxEntrySize = w || this.#u, this.sizeCalculation = y, this.sizeCalculation) {
+      if (!this.#u && !this.maxEntrySize) throw new TypeError("cannot set sizeCalculation without setting maxSize or maxEntrySize");
+      if (typeof this.sizeCalculation != "function") throw new TypeError("sizeCalculation set to non-function");
+    }
+    if (m !== void 0 && typeof m != "function") throw new TypeError("memoMethod must be a function if defined");
+    if (this.#U = m, a !== void 0 && typeof a != "function") throw new TypeError("fetchMethod must be a function if specified");
+    if (this.#M = a, this.#W = !!a, this.#s = /* @__PURE__ */ new Map(), this.#i = Array.from({ length: t }).fill(void 0), this.#t = Array.from({ length: t }).fill(void 0), this.#a = new v(t), this.#c = new v(t), this.#l = 0, this.#h = 0, this.#y = R.create(t), this.#n = 0, this.#b = 0, typeof l == "function" && (this.#w = l), typeof c == "function" && (this.#x = c), typeof f == "function" ? (this.#S = f, this.#r = []) : (this.#S = void 0, this.#r = void 0), this.#T = !!this.#w, this.#j = !!this.#x, this.#f = !!this.#S, this.noDisposeOnSet = !!g, this.noUpdateTTL = !!p, this.noDeleteOnFetchRejection = !!_, this.allowStaleOnFetchRejection = !!d, this.allowStaleOnFetchAbort = !!A, this.ignoreFetchAbort = !!z, this.maxEntrySize !== 0) {
+      if (this.#u !== 0 && !F(this.#u)) throw new TypeError("maxSize must be a positive integer if specified");
+      if (!F(this.maxEntrySize)) throw new TypeError("maxEntrySize must be a positive integer if specified");
+      this.#X();
+    }
+    if (this.allowStale = !!h, this.noDeleteOnStaleGet = !!b, this.updateAgeOnGet = !!o, this.updateAgeOnHas = !!r, this.ttlResolution = F(s) || s === 0 ? s : 1, this.ttlAutopurge = !!n, this.ttl = i || 0, this.ttl) {
+      if (!F(this.ttl)) throw new TypeError("ttl must be a positive integer if specified");
+      this.#H();
+    }
+    if (this.#o === 0 && this.ttl === 0 && this.#u === 0) throw new TypeError("At least one of max, maxSize, or ttl is required");
+    if (!this.ttlAutopurge && !this.#o && !this.#u) {
+      let E = "LRU_CACHE_UNBOUNDED";
+      H(E) && (U.add(E), P("TTL caching without ttlAutopurge, max, or maxSize can result in unbounded memory consumption.", "UnboundedCacheWarning", E, u2));
+    }
+  }
+  getRemainingTTL(e) {
+    return this.#s.has(e) ? 1 / 0 : 0;
+  }
+  #H() {
+    let e = new O(this.#o), t = new O(this.#o);
+    this.#d = e, this.#F = t;
+    let i = this.ttlAutopurge ? Array.from({ length: this.#o }) : void 0;
+    this.#g = i, this.#N = (r, h, l = this.#m.now()) => {
+      t[r] = h !== 0 ? l : 0, e[r] = h, s(r, h);
+    }, this.#D = (r) => {
+      t[r] = e[r] !== 0 ? this.#m.now() : 0, s(r, e[r]);
+    };
+    let s = this.ttlAutopurge ? (r, h) => {
+      if (i?.[r] && (clearTimeout(i[r]), i[r] = void 0), h && h !== 0 && i) {
+        let l = setTimeout(() => {
+          this.#p(r) && this.#v(this.#i[r], "expire");
+        }, h + 1);
+        l.unref && l.unref(), i[r] = l;
+      }
+    } : () => {
+    };
+    this.#E = (r, h) => {
+      if (e[h]) {
+        let l = e[h], c = t[h];
+        if (!l || !c) return;
+        r.ttl = l, r.start = c, r.now = n || o();
+        let f = r.now - c;
+        r.remainingTTL = l - f;
+      }
+    };
+    let n = 0, o = () => {
+      let r = this.#m.now();
+      if (this.ttlResolution > 0) {
+        n = r;
+        let h = setTimeout(() => n = 0, this.ttlResolution);
+        h.unref && h.unref();
+      }
+      return r;
+    };
+    this.getRemainingTTL = (r) => {
+      let h = this.#s.get(r);
+      if (h === void 0) return 0;
+      let l = e[h], c = t[h];
+      if (!l || !c) return 1 / 0;
+      let f = (n || o()) - c;
+      return l - f;
+    }, this.#p = (r) => {
+      let h = t[r], l = e[r];
+      return !!l && !!h && (n || o()) - h > l;
+    };
+  }
+  #D = () => {
+  };
+  #E = () => {
+  };
+  #N = () => {
+  };
+  #p = () => false;
+  #X() {
+    let e = new O(this.#o);
+    this.#b = 0, this.#_ = e, this.#R = (t) => {
+      this.#b -= e[t], e[t] = 0;
+    }, this.#k = (t, i, s, n) => {
+      if (this.#e(i)) return 0;
+      if (!F(s)) if (n) {
+        if (typeof n != "function") throw new TypeError("sizeCalculation must be a function");
+        if (s = n(i, t), !F(s)) throw new TypeError("sizeCalculation return invalid (expect positive integer)");
+      } else throw new TypeError("invalid size value (must be positive integer). When maxSize or maxEntrySize is used, sizeCalculation or size must be set.");
+      return s;
+    }, this.#I = (t, i, s) => {
+      if (e[t] = i, this.#u) {
+        let n = this.#u - e[t];
+        for (; this.#b > n; ) this.#G(true);
+      }
+      this.#b += e[t], s && (s.entrySize = i, s.totalCalculatedSize = this.#b);
+    };
+  }
+  #R = (e) => {
+  };
+  #I = (e, t, i) => {
+  };
+  #k = (e, t, i, s) => {
+    if (i || s) throw new TypeError("cannot set size without setting maxSize or maxEntrySize on cache");
+    return 0;
+  };
+  *#A({ allowStale: e = this.allowStale } = {}) {
+    if (this.#n) for (let t = this.#h; this.#V(t) && ((e || !this.#p(t)) && (yield t), t !== this.#l); ) t = this.#c[t];
+  }
+  *#z({ allowStale: e = this.allowStale } = {}) {
+    if (this.#n) for (let t = this.#l; this.#V(t) && ((e || !this.#p(t)) && (yield t), t !== this.#h); ) t = this.#a[t];
+  }
+  #V(e) {
+    return e !== void 0 && this.#s.get(this.#i[e]) === e;
+  }
+  *entries() {
+    for (let e of this.#A()) this.#t[e] !== void 0 && this.#i[e] !== void 0 && !this.#e(this.#t[e]) && (yield [this.#i[e], this.#t[e]]);
+  }
+  *rentries() {
+    for (let e of this.#z()) this.#t[e] !== void 0 && this.#i[e] !== void 0 && !this.#e(this.#t[e]) && (yield [this.#i[e], this.#t[e]]);
+  }
+  *keys() {
+    for (let e of this.#A()) {
+      let t = this.#i[e];
+      t !== void 0 && !this.#e(this.#t[e]) && (yield t);
+    }
+  }
+  *rkeys() {
+    for (let e of this.#z()) {
+      let t = this.#i[e];
+      t !== void 0 && !this.#e(this.#t[e]) && (yield t);
+    }
+  }
+  *values() {
+    for (let e of this.#A()) this.#t[e] !== void 0 && !this.#e(this.#t[e]) && (yield this.#t[e]);
+  }
+  *rvalues() {
+    for (let e of this.#z()) this.#t[e] !== void 0 && !this.#e(this.#t[e]) && (yield this.#t[e]);
+  }
+  [Symbol.iterator]() {
+    return this.entries();
+  }
+  [Symbol.toStringTag] = "LRUCache";
+  find(e, t = {}) {
+    for (let i of this.#A()) {
+      let s = this.#t[i], n = this.#e(s) ? s.__staleWhileFetching : s;
+      if (n !== void 0 && e(n, this.#i[i], this)) return this.#C(this.#i[i], t);
+    }
+  }
+  forEach(e, t = this) {
+    for (let i of this.#A()) {
+      let s = this.#t[i], n = this.#e(s) ? s.__staleWhileFetching : s;
+      n !== void 0 && e.call(t, n, this.#i[i], this);
+    }
+  }
+  rforEach(e, t = this) {
+    for (let i of this.#z()) {
+      let s = this.#t[i], n = this.#e(s) ? s.__staleWhileFetching : s;
+      n !== void 0 && e.call(t, n, this.#i[i], this);
+    }
+  }
+  purgeStale() {
+    let e = false;
+    for (let t of this.#z({ allowStale: true })) this.#p(t) && (this.#v(this.#i[t], "expire"), e = true);
+    return e;
+  }
+  info(e) {
+    let t = this.#s.get(e);
+    if (t === void 0) return;
+    let i = this.#t[t], s = this.#e(i) ? i.__staleWhileFetching : i;
+    if (s === void 0) return;
+    let n = { value: s };
+    if (this.#d && this.#F) {
+      let o = this.#d[t], r = this.#F[t];
+      if (o && r) {
+        let h = o - (this.#m.now() - r);
+        n.ttl = h, n.start = Date.now();
+      }
+    }
+    return this.#_ && (n.size = this.#_[t]), n;
+  }
+  dump() {
+    let e = [];
+    for (let t of this.#A({ allowStale: true })) {
+      let i = this.#i[t], s = this.#t[t], n = this.#e(s) ? s.__staleWhileFetching : s;
+      if (n === void 0 || i === void 0) continue;
+      let o = { value: n };
+      if (this.#d && this.#F) {
+        o.ttl = this.#d[t];
+        let r = this.#m.now() - this.#F[t];
+        o.start = Math.floor(Date.now() - r);
+      }
+      this.#_ && (o.size = this.#_[t]), e.unshift([i, o]);
+    }
+    return e;
+  }
+  load(e) {
+    this.clear();
+    for (let [t, i] of e) {
+      if (i.start) {
+        let s = Date.now() - i.start;
+        i.start = this.#m.now() - s;
+      }
+      this.#O(t, i.value, i);
+    }
+  }
+  set(e, t, i = {}) {
+    let { status: s = S.hasSubscribers ? {} : void 0 } = i;
+    i.status = s, s && (s.op = "set", s.key = e, t !== void 0 && (s.value = t));
+    let n = this.#O(e, t, i);
+    return s && S.hasSubscribers && S.publish(s), n;
+  }
+  #O(e, t, i = {}) {
+    let { ttl: s = this.ttl, start: n, noDisposeOnSet: o = this.noDisposeOnSet, sizeCalculation: r = this.sizeCalculation, status: h } = i;
+    if (t === void 0) return h && (h.set = "deleted"), this.delete(e), this;
+    let { noUpdateTTL: l = this.noUpdateTTL } = i;
+    h && !this.#e(t) && (h.value = t);
+    let c = this.#k(e, t, i.size || 0, r, h);
+    if (this.maxEntrySize && c > this.maxEntrySize) return this.#v(e, "set"), h && (h.set = "miss", h.maxEntrySizeExceeded = true), this;
+    let f = this.#n === 0 ? void 0 : this.#s.get(e);
+    if (f === void 0) f = this.#n === 0 ? this.#h : this.#y.length !== 0 ? this.#y.pop() : this.#n === this.#o ? this.#G(false) : this.#n, this.#i[f] = e, this.#t[f] = t, this.#s.set(e, f), this.#a[this.#h] = f, this.#c[f] = this.#h, this.#h = f, this.#n++, this.#I(f, c, h), h && (h.set = "add"), l = false, this.#j && this.#x?.(t, e, "add");
+    else {
+      this.#L(f);
+      let g = this.#t[f];
+      if (t !== g) {
+        if (this.#W && this.#e(g)) {
+          g.__abortController.abort(new Error("replaced"));
+          let { __staleWhileFetching: p } = g;
+          p !== void 0 && !o && (this.#T && this.#w?.(p, e, "set"), this.#f && this.#r?.push([p, e, "set"]));
+        } else o || (this.#T && this.#w?.(g, e, "set"), this.#f && this.#r?.push([g, e, "set"]));
+        if (this.#R(f), this.#I(f, c, h), this.#t[f] = t, h) {
+          h.set = "replace";
+          let p = g && this.#e(g) ? g.__staleWhileFetching : g;
+          p !== void 0 && (h.oldValue = p);
+        }
+      } else h && (h.set = "update");
+      this.#j && this.onInsert?.(t, e, t === g ? "update" : "replace");
+    }
+    if (s !== 0 && !this.#d && this.#H(), this.#d && (l || this.#N(f, s, n), h && this.#E(h, f)), !o && this.#f && this.#r) {
+      let g = this.#r, p;
+      for (; p = g?.shift(); ) this.#S?.(...p);
+    }
+    return this;
+  }
+  pop() {
+    try {
+      for (; this.#n; ) {
+        let e = this.#t[this.#l];
+        if (this.#G(true), this.#e(e)) {
+          if (e.__staleWhileFetching) return e.__staleWhileFetching;
+        } else if (e !== void 0) return e;
+      }
+    } finally {
+      if (this.#f && this.#r) {
+        let e = this.#r, t;
+        for (; t = e?.shift(); ) this.#S?.(...t);
+      }
+    }
+  }
+  #G(e) {
+    let t = this.#l, i = this.#i[t], s = this.#t[t];
+    return this.#W && this.#e(s) ? s.__abortController.abort(new Error("evicted")) : (this.#T || this.#f) && (this.#T && this.#w?.(s, i, "evict"), this.#f && this.#r?.push([s, i, "evict"])), this.#R(t), this.#g?.[t] && (clearTimeout(this.#g[t]), this.#g[t] = void 0), e && (this.#i[t] = void 0, this.#t[t] = void 0, this.#y.push(t)), this.#n === 1 ? (this.#l = this.#h = 0, this.#y.length = 0) : this.#l = this.#a[t], this.#s.delete(i), this.#n--, t;
+  }
+  has(e, t = {}) {
+    let { status: i = S.hasSubscribers ? {} : void 0 } = t;
+    t.status = i, i && (i.op = "has", i.key = e);
+    let s = this.#Y(e, t);
+    return S.hasSubscribers && S.publish(i), s;
+  }
+  #Y(e, t = {}) {
+    let { updateAgeOnHas: i = this.updateAgeOnHas, status: s } = t, n = this.#s.get(e);
+    if (n !== void 0) {
+      let o = this.#t[n];
+      if (this.#e(o) && o.__staleWhileFetching === void 0) return false;
+      if (this.#p(n)) s && (s.has = "stale", this.#E(s, n));
+      else return i && this.#D(n), s && (s.has = "hit", this.#E(s, n)), true;
+    } else s && (s.has = "miss");
+    return false;
+  }
+  peek(e, t = {}) {
+    let { status: i = D() ? {} : void 0 } = t;
+    i && (i.op = "peek", i.key = e), t.status = i;
+    let s = this.#J(e, t);
+    return S.hasSubscribers && S.publish(i), s;
+  }
+  #J(e, t) {
+    let { status: i, allowStale: s = this.allowStale } = t, n = this.#s.get(e);
+    if (n === void 0 || !s && this.#p(n)) {
+      i && (i.peek = n === void 0 ? "miss" : "stale");
+      return;
+    }
+    let o = this.#t[n], r = this.#e(o) ? o.__staleWhileFetching : o;
+    return i && (r !== void 0 ? (i.peek = "hit", i.value = r) : i.peek = "miss"), r;
+  }
+  #P(e, t, i, s) {
+    let n = t === void 0 ? void 0 : this.#t[t];
+    if (this.#e(n)) return n;
+    let o = new AbortController(), { signal: r } = i;
+    r?.addEventListener("abort", () => o.abort(r.reason), { signal: o.signal });
+    let h = { signal: o.signal, options: i, context: s }, l = (w, y = false) => {
+      let { aborted: a } = o.signal, m = i.ignoreFetchAbort && w !== void 0, _ = i.ignoreFetchAbort || !!(i.allowStaleOnFetchAbort && w !== void 0);
+      if (i.status && (a && !y ? (i.status.fetchAborted = true, i.status.fetchError = o.signal.reason, m && (i.status.fetchAbortIgnored = true)) : i.status.fetchResolved = true), a && !m && !y) return f(o.signal.reason, _);
+      let b = p, d = this.#t[t];
+      return (d === p || d === void 0 && m && y) && (w === void 0 ? b.__staleWhileFetching !== void 0 ? this.#t[t] = b.__staleWhileFetching : this.#v(e, "fetch") : (i.status && (i.status.fetchUpdated = true), this.#O(e, w, h.options))), w;
+    }, c = (w) => (i.status && (i.status.fetchRejected = true, i.status.fetchError = w), f(w, false)), f = (w, y) => {
+      let { aborted: a } = o.signal, m = a && i.allowStaleOnFetchAbort, _ = m || i.allowStaleOnFetchRejection, b = _ || i.noDeleteOnFetchRejection, d = p;
+      if (this.#t[t] === p && (!b || !y && d.__staleWhileFetching === void 0 ? this.#v(e, "fetch") : m || (this.#t[t] = d.__staleWhileFetching)), _) return i.status && d.__staleWhileFetching !== void 0 && (i.status.returnedStale = true), d.__staleWhileFetching;
+      if (d.__returned === d) throw w;
+    }, g = (w, y) => {
+      let a = this.#M?.(e, n, h);
+      a && a instanceof Promise && a.then((m) => w(m === void 0 ? void 0 : m), y), o.signal.addEventListener("abort", () => {
+        (!i.ignoreFetchAbort || i.allowStaleOnFetchAbort) && (w(void 0), i.allowStaleOnFetchAbort && (w = (m) => l(m, true)));
+      });
+    };
+    i.status && (i.status.fetchDispatched = true);
+    let p = new Promise(g).then(l, c), T = Object.assign(p, { __abortController: o, __staleWhileFetching: n, __returned: void 0 });
+    return t === void 0 ? (this.#O(e, T, { ...h.options, status: void 0 }), t = this.#s.get(e)) : this.#t[t] = T, T;
+  }
+  #e(e) {
+    if (!this.#W) return false;
+    let t = e;
+    return !!t && t instanceof Promise && t.hasOwnProperty("__staleWhileFetching") && t.__abortController instanceof AbortController;
+  }
+  fetch(e, t = {}) {
+    let i = W.hasSubscribers, { status: s = D() ? {} : void 0 } = t;
+    t.status = s, s && t.context && (s.context = t.context);
+    let n = this.#B(e, t);
+    return s && i && (s.trace = true, W.tracePromise(() => n, s).catch(() => {
+    })), n;
+  }
+  async #B(e, t = {}) {
+    let { allowStale: i = this.allowStale, updateAgeOnGet: s = this.updateAgeOnGet, noDeleteOnStaleGet: n = this.noDeleteOnStaleGet, ttl: o = this.ttl, noDisposeOnSet: r = this.noDisposeOnSet, size: h = 0, sizeCalculation: l = this.sizeCalculation, noUpdateTTL: c = this.noUpdateTTL, noDeleteOnFetchRejection: f = this.noDeleteOnFetchRejection, allowStaleOnFetchRejection: g = this.allowStaleOnFetchRejection, ignoreFetchAbort: p = this.ignoreFetchAbort, allowStaleOnFetchAbort: T = this.allowStaleOnFetchAbort, context: w, forceRefresh: y = false, status: a, signal: m } = t;
+    if (a && (a.op = "fetch", a.key = e, y && (a.forceRefresh = true)), !this.#W) return a && (a.fetch = "get"), this.#C(e, { allowStale: i, updateAgeOnGet: s, noDeleteOnStaleGet: n, status: a });
+    let _ = { allowStale: i, updateAgeOnGet: s, noDeleteOnStaleGet: n, ttl: o, noDisposeOnSet: r, size: h, sizeCalculation: l, noUpdateTTL: c, noDeleteOnFetchRejection: f, allowStaleOnFetchRejection: g, allowStaleOnFetchAbort: T, ignoreFetchAbort: p, status: a, signal: m }, b = this.#s.get(e);
+    if (b === void 0) {
+      a && (a.fetch = "miss");
+      let d = this.#P(e, b, _, w);
+      return d.__returned = d;
+    } else {
+      let d = this.#t[b];
+      if (this.#e(d)) {
+        let E = i && d.__staleWhileFetching !== void 0;
+        return a && (a.fetch = "inflight", E && (a.returnedStale = true)), E ? d.__staleWhileFetching : d.__returned = d;
+      }
+      let A = this.#p(b);
+      if (!y && !A) return a && (a.fetch = "hit"), this.#L(b), s && this.#D(b), a && this.#E(a, b), d;
+      let z = this.#P(e, b, _, w), v = z.__staleWhileFetching !== void 0 && i;
+      return a && (a.fetch = A ? "stale" : "refresh", v && A && (a.returnedStale = true)), v ? z.__staleWhileFetching : z.__returned = z;
+    }
+  }
+  forceFetch(e, t = {}) {
+    let i = W.hasSubscribers, { status: s = D() ? {} : void 0 } = t;
+    t.status = s, s && t.context && (s.context = t.context);
+    let n = this.#K(e, t);
+    return s && i && (s.trace = true, W.tracePromise(() => n, s).catch(() => {
+    })), n;
+  }
+  async #K(e, t = {}) {
+    let i = await this.#B(e, t);
+    if (i === void 0) throw new Error("fetch() returned undefined");
+    return i;
+  }
+  memo(e, t = {}) {
+    let { status: i = S.hasSubscribers ? {} : void 0 } = t;
+    t.status = i, i && (i.op = "memo", i.key = e, t.context && (i.context = t.context));
+    let s = this.#Q(e, t);
+    return i && (i.value = s), S.hasSubscribers && S.publish(i), s;
+  }
+  #Q(e, t = {}) {
+    let i = this.#U;
+    if (!i) throw new Error("no memoMethod provided to constructor");
+    let { context: s, status: n, forceRefresh: o, ...r } = t;
+    n && o && (n.forceRefresh = true);
+    let h = this.#C(e, r), l = o || h === void 0;
+    if (n && (n.memo = l ? "miss" : "hit", l || (n.value = h)), !l) return h;
+    let c = i(e, h, { options: r, context: s });
+    return n && (n.value = c), this.#O(e, c, r), c;
+  }
+  get(e, t = {}) {
+    let { status: i = S.hasSubscribers ? {} : void 0 } = t;
+    t.status = i, i && (i.op = "get", i.key = e);
+    let s = this.#C(e, t);
+    return i && (s !== void 0 && (i.value = s), S.hasSubscribers && S.publish(i)), s;
+  }
+  #C(e, t = {}) {
+    let { allowStale: i = this.allowStale, updateAgeOnGet: s = this.updateAgeOnGet, noDeleteOnStaleGet: n = this.noDeleteOnStaleGet, status: o } = t, r = this.#s.get(e);
+    if (r === void 0) {
+      o && (o.get = "miss");
+      return;
+    }
+    let h = this.#t[r], l = this.#e(h);
+    return o && this.#E(o, r), this.#p(r) ? l ? (o && (o.get = "stale-fetching"), i && h.__staleWhileFetching !== void 0 ? (o && (o.returnedStale = true), h.__staleWhileFetching) : void 0) : (n || this.#v(e, "expire"), o && (o.get = "stale"), i ? (o && (o.returnedStale = true), h) : void 0) : (o && (o.get = l ? "fetching" : "hit"), this.#L(r), s && this.#D(r), l ? h.__staleWhileFetching : h);
+  }
+  #$(e, t) {
+    this.#c[t] = e, this.#a[e] = t;
+  }
+  #L(e) {
+    e !== this.#h && (e === this.#l ? this.#l = this.#a[e] : this.#$(this.#c[e], this.#a[e]), this.#$(this.#h, e), this.#h = e);
+  }
+  delete(e) {
+    return this.#v(e, "delete");
+  }
+  #v(e, t) {
+    S.hasSubscribers && S.publish({ op: "delete", delete: t, key: e });
+    let i = false;
+    if (this.#n !== 0) {
+      let s = this.#s.get(e);
+      if (s !== void 0) if (this.#g?.[s] && (clearTimeout(this.#g?.[s]), this.#g[s] = void 0), i = true, this.#n === 1) this.#q(t);
+      else {
+        this.#R(s);
+        let n = this.#t[s];
+        if (this.#e(n) ? n.__abortController.abort(new Error("deleted")) : (this.#T || this.#f) && (this.#T && this.#w?.(n, e, t), this.#f && this.#r?.push([n, e, t])), this.#s.delete(e), this.#i[s] = void 0, this.#t[s] = void 0, s === this.#h) this.#h = this.#c[s];
+        else if (s === this.#l) this.#l = this.#a[s];
+        else {
+          let o = this.#c[s];
+          this.#a[o] = this.#a[s];
+          let r = this.#a[s];
+          this.#c[r] = this.#c[s];
+        }
+        this.#n--, this.#y.push(s);
+      }
+    }
+    if (this.#f && this.#r?.length) {
+      let s = this.#r, n;
+      for (; n = s?.shift(); ) this.#S?.(...n);
+    }
+    return i;
+  }
+  clear() {
+    return this.#q("delete");
+  }
+  #q(e) {
+    for (let t of this.#z({ allowStale: true })) {
+      let i = this.#t[t];
+      if (this.#e(i)) i.__abortController.abort(new Error("deleted"));
+      else {
+        let s = this.#i[t];
+        this.#T && this.#w?.(i, s, e), this.#f && this.#r?.push([i, s, e]);
+      }
+    }
+    if (this.#s.clear(), this.#t.fill(void 0), this.#i.fill(void 0), this.#d && this.#F) {
+      this.#d.fill(0), this.#F.fill(0);
+      for (let t of this.#g ?? []) t !== void 0 && clearTimeout(t);
+      this.#g?.fill(void 0);
+    }
+    if (this.#_ && this.#_.fill(0), this.#l = 0, this.#h = 0, this.#y.length = 0, this.#b = 0, this.#n = 0, this.#f && this.#r) {
+      let t = this.#r, i;
+      for (; i = t?.shift(); ) this.#S?.(...i);
+    }
+  }
+};
+
+// src/lib/api-cache.ts
+var FIVE_MINUTES = 5 * 60 * 1e3;
+var cache = new M({
+  max: 200,
+  ttl: FIVE_MINUTES
+});
+function getCached(key) {
+  return cache.get(key);
+}
+function setCached(key, value) {
+  cache.set(key, value);
+}
+function clearApiCache() {
+  cache.clear();
+}
 
 // src/lib/scanner.ts
 var AUDIO_EXTENSIONS = /* @__PURE__ */ new Set([
@@ -69814,26 +75074,30 @@ var scanState = {
 function getScanStatus() {
   return { ...scanState };
 }
+var BATCH_SIZE = 8;
 async function collectAudioFiles(dirPath, isRoot = false) {
   let directoryErrors = 0;
   const files = [];
   try {
     const entries = await readdir(dirPath, { withFileTypes: true });
-    await Promise.all(
-      entries.map(async (entry) => {
-        const fullPath = path.join(dirPath, entry.name);
-        if (entry.isDirectory()) {
-          const sub = await collectAudioFiles(fullPath, false);
-          files.push(...sub.files);
-          directoryErrors += sub.directoryErrors;
-        } else if (entry.isFile()) {
-          const ext = path.extname(entry.name).toLowerCase();
-          if (AUDIO_EXTENSIONS.has(ext)) {
-            files.push(fullPath);
+    for (let i = 0; i < entries.length; i += BATCH_SIZE) {
+      const batch = entries.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (entry) => {
+          const fullPath = path.join(dirPath, entry.name);
+          if (entry.isDirectory()) {
+            const sub = await collectAudioFiles(fullPath, false);
+            files.push(...sub.files);
+            directoryErrors += sub.directoryErrors;
+          } else if (entry.isFile()) {
+            const ext = path.extname(entry.name).toLowerCase();
+            if (AUDIO_EXTENSIONS.has(ext)) {
+              files.push(fullPath);
+            }
           }
-        }
-      })
-    );
+        })
+      );
+    }
   } catch (err) {
     if (isRoot) {
       throw err;
@@ -69868,10 +75132,23 @@ async function upsertAlbum(title, artistId, year, genre) {
   const inserted = await db.insert(albumsTable).values({ title: trimmed, artistId, year, genre }).returning({ id: albumsTable.id });
   return inserted[0].id;
 }
+async function resizeArtwork(data) {
+  const buffer = await sharp(data).resize(500, 500, { fit: "inside", withoutEnlargement: true }).jpeg({ quality: 85 }).toBuffer();
+  return { buffer, mimeType: "image/jpeg" };
+}
 async function saveAlbumArt(albumId, artData, mimeType) {
-  await db.insert(albumArtTable).values({ albumId, data: artData, mimeType }).onConflictDoUpdate({
+  let finalData = artData;
+  let finalMime = mimeType;
+  try {
+    const resized = await resizeArtwork(artData);
+    finalData = resized.buffer;
+    finalMime = resized.mimeType;
+  } catch (err) {
+    logger.warn({ err, albumId }, "Failed to resize album art, storing original");
+  }
+  await db.insert(albumArtTable).values({ albumId, data: finalData, mimeType: finalMime }).onConflictDoUpdate({
     target: albumArtTable.albumId,
-    set: { data: artData, mimeType }
+    set: { data: finalData, mimeType: finalMime }
   });
   await db.update(albumsTable).set({ hasArt: true }).where(eq(albumsTable.id, albumId));
 }
@@ -70006,6 +75283,7 @@ async function scanLibrary(libraryId) {
       }
     }
     await db.update(librariesTable).set({ lastScannedAt: /* @__PURE__ */ new Date() }).where(eq(librariesTable.id, libraryId));
+    clearApiCache();
     logger.info(
       {
         libraryId,
@@ -70106,6 +75384,12 @@ router3.get("/artists", async (req, res) => {
   const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize) || 50));
   const search = req.query.search;
   const offset = (page - 1) * pageSize;
+  const cacheKey = `artists:${page}:${pageSize}:${search ?? ""}`;
+  const cached2 = getCached(cacheKey);
+  if (cached2) {
+    res.json(cached2);
+    return;
+  }
   const whereClause = search ? ilike(artistsTable.name, `%${search}%`) : void 0;
   const [totalResult, artists] = await Promise.all([
     db.select({ count: count() }).from(artistsTable).where(whereClause),
@@ -70122,12 +75406,14 @@ router3.get("/artists", async (req, res) => {
         )`
     }).from(artistsTable).leftJoin(albumsTable, eq(albumsTable.artistId, artistsTable.id)).leftJoin(tracksTable, eq(tracksTable.artistId, artistsTable.id)).where(whereClause).groupBy(artistsTable.id, artistsTable.name).orderBy(sql`lower(${artistsTable.name})`).limit(pageSize).offset(offset)
   ]);
-  res.json({
+  const result = {
     artists: artists.map((a) => ({ ...a, representativeAlbumId: a.representativeAlbumId ?? null })),
     total: Number(totalResult[0].count),
     page,
     pageSize
-  });
+  };
+  setCached(cacheKey, result);
+  res.json(result);
 });
 router3.get("/artists/:id", async (req, res) => {
   const id = Number(req.params.id);
@@ -70209,6 +75495,12 @@ router4.get("/albums", async (req, res) => {
   const search = req.query.search;
   const artistId = req.query.artistId ? Number(req.query.artistId) : void 0;
   const offset = (page - 1) * pageSize;
+  const cacheKey = `albums:${page}:${pageSize}:${search ?? ""}:${artistId ?? ""}`;
+  const cached2 = getCached(cacheKey);
+  if (cached2) {
+    res.json(cached2);
+    return;
+  }
   const conditions = [];
   if (search) conditions.push(ilike(albumsTable.title, `%${search}%`));
   if (artistId) conditions.push(eq(albumsTable.artistId, artistId));
@@ -70226,7 +75518,7 @@ router4.get("/albums", async (req, res) => {
       trackCount: sql`cast(count(${tracksTable.id}) as int)`
     }).from(albumsTable).leftJoin(artistsTable, eq(artistsTable.id, albumsTable.artistId)).leftJoin(tracksTable, eq(tracksTable.albumId, albumsTable.id)).where(whereClause).groupBy(albumsTable.id, artistsTable.name).orderBy(sql`lower(${albumsTable.title})`).limit(pageSize).offset(offset)
   ]);
-  res.json({
+  const result = {
     albums: albums.map((a) => ({
       id: a.id,
       title: a.title,
@@ -70240,7 +75532,9 @@ router4.get("/albums", async (req, res) => {
     total: Number(totalResult[0].count),
     page,
     pageSize
-  });
+  };
+  setCached(cacheKey, result);
+  res.json(result);
 });
 router4.get("/albums/:id", async (req, res) => {
   const id = Number(req.params.id);
@@ -70374,7 +75668,55 @@ var albums_default = router4;
 var import_express5 = __toESM(require_express2(), 1);
 import { createReadStream } from "node:fs";
 import { stat as stat2 } from "node:fs/promises";
+var import_fluent_ffmpeg = __toESM(require_fluent_ffmpeg2(), 1);
+
+// src/lib/semaphore.ts
+var Semaphore = class {
+  constructor(limit) {
+    this.limit = limit;
+  }
+  queue = [];
+  running = 0;
+  acquire() {
+    return new Promise((resolve) => {
+      if (this.running < this.limit) {
+        this.running++;
+        resolve();
+      } else {
+        this.queue.push(() => {
+          this.running++;
+          resolve();
+        });
+      }
+    });
+  }
+  release() {
+    this.running--;
+    const next = this.queue.shift();
+    if (next) next();
+  }
+  async run(fn) {
+    await this.acquire();
+    try {
+      return await fn();
+    } finally {
+      this.release();
+    }
+  }
+};
+var transcodeSemaphore = new Semaphore(1);
+
+// src/routes/music/tracks.ts
 var router5 = (0, import_express5.Router)();
+var BROWSER_SAFE_MIME = /* @__PURE__ */ new Set([
+  "audio/mpeg",
+  "audio/flac",
+  "audio/ogg",
+  "audio/mp4",
+  "audio/aac",
+  "audio/wav",
+  "audio/opus"
+]);
 router5.get("/tracks", async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const pageSize = Math.min(500, Math.max(1, Number(req.query.pageSize) || 100));
@@ -70382,6 +75724,12 @@ router5.get("/tracks", async (req, res) => {
   const albumId = req.query.albumId ? Number(req.query.albumId) : void 0;
   const artistId = req.query.artistId ? Number(req.query.artistId) : void 0;
   const offset = (page - 1) * pageSize;
+  const cacheKey = `tracks:${page}:${pageSize}:${search ?? ""}:${albumId ?? ""}:${artistId ?? ""}`;
+  const cached2 = getCached(cacheKey);
+  if (cached2) {
+    res.json(cached2);
+    return;
+  }
   const conditions = [];
   if (search) conditions.push(ilike(tracksTable.title, `%${search}%`));
   if (albumId) conditions.push(eq(tracksTable.albumId, albumId));
@@ -70407,7 +75755,7 @@ router5.get("/tracks", async (req, res) => {
       liked: tracksTable.liked
     }).from(tracksTable).leftJoin(artistsTable, eq(artistsTable.id, tracksTable.artistId)).leftJoin(albumsTable, eq(albumsTable.id, tracksTable.albumId)).where(whereClause).orderBy(sql`lower(${tracksTable.title})`).limit(pageSize).offset(offset)
   ]);
-  res.json({
+  const result = {
     tracks: tracks.map((t) => ({
       id: t.id,
       title: t.title,
@@ -70428,7 +75776,9 @@ router5.get("/tracks", async (req, res) => {
     total: Number(totalResult[0].count),
     page,
     pageSize
-  });
+  };
+  if (!search && !albumId && !artistId) setCached(cacheKey, result);
+  res.json(result);
 });
 router5.get("/tracks/:id", async (req, res) => {
   const id = Number(req.params.id);
@@ -70493,6 +75843,34 @@ router5.get("/stream/:id", async (req, res) => {
     fileStat = await stat2(filePath);
   } catch {
     res.status(404).json({ error: "File not found on disk" });
+    return;
+  }
+  const needsTranscode = req.query.transcode === "1" || req.query.maxBitrate !== void 0 || !BROWSER_SAFE_MIME.has(mimeType);
+  if (needsTranscode) {
+    const maxBitrate = req.query.maxBitrate ? Number(req.query.maxBitrate) : 192;
+    const bitrate = isNaN(maxBitrate) || maxBitrate <= 0 ? 192 : maxBitrate;
+    res.setHeader("Content-Type", "audio/ogg");
+    res.setHeader("Transfer-Encoding", "chunked");
+    try {
+      await transcodeSemaphore.run(() => new Promise((resolve, reject) => {
+        const proc = (0, import_fluent_ffmpeg.default)(filePath).audioCodec("libopus").audioBitrate(bitrate).format("ogg").on("error", (err) => {
+          logger.warn({ err, filePath }, "FFmpeg transcode error");
+          if (!res.headersSent) {
+            res.status(500).end();
+          } else {
+            res.destroy();
+          }
+          reject(err);
+        }).on("end", () => resolve());
+        const stream = proc.pipe(res, { end: true });
+        req.on("close", () => {
+          proc.kill("SIGKILL");
+          resolve();
+        });
+        void stream;
+      }));
+    } catch {
+    }
     return;
   }
   const fileSize = fileStat.size;
@@ -70986,6 +76364,12 @@ router9.delete("/liked/:trackId", async (req, res) => {
   res.json(formatTrack(track));
 });
 router9.get("/playlists", async (_req, res) => {
+  const cacheKey = "playlists:list";
+  const cached2 = getCached(cacheKey);
+  if (cached2) {
+    res.json(cached2);
+    return;
+  }
   const playlists = await db.select({
     id: playlistsTable.id,
     name: playlistsTable.name,
@@ -71003,7 +76387,7 @@ router9.get("/playlists", async (_req, res) => {
     createdAt: playlistsTable.createdAt,
     updatedAt: playlistsTable.updatedAt
   }).from(playlistsTable).leftJoin(playlistTracksTable, eq(playlistTracksTable.playlistId, playlistsTable.id)).leftJoin(tracksTable, eq(tracksTable.id, playlistTracksTable.trackId)).groupBy(playlistsTable.id).orderBy(asc(playlistsTable.name));
-  res.json({
+  const result = {
     playlists: playlists.map((p) => ({
       id: p.id,
       name: p.name,
@@ -71013,7 +76397,9 @@ router9.get("/playlists", async (_req, res) => {
       createdAt: p.createdAt,
       updatedAt: p.updatedAt
     }))
-  });
+  };
+  setCached(cacheKey, result);
+  res.json(result);
 });
 router9.post("/playlists", async (req, res) => {
   const { name, trackIds } = req.body;
@@ -71182,6 +76568,7 @@ var routes_default = router11;
 
 // src/app.ts
 var app = (0, import_express12.default)();
+app.use((0, import_compression.default)());
 app.use(
   (0, import_pino_http.default)({
     logger,
@@ -71226,6 +76613,15 @@ var port = Number(rawPort);
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
+execFile("ffmpeg", ["-version"], (err) => {
+  if (err) {
+    logger.warn(
+      "ffmpeg not found on PATH \u2014 WMA/APE transcoding will not work. Install it with: sudo apt install ffmpeg"
+    );
+  } else {
+    logger.info("ffmpeg is available");
+  }
+});
 app_default.listen(port, (err) => {
   if (err) {
     logger.error({ err }, "Error listening on port");
@@ -71445,6 +76841,7 @@ router/index.js:
    *)
 
 negotiator/index.js:
+negotiator/index.js:
   (*!
    * negotiator
    * Copyright(c) 2012 Federico Romero
@@ -71522,6 +76919,35 @@ object-assign/index.js:
   (c) Sindre Sorhus
   @license MIT
   *)
+
+safe-buffer/index.js:
+  (*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> *)
+
+compressible/index.js:
+  (*!
+   * compressible
+   * Copyright(c) 2013 Jonathan Ong
+   * Copyright(c) 2014 Jeremiah Senkpiel
+   * Copyright(c) 2015 Douglas Christopher Wilson
+   * MIT Licensed
+   *)
+
+on-headers/index.js:
+  (*!
+   * on-headers
+   * Copyright(c) 2014 Douglas Christopher Wilson
+   * MIT Licensed
+   *)
+
+compression/index.js:
+  (*!
+   * compression
+   * Copyright(c) 2010 Sencha Inc.
+   * Copyright(c) 2011 TJ Holowaychuk
+   * Copyright(c) 2014 Jonathan Ong
+   * Copyright(c) 2014-2015 Douglas Christopher Wilson
+   * MIT Licensed
+   *)
 
 ieee754/index.js:
   (*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> *)

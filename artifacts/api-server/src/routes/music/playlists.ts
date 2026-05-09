@@ -8,6 +8,7 @@ import {
   albumsTable,
 } from "@workspace/db/schema";
 import { eq, asc, desc, sql } from "drizzle-orm";
+import { getCached, setCached, clearApiCache } from "../../lib/api-cache";
 
 const router: IRouter = Router();
 
@@ -154,6 +155,7 @@ router.post("/liked/:trackId", async (req, res) => {
 
   if (updated.length === 0) { res.status(404).json({ error: "Track not found" }); return; }
 
+  clearApiCache();
   const track = await fetchFullTrack(trackId);
   res.json(formatTrack(track!));
 });
@@ -170,6 +172,7 @@ router.delete("/liked/:trackId", async (req, res) => {
 
   if (updated.length === 0) { res.status(404).json({ error: "Track not found" }); return; }
 
+  clearApiCache();
   const track = await fetchFullTrack(trackId);
   res.json(formatTrack(track!));
 });
@@ -177,6 +180,10 @@ router.delete("/liked/:trackId", async (req, res) => {
 // ── Playlists ──────────────────────────────────────────────────────────────
 
 router.get("/playlists", async (_req, res) => {
+  const cacheKey = "playlists:list";
+  const cached = getCached<object>(cacheKey);
+  if (cached) { res.json(cached); return; }
+
   const playlists = await db
     .select({
       id: playlistsTable.id,
@@ -201,7 +208,7 @@ router.get("/playlists", async (_req, res) => {
     .groupBy(playlistsTable.id)
     .orderBy(asc(playlistsTable.name));
 
-  res.json({
+  const result = {
     playlists: playlists.map((p) => ({
       id: p.id,
       name: p.name,
@@ -211,7 +218,10 @@ router.get("/playlists", async (_req, res) => {
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     })),
-  });
+  };
+
+  setCached(cacheKey, result);
+  res.json(result);
 });
 
 router.post("/playlists", async (req, res) => {
@@ -237,6 +247,7 @@ router.post("/playlists", async (req, res) => {
     );
   }
 
+  clearApiCache();
   const detail = await getPlaylistDetail(pl.id);
   res.status(201).json(detail);
 });
@@ -268,6 +279,7 @@ router.patch("/playlists/:id", async (req, res) => {
 
   if (updated.length === 0) { res.status(404).json({ error: "Playlist not found" }); return; }
 
+  clearApiCache();
   const detail = await getPlaylistDetail(id);
   res.json(detail);
 });
@@ -282,6 +294,7 @@ router.delete("/playlists/:id", async (req, res) => {
     .returning({ id: playlistsTable.id });
 
   if (deleted.length === 0) { res.status(404).json({ error: "Playlist not found" }); return; }
+  clearApiCache();
   res.status(204).end();
 });
 
@@ -334,6 +347,7 @@ router.post("/playlists/:id/tracks", async (req, res) => {
     .set({ updatedAt: new Date() })
     .where(eq(playlistsTable.id, id));
 
+  clearApiCache();
   const detail = await getPlaylistDetail(id);
   res.json(detail);
 });
@@ -377,6 +391,7 @@ router.delete("/playlists/:id/tracks/:trackId", async (req, res) => {
     .set({ updatedAt: new Date() })
     .where(eq(playlistsTable.id, id));
 
+  clearApiCache();
   res.status(204).end();
 });
 
@@ -413,6 +428,7 @@ router.put("/playlists/:id/tracks/reorder", async (req, res) => {
     .set({ updatedAt: new Date() })
     .where(eq(playlistsTable.id, id));
 
+  clearApiCache();
   const detail = await getPlaylistDetail(id);
   res.json(detail);
 });

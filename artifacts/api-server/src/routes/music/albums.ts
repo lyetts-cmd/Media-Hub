@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { albumsTable, artistsTable, tracksTable, albumArtTable } from "@workspace/db/schema";
 import { eq, sql, ilike, count, and } from "drizzle-orm";
+import { getCached, setCached } from "../../lib/api-cache";
 
 const router: IRouter = Router();
 
@@ -11,6 +12,10 @@ router.get("/albums", async (req, res) => {
   const search = req.query.search as string | undefined;
   const artistId = req.query.artistId ? Number(req.query.artistId) : undefined;
   const offset = (page - 1) * pageSize;
+
+  const cacheKey = `albums:${page}:${pageSize}:${search ?? ""}:${artistId ?? ""}`;
+  const cached = getCached<object>(cacheKey);
+  if (cached) { res.json(cached); return; }
 
   const conditions = [];
   if (search) conditions.push(ilike(albumsTable.title, `%${search}%`));
@@ -40,7 +45,7 @@ router.get("/albums", async (req, res) => {
       .offset(offset),
   ]);
 
-  res.json({
+  const result = {
     albums: albums.map((a) => ({
       id: a.id,
       title: a.title,
@@ -54,7 +59,10 @@ router.get("/albums", async (req, res) => {
     total: Number(totalResult[0].count),
     page,
     pageSize,
-  });
+  };
+
+  setCached(cacheKey, result);
+  res.json(result);
 });
 
 router.get("/albums/:id", async (req, res) => {

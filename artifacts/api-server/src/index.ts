@@ -1,3 +1,4 @@
+import { execFile } from "node:child_process";
 import app from "./app";
 import { logger } from "./lib/logger";
 
@@ -14,6 +15,17 @@ const port = Number(rawPort);
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
+
+execFile("ffmpeg", ["-version"], (err) => {
+  if (err) {
+    logger.warn(
+      "ffmpeg not found on PATH — WMA/APE transcoding will not work. " +
+      "Install it with: sudo apt install ffmpeg",
+    );
+  } else {
+    logger.info("ffmpeg is available");
+  }
+});
 
 app.listen(port, (err) => {
   if (err) {

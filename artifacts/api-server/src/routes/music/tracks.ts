@@ -4,8 +4,23 @@ import { stat } from "node:fs/promises";
 import { db } from "@workspace/db";
 import { tracksTable, artistsTable, albumsTable } from "@workspace/db/schema";
 import { eq, ilike, sql, count, and } from "drizzle-orm";
+import ffmpeg from "fluent-ffmpeg";
+import { Writable } from "node:stream";
+import { logger } from "../../lib/logger";
+import { transcodeSemaphore } from "../../lib/semaphore";
+import { getCached, setCached } from "../../lib/api-cache";
 
 const router: IRouter = Router();
+
+const BROWSER_SAFE_MIME = new Set([
+  "audio/mpeg",
+  "audio/flac",
+  "audio/ogg",
+  "audio/mp4",
+  "audio/aac",
+  "audio/wav",
+  "audio/opus",
+]);
 
 router.get("/tracks", async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
@@ -14,6 +29,10 @@ router.get("/tracks", async (req, res) => {
   const albumId = req.query.albumId ? Number(req.query.albumId) : undefined;
   const artistId = req.query.artistId ? Number(req.query.artistId) : undefined;
   const offset = (page - 1) * pageSize;
+
+  const cacheKey = `tracks:${page}:${pageSize}:${search ?? ""}:${albumId ?? ""}:${artistId ?? ""}`;
+  const cached = getCached<object>(cacheKey);
+  if (cached) { res.json(cached); return; }
 
   const conditions = [];
   if (search) conditions.push(ilike(tracksTable.title, `%${search}%`));
@@ -50,7 +69,7 @@ router.get("/tracks", async (req, res) => {
       .offset(offset),
   ]);
 
-  res.json({
+  const result = {
     tracks: tracks.map((t) => ({
       id: t.id,
       title: t.title,
@@ -71,7 +90,10 @@ router.get("/tracks", async (req, res) => {
     total: Number(totalResult[0].count),
     page,
     pageSize,
-  });
+  };
+
+  if (!search && !albumId && !artistId) setCached(cacheKey, result);
+  res.json(result);
 });
 
 router.get("/tracks/:id", async (req, res) => {
@@ -155,6 +177,47 @@ router.get("/stream/:id", async (req, res) => {
     fileStat = await stat(filePath);
   } catch {
     res.status(404).json({ error: "File not found on disk" });
+    return;
+  }
+
+  const needsTranscode = req.query.transcode === "1"
+    || req.query.maxBitrate !== undefined
+    || !BROWSER_SAFE_MIME.has(mimeType);
+
+  if (needsTranscode) {
+    const maxBitrate = req.query.maxBitrate ? Number(req.query.maxBitrate) : 192;
+    const bitrate = isNaN(maxBitrate) || maxBitrate <= 0 ? 192 : Math.min(maxBitrate, 320);
+
+    res.setHeader("Content-Type", "audio/ogg");
+    res.setHeader("Transfer-Encoding", "chunked");
+
+    try {
+      await transcodeSemaphore.run(() => new Promise<void>((resolve, reject) => {
+        const proc = ffmpeg(filePath)
+          .audioCodec("libopus")
+          .audioBitrate(bitrate)
+          .format("ogg")
+          .on("error", (err) => {
+            logger.warn({ err, filePath }, "FFmpeg transcode error");
+            if (!res.headersSent) {
+              res.status(500).end();
+            } else {
+              res.destroy();
+            }
+            reject(err);
+          })
+          .on("end", () => resolve());
+
+        const stream = proc.pipe(res as unknown as Writable, { end: true });
+        req.on("close", () => {
+          proc.kill("SIGKILL");
+          resolve();
+        });
+        void stream;
+      }));
+    } catch (err) {
+      logger.warn({ err, filePath }, "Transcode request failed");
+    }
     return;
   }
 

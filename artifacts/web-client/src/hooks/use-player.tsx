@@ -343,9 +343,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
 
     initAudioContext();
 
-    const url = (currentTrack as Track & { streamUrl?: string }).streamUrl
+    let streamUrl = (currentTrack as Track & { streamUrl?: string }).streamUrl
       ?? getStreamTrackUrl(currentTrack.id);
-    audio.src = url;
+
+    if (currentTrack.mimeType) {
+      const canPlay = audio.canPlayType(currentTrack.mimeType);
+      if (canPlay === "") {
+        const sep = streamUrl.includes("?") ? "&" : "?";
+        streamUrl = `${streamUrl}${sep}transcode=1`;
+      }
+    }
+
+    audio.src = streamUrl;
     audio.playbackRate = audioRef.current.playbackRate; // preserve speed
 
     // Restore crossfade gain
