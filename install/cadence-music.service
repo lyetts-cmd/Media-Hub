@@ -5,7 +5,10 @@ Wants=postgresql.service
 
 [Service]
 Type=simple
+# Run as a dedicated system user with no login shell.
+# Create with: sudo useradd --system --no-create-home --shell /usr/sbin/nologin cadence
 User=cadence
+# Default install path. Change if you cloned to a different location.
 WorkingDirectory=/opt/cadence-music
 EnvironmentFile=/opt/cadence-music/.env
 ExecStart=/usr/bin/node artifacts/api-server/dist/index.mjs

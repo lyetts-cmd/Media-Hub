@@ -1,12 +1,14 @@
-# Installing Cadence Music on a Raspberry Pi
+# Installing Cadence Music (bare-metal / systemd)
 
 > **Easier path available:** If you have Docker installed (or are happy to install it), the [Docker installation guide](INSTALL_DOCKER.md) gets Cadence Music running with a single command — no manual Node.js, PostgreSQL, or FFmpeg setup required. The steps below describe the traditional systemd/bare-metal path for users who prefer not to use Docker.
 
-Cadence Music is a single Node.js process that serves both the API and the web UI. The repository includes pre-built binaries, so **no compilation is needed on the Pi** — just clone, configure, and run.
+> **Not sure which path to take?** See the [Getting Started guide](GETTING_STARTED.md).
+
+Cadence Music is a single Node.js process that serves both the API and the web UI. The repository includes pre-built binaries, so **no compilation is needed** — just clone, configure, and run.
 
 ## Requirements
 
-- Raspberry Pi running Raspberry Pi OS (64-bit recommended) or any Debian-based Linux
+- A Linux system (Debian/Ubuntu, Fedora/RHEL, Arch, or any compatible distro)
 - Node.js 20 LTS or later
 - PostgreSQL 14 or later
 - FFmpeg (required for WMA/APE transcoding)
@@ -16,25 +18,93 @@ Cadence Music is a single Node.js process that serves both the API and the web U
 
 ## Step 1 — Install Node.js
 
+Install Node.js 20 LTS using your distro's package manager or the NodeSource setup script.
+
+**Debian / Ubuntu**
 ```bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
+```
+
+**Fedora / RHEL / Rocky / AlmaLinux**
+```bash
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+sudo dnf install -y nodejs
+```
+
+**Arch Linux**
+```bash
+sudo pacman -S nodejs npm
+```
+
+Verify the install:
+```bash
 node --version   # should print v20.x.x or later
 ```
+
+> **Raspberry Pi note:** The NodeSource script above works on Raspberry Pi OS (64-bit). For the 32-bit OS variant, use `setup_20.x` with the `armhf` NodeSource repository instead.
+
+---
 
 ## Step 2 — Install FFmpeg
 
 FFmpeg is required to transcode WMA and APE files for browser playback. All other formats (MP3, FLAC, OGG, AAC, WAV) play directly without transcoding.
 
+**Debian / Ubuntu**
 ```bash
 sudo apt-get install -y ffmpeg
-ffmpeg -version   # should print version info
 ```
+
+**Fedora / RHEL**
+```bash
+sudo dnf install -y ffmpeg
+```
+
+> **Fedora/RHEL note:** FFmpeg is not in the default repositories. Enable RPM Fusion before installing:
+>
+> *Fedora:*
+> ```bash
+> sudo dnf install -y https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+> ```
+>
+> *RHEL / Rocky / AlmaLinux (replace `9` with your major version):*
+> ```bash
+> sudo dnf install -y https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-9.noarch.rpm
+> ```
+
+**Arch Linux**
+```bash
+sudo pacman -S ffmpeg
+```
+
+Verify the install:
+```bash
+ffmpeg -version
+```
+
+---
 
 ## Step 3 — Install PostgreSQL
 
+**Debian / Ubuntu**
 ```bash
 sudo apt-get install -y postgresql postgresql-contrib
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+```
+
+**Fedora / RHEL**
+```bash
+sudo dnf install -y postgresql-server postgresql-contrib
+sudo postgresql-setup --initdb
+sudo systemctl enable postgresql
+sudo systemctl start postgresql
+```
+
+**Arch Linux**
+```bash
+sudo pacman -S postgresql
+sudo -u postgres initdb -D /var/lib/postgres/data
 sudo systemctl enable postgresql
 sudo systemctl start postgresql
 ```
@@ -61,11 +131,13 @@ git clone https://github.com/your-org/cadence-music.git /opt/cadence-music
 cd /opt/cadence-music
 ```
 
+---
+
 ## Step 5 — Configure environment
 
 ```bash
 cp install/config.example.env .env
-nano .env
+nano .env   # or use any text editor
 ```
 
 Edit the values:
@@ -84,6 +156,10 @@ PORT=4000
 NODE_ENV=production
 ```
 
+See `config.example.env` for the full list of settings, including transcoding performance tuning. Check the [Getting Started guide](GETTING_STARTED.md) for recommended values by hardware tier.
+
+---
+
 ## Step 6 — Set up the database
 
 This creates all the required tables. It is safe to run again after updates — it only adds what is missing.
@@ -93,7 +169,7 @@ source .env
 node artifacts/api-server/dist/migrate.mjs
 ```
 
-You should see output like:
+Expected output:
 
 ```
 Running Cadence Music database migrations...
@@ -109,13 +185,15 @@ Running Cadence Music database migrations...
 Migration complete. Your database is ready.
 ```
 
+---
+
 ## Step 7 — Test the server
 
 ```bash
 source .env && node artifacts/api-server/dist/index.mjs
 ```
 
-Open `http://<raspberry-pi-ip>:4000` in your browser. You should see Cadence Music. Press Ctrl+C to stop before setting up the service.
+Open `http://<server-ip>:4000` in your browser. You should see Cadence Music. Press Ctrl+C to stop before setting up the service.
 
 ---
 
@@ -154,7 +232,7 @@ Whenever you make code changes in Replit, run this **once on Replit** to build a
 pnpm run deploy
 ```
 
-Then on the Pi, update is just two commands:
+Then on the server, update is just two commands:
 
 ```bash
 cd /opt/cadence-music
@@ -175,7 +253,7 @@ sudo systemctl restart cadence-music
 
 ## Adding music
 
-Once Cadence Music is running, open the web UI and go to **Settings**. Add a library path pointing to your music directory (e.g. `/home/pi/Music`). Click **Scan** — the server will index all audio files it finds.
+Once Cadence Music is running, open the web UI and go to **Settings**. Add a library path pointing to your music directory (e.g. `/home/alice/Music`). Click **Scan** — the server will index all audio files it finds.
 
 Supported formats: MP3, FLAC, OGG, M4A, AAC, WAV, WMA, Opus, APE.
 
@@ -183,13 +261,13 @@ Supported formats: MP3, FLAC, OGG, M4A, AAC, WAV, WMA, Opus, APE.
 
 ## Accessing on your network
 
-By default the server listens on all interfaces. To access it from other devices on your local network, use your Pi's local IP address:
+By default the server listens on all interfaces. To access it from other devices on your local network, use your server's local IP address:
 
 ```
 http://192.168.1.xx:4000
 ```
 
-To find your Pi's IP: `hostname -I`
+To find your server's IP: `hostname -I`
 
 ---
 
@@ -197,7 +275,9 @@ To find your Pi's IP: `hostname -I`
 
 By default Cadence Music is only reachable on your local network. If you want to share it with guests — without requiring them to install a VPN — you can expose it over a public HTTPS URL using a Cloudflare Tunnel, then gate that URL with Cloudflare Access so only people you approve can get in.
 
-> **Personal access:** Your WireGuard VPN (if set up on a separate Pi) remains the recommended path for your own access. Cloudflare Access is intended as a guest-sharing layer only.
+> **This section is optional.** Skip it if you only need local network access.
+>
+> **Personal access:** A WireGuard VPN remains the recommended path for your own remote access. Cloudflare Access is intended as a guest-sharing layer only.
 >
 > **Future note:** Cloudflare Access is a temporary gate. Once Cadence has a built-in login system, access control will move inside the app and the Access layer can be removed while keeping the Tunnel for the public URL.
 
@@ -205,7 +285,7 @@ By default Cadence Music is only reachable on your local network. If you want to
 
 ### How it works
 
-`cloudflared` runs as a lightweight daemon on your Pi. It opens an outbound connection to Cloudflare's edge — no port forwarding or public IP exposure required. Cloudflare Access sits in front of the URL: a guest visits the link, enters their email address, receives a one-time code, and is let in. Nothing to install on the guest's side.
+`cloudflared` runs as a lightweight daemon on your Linux server. It opens an outbound connection to Cloudflare's edge — no port forwarding or public IP required. Cloudflare Access sits in front of the URL: a guest visits the link, enters their email address, receives a one-time code, and is let in. Nothing to install on the guest's side.
 
 Cloudflare Access is free for up to 50 users.
 
@@ -221,7 +301,9 @@ Cloudflare Access is free for up to 50 users.
 
 ### Step A — Run the setup script
 
-On your Pi, from the Cadence Music directory:
+The setup script installs `cloudflared` via the Cloudflare APT repository. **If you are on a non-Debian distro** (Fedora, Arch, etc.), you can download the `cloudflared` binary directly from the [Cloudflare downloads page](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/installation/) and skip the script's install step, then follow the manual steps in the [cloudflared documentation](https://developers.cloudflare.com/cloudflare-one/connections/connect-apps/install-and-setup/tunnel-guide/).
+
+On Debian/Ubuntu systems, from the Cadence Music directory:
 
 ```bash
 sudo bash install/cloudflare-setup.sh
@@ -309,7 +391,7 @@ No app to install, no VPN configuration required.
 
 ## Advanced: Building from Source
 
-If you want to build the application yourself (e.g. on a different architecture, or you prefer not to use pre-built binaries), you will need:
+If you want to build the application yourself (e.g. you have made local code changes, or you prefer not to use pre-built binaries), you will need:
 
 - Node.js 20 LTS or later
 - pnpm 9 or later (`sudo npm install -g pnpm`)
@@ -326,4 +408,4 @@ node artifacts/api-server/dist/index.mjs
 
 > **Note for ARM64 (Raspberry Pi):** If `pnpm run build:prod` fails with a Rollup native module error, run `pnpm install --force` first, then retry the build.
 
-The normal workflow is to build in Replit (x86_64) and use `pnpm run deploy` to commit and push the built files, so the Pi only ever needs `git pull`.
+The normal workflow is to build in Replit (x86_64) and use `pnpm run deploy` to commit and push the built files, so the server only ever needs `git pull`.

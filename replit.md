@@ -97,6 +97,12 @@ All routes are prefixed with `/api/music/`:
 4. Click **Add**, then **Scan**
 5. Browse your library via Albums, Artists, Genres, or Browse
 
+## Installation Guides
+
+- [Getting Started — choose Docker vs bare-metal](install/GETTING_STARTED.md)
+- [Docker install guide](install/INSTALL_DOCKER.md)
+- [Bare-metal / systemd install guide](install/INSTALL.md)
+
 ## Future Work
 
 - Video/movie support

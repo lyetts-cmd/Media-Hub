@@ -2,10 +2,15 @@
 # =============================================================================
 # Cadence Music — Cloudflare Tunnel Setup
 # =============================================================================
-# This script installs cloudflared on a Raspberry Pi (or any Debian-based
-# Linux), authenticates with your Cloudflare account, creates a named tunnel,
-# writes a config file pointing the tunnel at the local Cadence server, and
-# installs cloudflared as a systemd service so the tunnel starts automatically.
+# This script installs cloudflared on any Debian-based Linux system
+# (Debian, Ubuntu, Raspberry Pi OS, etc.), authenticates with your Cloudflare
+# account, creates a named tunnel, writes a config file pointing the tunnel at
+# the local Cadence server, and installs cloudflared as a systemd service so
+# the tunnel starts automatically.
+#
+# Non-Debian distros (Fedora, Arch, etc.): download the cloudflared binary
+# directly from https://developers.cloudflare.com/cloudflare-one/connections/
+# connect-apps/install-and-setup/installation/ and skip the APT install step.
 #
 # Prerequisites:
 #   - A free Cloudflare account (https://dash.cloudflare.com/sign-up)
@@ -15,7 +20,7 @@
 #
 # Usage:
 #   chmod +x install/cloudflare-setup.sh
-#   ./install/cloudflare-setup.sh
+#   sudo bash install/cloudflare-setup.sh
 # =============================================================================
 
 set -euo pipefail

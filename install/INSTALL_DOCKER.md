@@ -1,4 +1,6 @@
-# Installing Cadence Music with Docker (Raspberry Pi / Linux)
+# Installing Cadence Music with Docker
+
+> **Not sure which path to take?** See the [Getting Started guide](GETTING_STARTED.md).
 
 This is the recommended installation path. Instead of manually setting up Node.js, PostgreSQL, and FFmpeg, you run a single command and Docker handles everything.
 
@@ -13,16 +15,36 @@ There are two ways to get the application image:
 
 ## Prerequisites
 
-### Install Docker and Docker Compose on Raspberry Pi OS
+### Install Docker and Docker Compose
 
+**Debian / Ubuntu / Raspberry Pi OS**
 ```bash
-# Install Docker
 curl -fsSL https://get.docker.com | sh
 
 # Add your user to the docker group (so you don't need sudo every time)
 sudo usermod -aG docker $USER
 
 # Log out and back in for the group change to take effect, then verify:
+docker --version
+docker compose version
+```
+
+**Fedora / RHEL / Rocky / AlmaLinux**
+```bash
+sudo dnf install -y docker docker-compose-plugin
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+# Log out and back in, then verify:
+docker --version
+docker compose version
+```
+
+**Arch Linux**
+```bash
+sudo pacman -S docker docker-compose
+sudo systemctl enable --now docker
+sudo usermod -aG docker $USER
+# Log out and back in, then verify:
 docker --version
 docker compose version
 ```
@@ -74,19 +96,25 @@ The variables to set:
 | `PORT` | Host port the app is exposed on | `4000` |
 | `POSTGRES_PASSWORD` | Password for the database user | `changeme` |
 | `DATABASE_URL` | Full PostgreSQL connection string | See below |
-| `MUSIC_DIR` | **Absolute path** to your music library on the Pi | `./music` |
+| `MUSIC_DIR` | **Absolute path** to your music library on the host | `./music` |
 | `CADENCE_IMAGE` | Override the image tag pulled from GHCR (Option A only) | `ghcr.io/lyetts-cmd/media-hub:latest` |
 
-Example `.env` for a Pi with music in `/home/pi/Music`:
+Example `.env` with music in `/home/alice/Music`:
 
 ```
 PORT=4000
 POSTGRES_PASSWORD=a-strong-password-here
 DATABASE_URL=postgres://cadence:a-strong-password-here@db:5432/cadence_music
-MUSIC_DIR=/home/pi/Music
+MUSIC_DIR=/home/alice/Music
 ```
 
 > **Important:** Change `POSTGRES_PASSWORD` to something unique before first run, and update the password in `DATABASE_URL` to match. The hostname `db` in the URL refers to the database container — do not change it.
+
+For transcoding performance tuning (`TRANSCODE_WORKERS`, `FFMPEG_THREADS`, `FFMPEG_HWACCEL`), see the [Getting Started guide](GETTING_STARTED.md) for recommended values by hardware tier.
+
+### Enabling hardware-accelerated transcoding (x86 with Intel/AMD iGPU)
+
+If your Linux machine has an Intel or AMD integrated GPU, you can enable VAAPI hardware acceleration to reduce CPU load during transcoding. In `docker-compose.yml`, uncomment the `/dev/dri` device passthrough block (clearly marked inside the file), then add `FFMPEG_HWACCEL=vaapi` to your `.env`.
 
 ---
 
@@ -99,7 +127,9 @@ docker compose pull   # downloads the pre-built image (fast on any hardware)
 docker compose up -d
 ```
 
-The image is pre-built for both `linux/amd64` and `linux/arm64`, so Docker selects the correct variant automatically. On a Raspberry Pi this takes seconds — no compilation happens on your device.
+The image is pre-built for both `linux/amd64` and `linux/arm64`, so Docker selects the correct variant automatically.
+
+> **On Raspberry Pi:** The pre-built arm64 image runs fully natively — no compilation or emulation happens on your device.
 
 ### Option B — Build from source and start
 
@@ -109,7 +139,7 @@ docker compose up -d --build
 
 The first run takes several minutes while Docker downloads base images, compiles the frontend and API server, and installs dependencies. Subsequent starts are nearly instant.
 
-> **On Raspberry Pi:** Docker uses QEMU to run the compile step in an amd64 environment (required for reliable Vite/Rollup builds). This is automatic — no extra setup needed — but the first build may take 10–20 minutes on a Pi 4. Runtime performance is fully native.
+> **On Raspberry Pi:** Docker uses QEMU to run the compile step in an amd64 environment (required for reliable Vite/Rollup builds). This is automatic — no extra setup needed — but the first build may take 10–20 minutes on a Pi 4. Runtime performance is fully native. **For this reason, Option A (pre-built image) is strongly recommended on Pi.**
 
 Check that both containers are running:
 
@@ -149,13 +179,13 @@ Migration complete. Your database is ready.
 
 ## Step 5 — Open Cadence Music
 
-Open a browser and navigate to your Pi's local IP address:
+Open a browser and navigate to your server's local IP address:
 
 ```
-http://<raspberry-pi-ip>:4000
+http://<server-ip>:4000
 ```
 
-To find your Pi's IP: `hostname -I`
+To find your server's IP: `hostname -I`
 
 ---
 
@@ -193,7 +223,7 @@ The script pulls the latest code, rebuilds the image from source, restarts the s
 
 ## Accessing on your network
 
-The app listens on all interfaces by default. Access it from any device on your local network using your Pi's IP:
+The app listens on all interfaces by default. Access it from any device on your local network using your server's IP:
 
 ```
 http://192.168.1.xx:4000
@@ -293,7 +323,7 @@ docker compose down -v
 
 ## Auto-start on boot
 
-The containers are configured with `restart: unless-stopped`, so they start automatically when the Pi reboots, as long as the Docker daemon itself starts on boot (which it does by default after the install above).
+The containers are configured with `restart: unless-stopped`, so they start automatically when the system reboots, as long as the Docker daemon itself starts on boot (which it does by default after the installs above).
 
 To verify Docker starts on boot:
 
