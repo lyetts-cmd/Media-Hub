@@ -4,18 +4,37 @@ import {
   useAddLibrary, 
   useDeleteLibrary, 
   useScanLibrary, 
-  useGetScanStatus 
+  useGetScanStatus,
+  LibraryType,
 } from "@workspace/api-client-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FolderPlus, Trash2, RefreshCw, Server, AlertCircle } from "lucide-react";
+import { FolderPlus, Trash2, RefreshCw, Server, AlertCircle, Music2, Film } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const addLibrarySchema = z.object({
   name: z.string().min(1, "Name is required"),
   path: z.string().min(1, "Path is required").startsWith("/", "Must be an absolute path"),
+  type: z.enum(["music", "video"]),
 });
+
+type FormValues = z.infer<typeof addLibrarySchema>;
+
+function LibraryTypeBadge({ type }: { type: LibraryType }) {
+  if (type === LibraryType.video) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-violet-500/15 text-violet-400 border border-violet-500/20">
+        <Film className="w-3 h-3" /> Video
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/15 text-primary border border-primary/20">
+      <Music2 className="w-3 h-3" /> Music
+    </span>
+  );
+}
 
 export default function SettingsPage() {
   const { toast } = useToast();
@@ -26,21 +45,22 @@ export default function SettingsPage() {
   
   const { data: scanStatus, refetch: refetchScanStatus } = useGetScanStatus();
   
-  // Poll scan status every 2s
   useEffect(() => {
     const interval = setInterval(() => { refetchScanStatus(); }, 2000);
     return () => clearInterval(interval);
   }, [refetchScanStatus]);
 
-  const form = useForm<z.infer<typeof addLibrarySchema>>({
+  const form = useForm<FormValues>({
     resolver: zodResolver(addLibrarySchema),
-    defaultValues: { name: "", path: "" }
+    defaultValues: { name: "", path: "", type: "music" }
   });
 
-  const onSubmit = (values: z.infer<typeof addLibrarySchema>) => {
-    addLibrary({ data: values }, {
+  const selectedType = form.watch("type");
+
+  const onSubmit = (values: FormValues) => {
+    addLibrary({ data: { name: values.name, path: values.path, type: values.type } }, {
       onSuccess: () => {
-        form.reset();
+        form.reset({ name: "", path: "", type: "music" });
         refetchLibs();
         toast({ title: "Library added successfully" });
       },
@@ -89,42 +109,79 @@ export default function SettingsPage() {
             <Server className="w-5 h-5 text-primary" />
             Media Libraries
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">Configure folders where your music is stored.</p>
+          <p className="text-sm text-muted-foreground mt-1">Configure folders where your music and video is stored.</p>
         </div>
         
         <div className="p-6">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col md:flex-row gap-4 mb-8 items-start">
-            <div className="flex-1 w-full space-y-1">
-              <input 
-                {...form.register("name")}
-                placeholder="Name (e.g. Main Music)" 
-                className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-              />
-              {form.formState.errors.name && <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>}
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mb-8 space-y-4">
+            {/* Type selector */}
+            <div>
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
+                Library Type
+              </label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => form.setValue("type", "music")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                    selectedType === "music"
+                      ? "bg-primary/15 text-primary border-primary/30"
+                      : "bg-background text-muted-foreground border-border hover:border-primary/30 hover:text-foreground"
+                  }`}
+                >
+                  <Music2 className="w-4 h-4" /> Music
+                </button>
+                <button
+                  type="button"
+                  onClick={() => form.setValue("type", "video")}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                    selectedType === "video"
+                      ? "bg-violet-500/15 text-violet-400 border-violet-500/30"
+                      : "bg-background text-muted-foreground border-border hover:border-violet-500/30 hover:text-foreground"
+                  }`}
+                >
+                  <Film className="w-4 h-4" /> Video
+                </button>
+              </div>
             </div>
-            <div className="flex-[2] w-full space-y-1">
-              <input 
-                {...form.register("path")}
-                placeholder="Absolute Path (e.g. /home/user/Music)" 
-                className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-              />
-              {form.formState.errors.path && <p className="text-xs text-destructive">{form.formState.errors.path.message}</p>}
+
+            {/* Name + Path + Submit */}
+            <div className="flex flex-col md:flex-row gap-4 items-start">
+              <div className="flex-1 w-full space-y-1">
+                <input 
+                  {...form.register("name")}
+                  placeholder="Name (e.g. Main Music)" 
+                  className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                />
+                {form.formState.errors.name && <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>}
+              </div>
+              <div className="flex-[2] w-full space-y-1">
+                <input 
+                  {...form.register("path")}
+                  placeholder="Absolute Path (e.g. /home/user/Music)" 
+                  className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                />
+                {form.formState.errors.path && <p className="text-xs text-destructive">{form.formState.errors.path.message}</p>}
+              </div>
+              <button 
+                type="submit" 
+                disabled={isAdding}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg font-medium shadow-lg shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-50 w-full md:w-auto"
+              >
+                <FolderPlus className="w-4 h-4" />
+                Add
+              </button>
             </div>
-            <button 
-              type="submit" 
-              disabled={isAdding}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 rounded-lg font-medium shadow-lg shadow-primary/20 transition-all flex items-center gap-2 disabled:opacity-50 w-full md:w-auto"
-            >
-              <FolderPlus className="w-4 h-4" />
-              Add
-            </button>
           </form>
 
           <div className="space-y-3">
             {data?.libraries?.map((lib) => (
               <div key={lib.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl border border-border bg-background hover:border-primary/30 transition-colors gap-4">
                 <div>
-                  <h3 className="font-semibold text-foreground">{lib.name}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-foreground">{lib.name}</h3>
+                    <LibraryTypeBadge type={lib.type} />
+                  </div>
                   <code className="text-xs text-muted-foreground bg-secondary px-2 py-1 rounded mt-1 inline-block">{lib.path}</code>
                 </div>
                 <div className="flex items-center gap-2">
@@ -151,7 +208,7 @@ export default function SettingsPage() {
               <div className="text-center py-12 border-2 border-dashed border-border rounded-xl">
                 <AlertCircle className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
                 <p className="text-muted-foreground font-medium">No libraries configured</p>
-                <p className="text-sm text-muted-foreground/70 mt-1">Add a folder path above to start scanning your music.</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">Add a folder path above to start scanning your music or video.</p>
               </div>
             )}
           </div>

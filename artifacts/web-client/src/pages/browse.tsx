@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link } from "wouter";
-import { useBrowseFolder, FolderEntry } from "@workspace/api-client-react";
+import React, { useState, useEffect } from "react";
+import { Link, useRoute } from "wouter";
+import { useBrowseFolder, useListLibraries, FolderEntry } from "@workspace/api-client-react";
 import { Loader2, Folder, FileAudio, ChevronRight, Home, Play, ListMusic, Settings } from "lucide-react";
 import { usePlayer } from "@/hooks/use-player";
 import { Track } from "@workspace/api-client-react";
@@ -38,20 +38,27 @@ function hashCode(str: string): number {
 }
 
 export default function BrowsePage() {
-  const [currentPath, setCurrentPath] = useState("/");
-  const libraryRootRef = useRef<string | null>(null);
-  const { data, isLoading, isError } = useBrowseFolder({ path: currentPath });
-  const { playTrack } = usePlayer();
+  const [, libParams] = useRoute("/library/:id/browse");
+  const libraryId = libParams?.id ? Number(libParams.id) : undefined;
+  const { data: libData } = useListLibraries();
+  const library = libData?.libraries?.find((l) => l.id === libraryId);
+
+  const [currentPath, setCurrentPath] = useState<string | null>(null);
+  const browsePath = currentPath ?? "/";
 
   useEffect(() => {
-    if (currentPath === "/" && data?.path && data.path !== "/") {
-      libraryRootRef.current = data.path;
+    if (library?.path && currentPath === null) {
+      setCurrentPath(library.path);
     }
-  }, [currentPath, data?.path]);
+  }, [library?.path, currentPath]);
 
-  const handleFolderClick = (folderPath: string) => {
-    setCurrentPath(folderPath);
-  };
+  const { data, isLoading, isError } = useBrowseFolder({ path: browsePath });
+  const { playTrack } = usePlayer();
+
+  const libraryRoot = library?.path ?? null;
+  const heading = library ? `${library.name} — Files` : "Files";
+
+  const handleFolderClick = (folderPath: string) => setCurrentPath(folderPath);
 
   const handleFileClick = (entry: FolderEntry) => {
     const track = makeTrackFromEntry(entry);
@@ -68,31 +75,38 @@ export default function BrowsePage() {
   };
 
   const handleBack = () => {
-    const libraryRoot = libraryRootRef.current;
-    if (libraryRoot && currentPath === libraryRoot) {
-      setCurrentPath("/");
-      return;
-    }
+    if (!currentPath) return;
+    const rootAnchor = libraryRoot ?? "/";
+    if (currentPath === rootAnchor) return;
     const parts = currentPath.split("/").filter(Boolean);
     parts.pop();
     const parent = "/" + parts.join("/");
-    if (libraryRoot && !isPathWithinLibrary(parent, libraryRoot)) {
-      setCurrentPath("/");
+    const normalizedRoot = rootAnchor.replace(/\/$/, "");
+    if (!parent.startsWith(normalizedRoot)) {
+      setCurrentPath(rootAnchor);
     } else {
-      setCurrentPath(parent || "/");
+      setCurrentPath(parent || rootAnchor);
     }
   };
 
-  const breadcrumbs = buildBreadcrumbs(currentPath, libraryRootRef.current);
+  const breadcrumbs = buildBreadcrumbs(browsePath, libraryRoot);
   const files = (data?.entries ?? []).filter(e => e.type === "file");
   const dirs = (data?.entries ?? []).filter(e => e.type === "directory");
   const hasEntries = (data?.entries?.length ?? 0) > 0;
-  const noLibraries = !isLoading && !isError && currentPath === "/" && !hasEntries && data?.noLibraries === true;
+  const noLibraries = !isLoading && !isError && browsePath === "/" && !hasEntries && data?.noLibraries === true;
+
+  if (currentPath === null && !library && libraryId) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 md:p-8 max-w-5xl mx-auto min-h-full pb-20">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-display font-bold">Files</h1>
+        <h1 className="text-3xl font-display font-bold">{heading}</h1>
         {files.length >= 1 && (
           <button
             onClick={handlePlayAll}
@@ -104,10 +118,9 @@ export default function BrowsePage() {
         )}
       </div>
 
-      {/* Breadcrumb Navigation */}
       <div className="flex flex-wrap items-center gap-2 mb-6 bg-secondary/50 p-3 rounded-lg border border-border">
         <button
-          onClick={() => setCurrentPath("/")}
+          onClick={() => setCurrentPath(libraryRoot ?? "/")}
           className="flex items-center text-muted-foreground hover:text-primary transition-colors"
           title="Library root"
         >
@@ -136,10 +149,7 @@ export default function BrowsePage() {
             <Folder className="w-12 h-12 mx-auto mb-3 opacity-20" />
             <p className="font-medium">Could not load this folder</p>
             <p className="text-sm mt-1">The path may be outside your configured libraries.</p>
-            <button
-              onClick={() => setCurrentPath("/")}
-              className="mt-4 text-sm text-primary hover:underline"
-            >
+            <button onClick={() => setCurrentPath(libraryRoot ?? "/")} className="mt-4 text-sm text-primary hover:underline">
               Go back to root
             </button>
           </div>
@@ -157,7 +167,7 @@ export default function BrowsePage() {
           </div>
         ) : hasEntries ? (
           <div className="flex flex-col divide-y divide-border/50">
-            {currentPath !== "/" && (
+            {currentPath !== libraryRoot && (
               <div
                 onClick={handleBack}
                 className="flex items-center gap-3 p-4 hover:bg-secondary cursor-pointer transition-colors text-muted-foreground"
@@ -166,7 +176,6 @@ export default function BrowsePage() {
                 <span className="font-medium">..</span>
               </div>
             )}
-
             {dirs.map(dir => (
               <div
                 key={dir.path}
@@ -177,7 +186,6 @@ export default function BrowsePage() {
                 <span className="font-medium text-foreground">{dir.name}</span>
               </div>
             ))}
-
             {files.map(file => (
               <div
                 key={file.path}
@@ -204,28 +212,25 @@ export default function BrowsePage() {
   );
 }
 
-function isPathWithinLibrary(p: string, libraryRoot: string): boolean {
-  const norm = p.replace(/\/+$/, "");
-  const lib = libraryRoot.replace(/\/+$/, "");
-  return norm === lib || norm.startsWith(lib + "/");
-}
-
 function buildBreadcrumbs(
   currentPath: string,
   libraryRoot: string | null
 ): Array<{ label: string; path: string }> {
-  if (currentPath === "/") return [];
-
-  const base = libraryRoot ?? "";
-  const relative = base && currentPath.startsWith(base)
-    ? currentPath.slice(base.length)
-    : currentPath;
-
+  const base = libraryRoot?.replace(/\/$/, "") ?? "";
+  if (!base || !currentPath.startsWith(base)) {
+    if (!libraryRoot) {
+      const parts = currentPath.split("/").filter(Boolean);
+      return parts.map((part, idx) => ({
+        label: part,
+        path: "/" + parts.slice(0, idx + 1).join("/"),
+      }));
+    }
+    return [];
+  }
+  const relative = currentPath.slice(base.length);
   const parts = relative.split("/").filter(Boolean);
-  return parts.map((part, idx) => {
-    const fullPath = base
-      ? base + "/" + parts.slice(0, idx + 1).join("/")
-      : "/" + parts.slice(0, idx + 1).join("/");
-    return { label: part, path: fullPath };
-  });
+  return parts.map((part, idx) => ({
+    label: part,
+    path: base + "/" + parts.slice(0, idx + 1).join("/"),
+  }));
 }

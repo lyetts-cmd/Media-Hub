@@ -6,6 +6,7 @@ import {
   ListMusic, Shuffle, Repeat, Repeat1, ChevronUp,
 } from "lucide-react";
 import PlayerExpanded from "./player-expanded";
+import VideoPlayer from "./video-player";
 
 function formatTime(s: number) {
   if (!isFinite(s)) return "0:00";
@@ -15,7 +16,7 @@ function formatTime(s: number) {
 
 export default function Player() {
   const {
-    currentTrack, isPlaying, currentTime, duration, volume,
+    currentTrack, currentVideo, isPlaying, currentTime, duration, volume,
     shuffle, shuffleMode, repeat,
     togglePlayPause, prev, next, seek, setVolume,
     cycleShuffleMode, cycleRepeat,
@@ -28,6 +29,9 @@ export default function Player() {
 
   return (
     <>
+      {/* Video player overlay — rendered above everything when a video is active */}
+      {currentVideo && <VideoPlayer />}
+
       {/* Expanded player overlay */}
       <PlayerExpanded />
 

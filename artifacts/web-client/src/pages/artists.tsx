@@ -1,17 +1,24 @@
 import React, { useState } from "react";
-import { Link } from "wouter";
-import { useListArtists, getGetAlbumArtUrl } from "@workspace/api-client-react";
+import { Link, useRoute } from "wouter";
+import { useListArtists, useListLibraries, getGetAlbumArtUrl } from "@workspace/api-client-react";
 import { Loader2, Search, Mic2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function ArtistsPage() {
+  const [, libParams] = useRoute("/library/:id/artists");
+  const libraryId = libParams?.id ? Number(libParams.id) : undefined;
+
   const [search, setSearch] = useState("");
-  const { data, isLoading } = useListArtists({ search, pageSize: 50 });
+  const { data, isLoading } = useListArtists({ search, pageSize: 50, libraryId });
+  const { data: libData } = useListLibraries();
+
+  const library = libData?.libraries?.find((l) => l.id === libraryId);
+  const heading = library ? `${library.name} — Artists` : "Artists";
 
   return (
     <div className="p-6 md:p-8 max-w-[1600px] mx-auto min-h-full pb-20">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h1 className="text-3xl font-display font-bold">Artists</h1>
+        <h1 className="text-3xl font-display font-bold">{heading}</h1>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input 
@@ -69,7 +76,7 @@ export default function ArtistsPage() {
         </div>
       ) : (
         <div className="text-center py-20 text-muted-foreground">
-          <p>No artists found.</p>
+          <p>No artists found{libraryId ? " in this library" : ""}.</p>
         </div>
       )}
     </div>

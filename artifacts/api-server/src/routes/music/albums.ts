@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { albumsTable, artistsTable, tracksTable, albumArtTable } from "@workspace/db/schema";
-import { eq, sql, ilike, count, and } from "drizzle-orm";
+import { eq, sql, ilike, count, and, inArray } from "drizzle-orm";
 import { getCached, setCached } from "../../lib/api-cache";
 
 const router: IRouter = Router();
@@ -11,15 +11,30 @@ router.get("/albums", async (req, res) => {
   const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize) || 50));
   const search = req.query.search as string | undefined;
   const artistId = req.query.artistId ? Number(req.query.artistId) : undefined;
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : undefined;
   const offset = (page - 1) * pageSize;
 
-  const cacheKey = `albums:${page}:${pageSize}:${search ?? ""}:${artistId ?? ""}`;
+  const cacheKey = `albums:${page}:${pageSize}:${search ?? ""}:${artistId ?? ""}:${libraryId ?? ""}`;
   const cached = getCached<object>(cacheKey);
   if (cached) { res.json(cached); return; }
+
+  let albumIdFilter: number[] | undefined;
+  if (libraryId) {
+    const rows = await db
+      .selectDistinct({ albumId: tracksTable.albumId })
+      .from(tracksTable)
+      .where(and(eq(tracksTable.libraryId, libraryId)));
+    albumIdFilter = rows.map((r) => r.albumId).filter((id): id is number => id != null);
+    if (albumIdFilter.length === 0) {
+      res.json({ albums: [], total: 0, page, pageSize });
+      return;
+    }
+  }
 
   const conditions = [];
   if (search) conditions.push(ilike(albumsTable.title, `%${search}%`));
   if (artistId) conditions.push(eq(albumsTable.artistId, artistId));
+  if (albumIdFilter) conditions.push(inArray(albumsTable.id, albumIdFilter));
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
   const [totalResult, albums] = await Promise.all([

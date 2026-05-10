@@ -1,23 +1,31 @@
 import { Router, type IRouter } from "express";
 import { db } from "@workspace/db";
 import { genresTable, tracksTable, artistsTable, albumsTable } from "@workspace/db/schema";
-import { eq, sql, count } from "drizzle-orm";
+import { eq, sql, count, and } from "drizzle-orm";
 
 const router: IRouter = Router();
 
-router.get("/genres", async (_req, res) => {
+router.get("/genres", async (req, res) => {
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : undefined;
+
+  const whereClause = libraryId ? eq(tracksTable.libraryId, libraryId) : undefined;
+
   const genres = await db
     .select({
       name: genresTable.name,
       trackCount: sql<number>`cast(count(${tracksTable.id}) as int)`,
     })
     .from(genresTable)
-    .leftJoin(tracksTable, eq(tracksTable.genreId, genresTable.id))
+    .leftJoin(tracksTable, libraryId
+      ? and(eq(tracksTable.genreId, genresTable.id), eq(tracksTable.libraryId, libraryId))
+      : eq(tracksTable.genreId, genresTable.id))
     .groupBy(genresTable.id, genresTable.name)
     .orderBy(genresTable.name);
 
   res.json({
-    genres: genres.map((g) => ({ name: g.name, trackCount: g.trackCount })),
+    genres: genres
+      .filter((g) => !libraryId || g.trackCount > 0)
+      .map((g) => ({ name: g.name, trackCount: g.trackCount })),
   });
 });
 

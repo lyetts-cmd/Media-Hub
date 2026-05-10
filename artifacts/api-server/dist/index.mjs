@@ -75804,14 +75804,27 @@ router3.get("/artists", async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
   const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize) || 50));
   const search = req.query.search;
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : void 0;
   const offset = (page - 1) * pageSize;
-  const cacheKey = `artists:${page}:${pageSize}:${search ?? ""}`;
+  const cacheKey = `artists:${page}:${pageSize}:${search ?? ""}:${libraryId ?? ""}`;
   const cached2 = getCached(cacheKey);
   if (cached2) {
     res.json(cached2);
     return;
   }
-  const whereClause = search ? ilike(artistsTable.name, `%${search}%`) : void 0;
+  let artistIdFilter;
+  if (libraryId) {
+    const rows = await db.selectDistinct({ artistId: tracksTable.artistId }).from(tracksTable).where(eq(tracksTable.libraryId, libraryId));
+    artistIdFilter = rows.map((r) => r.artistId).filter((id) => id != null);
+    if (artistIdFilter.length === 0) {
+      res.json({ artists: [], total: 0, page, pageSize });
+      return;
+    }
+  }
+  const conditions = [];
+  if (search) conditions.push(ilike(artistsTable.name, `%${search}%`));
+  if (artistIdFilter) conditions.push(inArray(artistsTable.id, artistIdFilter));
+  const whereClause = conditions.length > 0 ? and(...conditions) : void 0;
   const [totalResult, artists] = await Promise.all([
     db.select({ count: count() }).from(artistsTable).where(whereClause),
     db.select({
@@ -75915,16 +75928,27 @@ router4.get("/albums", async (req, res) => {
   const pageSize = Math.min(200, Math.max(1, Number(req.query.pageSize) || 50));
   const search = req.query.search;
   const artistId = req.query.artistId ? Number(req.query.artistId) : void 0;
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : void 0;
   const offset = (page - 1) * pageSize;
-  const cacheKey = `albums:${page}:${pageSize}:${search ?? ""}:${artistId ?? ""}`;
+  const cacheKey = `albums:${page}:${pageSize}:${search ?? ""}:${artistId ?? ""}:${libraryId ?? ""}`;
   const cached2 = getCached(cacheKey);
   if (cached2) {
     res.json(cached2);
     return;
   }
+  let albumIdFilter;
+  if (libraryId) {
+    const rows = await db.selectDistinct({ albumId: tracksTable.albumId }).from(tracksTable).where(and(eq(tracksTable.libraryId, libraryId)));
+    albumIdFilter = rows.map((r) => r.albumId).filter((id) => id != null);
+    if (albumIdFilter.length === 0) {
+      res.json({ albums: [], total: 0, page, pageSize });
+      return;
+    }
+  }
   const conditions = [];
   if (search) conditions.push(ilike(albumsTable.title, `%${search}%`));
   if (artistId) conditions.push(eq(albumsTable.artistId, artistId));
+  if (albumIdFilter) conditions.push(inArray(albumsTable.id, albumIdFilter));
   const whereClause = conditions.length > 0 ? and(...conditions) : void 0;
   const [totalResult, albums] = await Promise.all([
     db.select({ count: count() }).from(albumsTable).where(whereClause),
@@ -76401,13 +76425,15 @@ var tracks_default = router5;
 // src/routes/music/genres.ts
 var import_express6 = __toESM(require_express2(), 1);
 var router6 = (0, import_express6.Router)();
-router6.get("/genres", async (_req, res) => {
+router6.get("/genres", async (req, res) => {
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : void 0;
+  const whereClause = libraryId ? eq(tracksTable.libraryId, libraryId) : void 0;
   const genres = await db.select({
     name: genresTable.name,
     trackCount: sql`cast(count(${tracksTable.id}) as int)`
-  }).from(genresTable).leftJoin(tracksTable, eq(tracksTable.genreId, genresTable.id)).groupBy(genresTable.id, genresTable.name).orderBy(genresTable.name);
+  }).from(genresTable).leftJoin(tracksTable, libraryId ? and(eq(tracksTable.genreId, genresTable.id), eq(tracksTable.libraryId, libraryId)) : eq(tracksTable.genreId, genresTable.id)).groupBy(genresTable.id, genresTable.name).orderBy(genresTable.name);
   res.json({
-    genres: genres.map((g) => ({ name: g.name, trackCount: g.trackCount }))
+    genres: genres.filter((g) => !libraryId || g.trackCount > 0).map((g) => ({ name: g.name, trackCount: g.trackCount }))
   });
 });
 router6.get("/genres/:name/tracks", async (req, res) => {
@@ -77487,11 +77513,13 @@ var subtitles_default = router13;
 // src/routes/video/genres.ts
 var import_express14 = __toESM(require_express2(), 1);
 var router14 = (0, import_express14.Router)();
-router14.get("/genres", async (_req, res) => {
+router14.get("/genres", async (req, res) => {
+  const libraryId = req.query.libraryId ? Number(req.query.libraryId) : void 0;
+  const whereClause = libraryId ? and(isNotNull(videosTable.genre), eq(videosTable.libraryId, libraryId)) : isNotNull(videosTable.genre);
   const rows = await db.select({
     genre: videosTable.genre,
     count: sql`cast(count(*) as int)`
-  }).from(videosTable).where(isNotNull(videosTable.genre)).groupBy(videosTable.genre).orderBy(sql`lower(${videosTable.genre})`);
+  }).from(videosTable).where(whereClause).groupBy(videosTable.genre).orderBy(sql`lower(${videosTable.genre})`);
   res.json({
     genres: rows.map((r) => ({
       name: r.genre,

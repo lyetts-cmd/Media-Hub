@@ -1,7 +1,7 @@
 import React, {
   createContext, useContext, useState, useEffect, useRef, useCallback,
 } from "react";
-import { Track, getStreamTrackUrl } from "@workspace/api-client-react";
+import { Track, getStreamTrackUrl, Video, VideoDetail } from "@workspace/api-client-react";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -75,7 +75,13 @@ interface PlayerContextType {
   eqBands: number[];
   analyserNode: AnalyserNode | null;
   isExpanded: boolean;
+  /** Currently active video item (if a video is playing) */
+  currentVideo: VideoDetail | Video | null;
   playTrack: (track: Track, newQueue?: Track[]) => void;
+  /** Play a video item (pauses audio player) */
+  playVideo: (video: Video | VideoDetail) => void;
+  /** Dismiss video player and return to previous browse state */
+  dismissVideo: () => void;
   pause: () => void;
   resume: () => void;
   next: () => void;
@@ -121,6 +127,7 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   const [eqBands, setEqBandsSt]          = useState<number[]>(persisted.eqBands ?? [0,0,0,0,0]);
   const [analyserNode, setAnalyserNode]   = useState<AnalyserNode | null>(null);
   const [isExpanded, setIsExpanded]       = useState(false);
+  const [currentVideo, setCurrentVideo]   = useState<VideoDetail | Video | null>(null);
 
   // ── playbackToken: incremented to force re-load when same index holds new track
   const [playbackToken, setPlaybackToken] = useState(0);
@@ -545,7 +552,18 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { nextFnRef.current = next; }, [next]);
   useEffect(() => { prevFnRef.current = prev; }, [prev]);
 
+  const playVideo = useCallback((video: Video | VideoDetail) => {
+    // Pause audio playback when video starts
+    if (audioRef.current) audioRef.current.pause();
+    setCurrentVideo(video);
+  }, []);
+
+  const dismissVideo = useCallback(() => {
+    setCurrentVideo(null);
+  }, []);
+
   const playTrack = useCallback((track: Track, newQueue?: Track[]) => {
+    setCurrentVideo(null);
     if (newQueue) {
       setQueue(newQueue);
       const idx = newQueue.findIndex(t => t.id === track.id);
@@ -702,8 +720,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
     <PlayerContext.Provider value={{
       queue, currentTrack, currentIndex, isPlaying, currentTime, duration, volume,
       shuffleMode, shuffle, repeat, speed, sleepTimerEnd, crossfadeEnabled, crossfadeDuration,
-      eqBands, analyserNode, isExpanded,
-      playTrack, pause, resume, next, prev, seek, setVolume, togglePlayPause,
+      eqBands, analyserNode, isExpanded, currentVideo,
+      playTrack, playVideo, dismissVideo,
+      pause, resume, next, prev, seek, setVolume, togglePlayPause,
       cycleShuffleMode, toggleShuffle, cycleRepeat, setSpeed, setSleepTimer, setCrossfade,
       setEqBand, applyEqPreset, reorderQueue, removeFromQueue, setIsExpanded,
     }}>

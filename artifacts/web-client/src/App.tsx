@@ -17,6 +17,11 @@ import BrowsePage from "@/pages/browse";
 import SettingsPage from "@/pages/settings";
 import LikedPage from "@/pages/liked";
 import PlaylistPage from "@/pages/playlist";
+import LibraryPage from "@/pages/library";
+import LibrariesPage from "@/pages/libraries";
+import VideoListPage from "@/pages/video-list";
+import VideoFolderPage from "@/pages/video-folder";
+import VideoGenresPage from "@/pages/video-genres";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +36,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={() => <Redirect to="/albums" />} />
+
+      {/* Standard music routes */}
       <Route path="/albums" component={AlbumsPage} />
       <Route path="/albums/:id" component={AlbumDetail} />
       <Route path="/artists" component={ArtistsPage} />
@@ -41,6 +48,27 @@ function Router() {
       <Route path="/settings" component={SettingsPage} />
       <Route path="/liked" component={LikedPage} />
       <Route path="/playlists/:id" component={PlaylistPage} />
+
+      {/* Library list page — primary mobile entry point for libraries */}
+      <Route path="/libraries" component={LibrariesPage} />
+
+      {/* Library landing page */}
+      <Route path="/library/:id" component={LibraryPage} />
+
+      {/* Library-scoped music routes — each page self-detects library via useRoute */}
+      <Route path="/library/:id/albums" component={AlbumsPage} />
+      <Route path="/library/:id/artists" component={ArtistsPage} />
+      <Route path="/library/:id/genres" component={GenresPage} />
+      <Route path="/library/:id/browse" component={BrowsePage} />
+
+      {/* Library-scoped video routes */}
+      <Route path="/library/:id/videos" component={VideoListPage} />
+      <Route path="/library/:id/video-genres" component={VideoGenresPage} />
+      <Route path="/library/:id/video-folder" component={VideoFolderPage} />
+
+      {/* Global video genre browse */}
+      <Route path="/video-genres/:genre" component={VideoListPage} />
+
       <Route component={NotFound} />
     </Switch>
   );

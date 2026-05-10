@@ -307,6 +307,7 @@ export type ListArtistsParams = {
   page?: number;
   pageSize?: number;
   search?: string;
+  libraryId?: number;
 };
 
 export type GetArtistAlbums200 = {
@@ -318,6 +319,7 @@ export type ListAlbumsParams = {
   pageSize?: number;
   search?: string;
   artistId?: number;
+  libraryId?: number;
 };
 
 export type GetAlbumTracks200 = {
@@ -334,6 +336,10 @@ export type ListTracksParams = {
 
 export type ListGenres200 = {
   genres: Genre[];
+};
+
+export type ListGenresParams = {
+  libraryId?: number;
 };
 
 export type GetGenreTracksParams = {
@@ -370,6 +376,10 @@ export type ListVideosParams = {
 
 export type ListVideoGenres200 = {
   genres: VideoGenre[];
+};
+
+export type ListVideoGenresParams = {
+  libraryId?: number;
 };
 
 export type BrowseVideoFolderParams = {

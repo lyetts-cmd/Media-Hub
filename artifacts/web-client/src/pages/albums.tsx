@@ -1,18 +1,25 @@
 import React, { useState } from "react";
-import { Link } from "wouter";
-import { useListAlbums } from "@workspace/api-client-react";
+import { Link, useRoute } from "wouter";
+import { useListAlbums, useListLibraries } from "@workspace/api-client-react";
 import { getGetAlbumArtUrl } from "@workspace/api-client-react";
 import { Loader2, Search } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function AlbumsPage() {
+  const [, libParams] = useRoute("/library/:id/albums");
+  const libraryId = libParams?.id ? Number(libParams.id) : undefined;
+
   const [search, setSearch] = useState("");
-  const { data, isLoading } = useListAlbums({ search, pageSize: 50 });
+  const { data, isLoading } = useListAlbums({ search, pageSize: 50, libraryId });
+  const { data: libData } = useListLibraries();
+
+  const library = libData?.libraries?.find((l) => l.id === libraryId);
+  const heading = library ? `${library.name} — Albums` : "Albums";
 
   return (
     <div className="p-6 md:p-8 max-w-[1600px] mx-auto min-h-full pb-20">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h1 className="text-3xl font-display font-bold">Albums</h1>
+        <h1 className="text-3xl font-display font-bold">{heading}</h1>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input 
@@ -49,7 +56,7 @@ export default function AlbumsPage() {
                   />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-xl shadow-primary/40 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <span className="w-4 h-4 bg-white clip-polygon-play ml-1" style={{ clipPath: 'polygon(0 0, 0 100%, 100% 50%)' }} />
+                      <span className="w-4 h-4 bg-white ml-1" style={{ clipPath: 'polygon(0 0, 0 100%, 100% 50%)' }} />
                     </div>
                   </div>
                 </div>
@@ -63,7 +70,7 @@ export default function AlbumsPage() {
         </div>
       ) : (
         <div className="text-center py-20 text-muted-foreground">
-          <p>No albums found.</p>
+          <p>No albums found{libraryId ? " in this library" : ""}.</p>
         </div>
       )}
     </div>

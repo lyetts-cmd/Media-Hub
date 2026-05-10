@@ -36,10 +36,12 @@ import type {
   ListAlbumsParams,
   ListArtistsParams,
   ListGenres200,
+  ListGenresParams,
   ListLibraries200,
   ListPlaylists200,
   ListTracksParams,
   ListVideoGenres200,
+  ListVideoGenresParams,
   ListVideosParams,
   PlaylistDetail,
   RenamePlaylistRequest,
@@ -1257,41 +1259,50 @@ export function useGetTrack<
 /**
  * @summary List all genres
  */
-export const getListGenresUrl = () => {
-  return `/api/music/genres`;
+export const getListGenresUrl = (params?: ListGenresParams) => {
+  const normalizedParams = new URLSearchParams();
+  if (params?.libraryId !== undefined && params.libraryId !== null) {
+    normalizedParams.append("libraryId", params.libraryId.toString());
+  }
+  const queryString = normalizedParams.toString();
+  return `/api/music/genres${queryString ? `?${queryString}` : ""}`;
 };
 
 export const listGenres = async (
+  params?: ListGenresParams,
   options?: RequestInit,
 ): Promise<ListGenres200> => {
-  return customFetch<ListGenres200>(getListGenresUrl(), {
+  return customFetch<ListGenres200>(getListGenresUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getListGenresQueryKey = () => {
-  return [`/api/music/genres`] as const;
+export const getListGenresQueryKey = (params?: ListGenresParams) => {
+  return [`/api/music/genres`, ...(params ? [params] : [])] as const;
 };
 
 export const getListGenresQueryOptions = <
   TData = Awaited<ReturnType<typeof listGenres>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listGenres>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}) => {
+>(
+  params?: ListGenresParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listGenres>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getListGenresQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getListGenresQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listGenres>>> = ({
     signal,
-  }) => listGenres({ signal, ...requestOptions });
+  }) => listGenres(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listGenres>>,
@@ -1312,15 +1323,18 @@ export type ListGenresQueryError = ErrorType<unknown>;
 export function useListGenres<
   TData = Awaited<ReturnType<typeof listGenres>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listGenres>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getListGenresQueryOptions(options);
+>(
+  params?: ListGenresParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listGenres>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListGenresQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;
@@ -3086,41 +3100,50 @@ export function useGetSubtitles<
 /**
  * @summary List distinct video genres with counts
  */
-export const getListVideoGenresUrl = () => {
-  return `/api/video/genres`;
+export const getListVideoGenresUrl = (params?: ListVideoGenresParams) => {
+  const normalizedParams = new URLSearchParams();
+  if (params?.libraryId !== undefined && params.libraryId !== null) {
+    normalizedParams.append("libraryId", params.libraryId.toString());
+  }
+  const queryString = normalizedParams.toString();
+  return `/api/video/genres${queryString ? `?${queryString}` : ""}`;
 };
 
 export const listVideoGenres = async (
+  params?: ListVideoGenresParams,
   options?: RequestInit,
 ): Promise<ListVideoGenres200> => {
-  return customFetch<ListVideoGenres200>(getListVideoGenresUrl(), {
+  return customFetch<ListVideoGenres200>(getListVideoGenresUrl(params), {
     ...options,
     method: "GET",
   });
 };
 
-export const getListVideoGenresQueryKey = () => {
-  return [`/api/video/genres`] as const;
+export const getListVideoGenresQueryKey = (params?: ListVideoGenresParams) => {
+  return [`/api/video/genres`, ...(params ? [params] : [])] as const;
 };
 
 export const getListVideoGenresQueryOptions = <
   TData = Awaited<ReturnType<typeof listVideoGenres>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listVideoGenres>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}) => {
+>(
+  params?: ListVideoGenresParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVideoGenres>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
   const { query: queryOptions, request: requestOptions } = options ?? {};
 
-  const queryKey = queryOptions?.queryKey ?? getListVideoGenresQueryKey();
+  const queryKey = queryOptions?.queryKey ?? getListVideoGenresQueryKey(params);
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof listVideoGenres>>> = ({
     signal,
-  }) => listVideoGenres({ signal, ...requestOptions });
+  }) => listVideoGenres(params, { signal, ...requestOptions });
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof listVideoGenres>>,
@@ -3141,15 +3164,18 @@ export type ListVideoGenresQueryError = ErrorType<unknown>;
 export function useListVideoGenres<
   TData = Awaited<ReturnType<typeof listVideoGenres>>,
   TError = ErrorType<unknown>,
->(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof listVideoGenres>>,
-    TError,
-    TData
-  >;
-  request?: SecondParameter<typeof customFetch>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
-  const queryOptions = getListVideoGenresQueryOptions(options);
+>(
+  params?: ListVideoGenresParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listVideoGenres>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListVideoGenresQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

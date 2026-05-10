@@ -1,41 +1,40 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Library, Music2, Disc3, Mic2, FolderTree, Settings, Heart, ListMusic, Plus } from "lucide-react";
+import {
+  Library, Music2, Disc3, Mic2, FolderTree, Settings, Heart, ListMusic, Plus,
+  Film, Folder, ChevronRight, ChevronDown,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import Player from "./player";
 import SearchBar from "./search-bar";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { useListPlaylists, useCreatePlaylist } from "@workspace/api-client-react";
+import { useListPlaylists, useCreatePlaylist, useListLibraries, LibraryType } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const navItems = [
-  { href: "/albums", label: "Albums", icon: Disc3 },
-  { href: "/artists", label: "Artists", icon: Mic2 },
-  { href: "/genres", label: "Genres", icon: Music2 },
-  { href: "/browse", label: "Browse", icon: FolderTree },
-];
-
 function NavLink({
   href,
   icon: Icon,
   label,
   active,
+  indent = false,
 }: {
   href: string;
   icon: React.ElementType;
   label: string;
   active: boolean;
+  indent?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+        indent ? "pl-8" : "",
         active
           ? "bg-primary/10 text-primary"
           : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -44,6 +43,102 @@ function NavLink({
       <Icon className={cn("w-5 h-5 shrink-0", active ? "text-primary" : "text-muted-foreground")} />
       <span className="truncate">{label}</span>
     </Link>
+  );
+}
+
+function AllMusicSection() {
+  const [location] = useLocation();
+  const [open, setOpen] = useState(true);
+
+  const items = [
+    { href: "/albums", label: "Albums", icon: Disc3 },
+    { href: "/artists", label: "Artists", icon: Mic2 },
+    { href: "/genres", label: "Genres", icon: Music2 },
+    { href: "/browse", label: "Browse Files", icon: FolderTree },
+  ];
+
+  const isActive = items.some((i) => location.startsWith(i.href));
+
+  return (
+    <div className="mb-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-colors",
+          isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <Music2 className="w-4 h-4 shrink-0" />
+        <span className="flex-1 text-left truncate">All Music</span>
+        {open ? (
+          <ChevronDown className="w-3.5 h-3.5 shrink-0" />
+        ) : (
+          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+        )}
+      </button>
+      {open && (
+        <div className="mt-0.5 space-y-0.5">
+          {items.map((item) => (
+            <NavLink
+              key={item.href}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              active={location.startsWith(item.href)}
+              indent
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LibrariesSection() {
+  const [location] = useLocation();
+  const { data } = useListLibraries();
+  const libraries = data?.libraries ?? [];
+
+  const musicLibs = libraries.filter((l) => l.type === LibraryType.music);
+  const videoLibs = libraries.filter((l) => l.type === LibraryType.video);
+
+  if (libraries.length === 0) return null;
+
+  return (
+    <>
+      {musicLibs.length > 0 && (
+        <div className="mb-3">
+          <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold px-3 mb-1">
+            Music
+          </h3>
+          {musicLibs.map((lib) => (
+            <NavLink
+              key={lib.id}
+              href={`/library/${lib.id}`}
+              icon={Music2}
+              label={lib.name}
+              active={location.startsWith(`/library/${lib.id}`)}
+            />
+          ))}
+        </div>
+      )}
+      {videoLibs.length > 0 && (
+        <div className="mb-3">
+          <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold px-3 mb-1">
+            Video
+          </h3>
+          {videoLibs.map((lib) => (
+            <NavLink
+              key={lib.id}
+              href={`/library/${lib.id}`}
+              icon={Film}
+              label={lib.name}
+              active={location.startsWith(`/library/${lib.id}`)}
+            />
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -143,20 +238,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-          {/* Library */}
-          <div className="mb-6">
+          {/* Library heading */}
+          <div className="mb-4">
             <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3 px-3">
               Library
             </h2>
-            {navItems.map((item) => (
-              <NavLink
-                key={item.href}
-                href={item.href}
-                icon={item.icon}
-                label={item.label}
-                active={location.startsWith(item.href)}
-              />
-            ))}
+            {/* Dynamic per-library nav */}
+            <LibrariesSection />
+            {/* All Music shortcut */}
+            <AllMusicSection />
           </div>
 
           {/* Playlists */}
@@ -204,41 +294,59 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <Player />
 
       {/* Mobile Bottom Nav */}
-      <nav className="md:hidden fixed bottom-20 left-0 right-0 bg-card/90 backdrop-blur-md border-t border-border flex items-center justify-around p-2 z-30 pb-safe">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex flex-col items-center p-2 rounded-lg gap-1",
-              location.startsWith(item.href) ? "text-primary" : "text-muted-foreground"
-            )}
-          >
-            <item.icon className="w-5 h-5" />
-            <span className="text-[10px] font-medium">{item.label}</span>
-          </Link>
-        ))}
-        <Link
-          href="/liked"
-          className={cn(
-            "flex flex-col items-center p-2 rounded-lg gap-1",
-            location.startsWith("/liked") ? "text-primary" : "text-muted-foreground"
-          )}
-        >
-          <Heart className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Liked</span>
-        </Link>
-        <Link
-          href="/settings"
-          className={cn(
-            "flex flex-col items-center p-2 rounded-lg gap-1",
-            location.startsWith("/settings") ? "text-primary" : "text-muted-foreground"
-          )}
-        >
-          <Settings className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Settings</span>
-        </Link>
-      </nav>
+      <MobileNav />
     </div>
+  );
+}
+
+function MobileNav() {
+  const [location] = useLocation();
+
+  const isLibraryActive = location.startsWith("/library/");
+
+  return (
+    <nav className="md:hidden fixed bottom-20 left-0 right-0 bg-card/90 backdrop-blur-md border-t border-border flex items-center justify-around p-2 z-30 pb-safe">
+      <Link
+        href="/libraries"
+        className={cn(
+          "flex flex-col items-center p-2 rounded-lg gap-1",
+          isLibraryActive || location === "/libraries" ? "text-primary" : "text-muted-foreground"
+        )}
+      >
+        <Library className="w-5 h-5" />
+        <span className="text-[10px] font-medium">Library</span>
+      </Link>
+      <Link
+        href="/albums"
+        className={cn(
+          "flex flex-col items-center p-2 rounded-lg gap-1",
+          location.startsWith("/albums") || location.startsWith("/artists") || location.startsWith("/genres") || location.startsWith("/browse")
+            ? "text-primary" : "text-muted-foreground"
+        )}
+      >
+        <Music2 className="w-5 h-5" />
+        <span className="text-[10px] font-medium">Music</span>
+      </Link>
+      <Link
+        href="/liked"
+        className={cn(
+          "flex flex-col items-center p-2 rounded-lg gap-1",
+          location.startsWith("/liked") ? "text-primary" : "text-muted-foreground"
+        )}
+      >
+        <Heart className="w-5 h-5" />
+        <span className="text-[10px] font-medium">Liked</span>
+      </Link>
+      <Link
+        href="/settings"
+        className={cn(
+          "flex flex-col items-center p-2 rounded-lg gap-1",
+          location.startsWith("/settings") ? "text-primary" : "text-muted-foreground"
+        )}
+      >
+        <Settings className="w-5 h-5" />
+        <span className="text-[10px] font-medium">Settings</span>
+      </Link>
+    </nav>
   );
 }
