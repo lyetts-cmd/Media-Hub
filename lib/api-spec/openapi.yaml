@@ -1303,6 +1303,24 @@ components:
         mimeType:
           type: string
           nullable: true
+        title:
+          type: string
+          nullable: true
+        artist:
+          type: string
+          nullable: true
+        album:
+          type: string
+          nullable: true
+        albumId:
+          type: integer
+          nullable: true
+        trackNumber:
+          type: integer
+          nullable: true
+        discNumber:
+          type: integer
+          nullable: true
       required:
         - name
         - path

@@ -39,6 +39,20 @@ function hashCode(str: string): number {
   return h || -1;
 }
 
+function TrackNumberBadge({ trackNumber, discNumber }: { trackNumber?: number | null; discNumber?: number | null }) {
+  if (trackNumber == null) {
+    return <span className="w-8 shrink-0" />;
+  }
+  const label = discNumber != null && discNumber > 1
+    ? `${discNumber}.${String(trackNumber).padStart(2, "0")}`
+    : String(trackNumber);
+  return (
+    <span className="w-8 shrink-0 text-right text-sm font-mono text-muted-foreground/60 select-none">
+      {label}
+    </span>
+  );
+}
+
 function TrackThumbnail({ albumId }: { albumId?: number | null }) {
   const [errored, setErrored] = useState(false);
 
@@ -216,6 +230,7 @@ export default function BrowsePage() {
                 className="flex items-center justify-between p-3 hover:bg-secondary cursor-pointer transition-colors group"
               >
                 <div className="flex items-center gap-3 min-w-0">
+                  <TrackNumberBadge trackNumber={file.trackNumber} discNumber={file.discNumber} />
                   {file.title ? (
                     <TrackThumbnail albumId={file.albumId} />
                   ) : (

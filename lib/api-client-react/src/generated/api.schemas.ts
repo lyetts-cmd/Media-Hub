@@ -158,6 +158,8 @@ export interface FolderEntry {
   artist?: string | null;
   album?: string | null;
   albumId?: number | null;
+  trackNumber?: number | null;
+  discNumber?: number | null;
 }
 
 export interface FolderContents {
