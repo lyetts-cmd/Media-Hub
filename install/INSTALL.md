@@ -122,13 +122,56 @@ SQL
 
 ## Step 4 — Get the code
 
-Clone the repository to `/opt/cadence-music`. The pre-built server and web UI are included, so no build step is needed.
+The pre-built server and web UI are included, so no compilation is needed on the server. Choose whichever method matches your setup:
+
+### Option A — Clone with git
 
 ```bash
 sudo mkdir -p /opt/cadence-music
 sudo chown $USER:$USER /opt/cadence-music
 git clone https://github.com/your-org/cadence-music.git /opt/cadence-music
 cd /opt/cadence-music
+```
+
+### Option B — Copy files directly with tar
+
+Use this option when the server has no internet access, git is not installed on the server, or you are working in an air-gapped environment. Run these commands on the **build machine** (e.g. your Replit workspace or development laptop), then transfer the archive to the server.
+
+**1. Create the archive on the build machine:**
+
+```bash
+tar -czf cadence-music.tar.gz \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='.cache' \
+  --exclude='.local' \
+  --exclude='artifacts/mockup-sandbox' \
+  --exclude='artifacts/web-client/src' \
+  --exclude='artifacts/api-server/src' \
+  --exclude='replit.md' \
+  .
+```
+
+**2. Copy the archive to the server** (replace `user@your-server` with your actual user and server address):
+
+```bash
+scp cadence-music.tar.gz user@your-server:/tmp/cadence-music.tar.gz
+```
+
+**3. On the server, extract the archive:**
+
+```bash
+sudo mkdir -p /opt/cadence-music
+sudo chown $USER:$USER /opt/cadence-music
+tar -xzf /tmp/cadence-music.tar.gz -C /opt/cadence-music
+cd /opt/cadence-music
+```
+
+**4. Verify the result:**
+
+```bash
+ls artifacts/api-server/dist/index.mjs   # should exist
+ls artifacts/web-client/dist/index.html  # should exist
 ```
 
 ---

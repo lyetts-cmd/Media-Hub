@@ -68,11 +68,42 @@ The compose file is pre-configured to pull `ghcr.io/lyetts-cmd/media-hub:latest`
 
 ### Option B — Build from source
 
-Clone the full repository:
+> **Tip:** If you don't have git on the server, Option A (pre-built image) avoids all of this entirely — you only need the single `docker-compose.yml` file.
+
+#### Option B1 — Clone with git
 
 ```bash
 git clone https://github.com/lyetts-cmd/Media-Hub.git
 cd Media-Hub
+```
+
+#### Option B2 — Copy files directly with tar (no git required)
+
+Use this option when the server has no internet access, git is not installed on the server, or you are working in an air-gapped environment. Run these commands on the **build machine** (e.g. your Replit workspace or development laptop), then transfer the archive to the server.
+
+**1. Create the archive on the build machine:**
+
+```bash
+tar -czf cadence-music-src.tar.gz \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='.cache' \
+  --exclude='.local' \
+  --exclude='*/dist' \
+  .
+```
+
+**2. Copy the archive to the server** (replace `user@your-server` with your actual user and server address):
+
+```bash
+scp cadence-music-src.tar.gz user@your-server:/tmp/cadence-music-src.tar.gz
+```
+
+**3. On the server, extract the archive:**
+
+```bash
+mkdir Media-Hub && cd Media-Hub
+tar -xzf /tmp/cadence-music-src.tar.gz -C .
 ```
 
 Then edit `docker-compose.yml` to comment out the `image:` line and uncomment the `build:` block (clearly marked inside the file).
