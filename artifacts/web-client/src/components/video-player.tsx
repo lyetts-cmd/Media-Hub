@@ -445,26 +445,53 @@ export default function VideoPlayer() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-6 right-6 z-[80] flex items-center gap-3 px-4 py-3 rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 shadow-2xl"
+            className="fixed bottom-6 right-6 z-[80] flex flex-col gap-2 px-4 py-3 rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 shadow-2xl min-w-[260px]"
           >
-            <div className="flex flex-col min-w-0">
-              <span className="text-white text-sm font-semibold truncate max-w-[160px]">{currentVideo.title}</span>
-              <span className="text-white/50 text-xs">Playing in picture-in-picture</span>
+            <div className="flex items-center gap-3">
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-white text-sm font-semibold truncate max-w-[160px]">{currentVideo.title}</span>
+                <span className="text-white/50 text-xs">Picture-in-picture</span>
+              </div>
+              <button
+                onClick={togglePlayPause}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
+                title={isPlaying ? "Pause" : "Play"}
+              >
+                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+              </button>
+              <button
+                onClick={togglePiP}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
+                title="Exit picture-in-picture"
+              >
+                <PictureInPicture2 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={dismissVideo}
+                className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
+                title="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={togglePiP}
-              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
-              title="Exit picture-in-picture"
-            >
-              <PictureInPicture2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={dismissVideo}
-              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            {/* Compact progress bar with elapsed / total time */}
+            <div className="flex items-center gap-2">
+              <span className="text-white/40 text-xs tabular-nums w-8 text-right shrink-0">{fmt(currentTime)}</span>
+              <div
+                className="relative flex-1 h-1 bg-white/20 rounded-full cursor-pointer group"
+                onClick={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                  seek(ratio * duration);
+                }}
+              >
+                <div
+                  className="absolute inset-y-0 left-0 bg-white rounded-full group-hover:bg-primary transition-colors"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <span className="text-white/40 text-xs tabular-nums w-8 shrink-0">{fmt(duration)}</span>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
