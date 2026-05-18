@@ -4,7 +4,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: cadence
-      POSTGRES_PASSWORD: changeme
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
       POSTGRES_DB: cadence_music
     volumes:
       - db_data:/var/lib/postgresql/data
@@ -16,9 +16,10 @@ services:
 
   app:
     # Option A: pull the pre-built image from GitHub Container Registry (fastest).
-    # image: ghcr.io/lyetts-cmd/media-hub:latest
+    # Replace "latest" with a specific version tag (e.g. "1.2.0") to pin a release.
+    # image: ${CADENCE_IMAGE:-ghcr.io/lyetts-cmd/media-hub:latest}
 
-    # Option B: build from source (comment out Option A, uncomment below).
+    # Option B: build the image from source (uncomment below, comment out Option A above).
     build:
       context: .
       dockerfile: Dockerfile
@@ -27,17 +28,27 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # All app config comes from .env -- no interpolation needed here.
-    env_file:
-      - .env
+    environment:
+      PORT: ${PORT:-4000}
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgres://cadence:changeme@db:5432/cadence_music}
+      MUSIC_DIR: ${MUSIC_DIR:-/music}
+      # Transcoding performance tuning -- set these in your .env file.
+      # See install/config.example.env for recommended values per hardware tier.
+      TRANSCODE_WORKERS: ${TRANSCODE_WORKERS:-1}
+      FFMPEG_THREADS: ${FFMPEG_THREADS:-0}
+      FFMPEG_HWACCEL: ${FFMPEG_HWACCEL:-}
+      VAAPI_DEVICE: ${VAAPI_DEVICE:-/dev/dri/renderD128}
     ports:
-      # Change 4000 to your preferred port on both sides if needed.
-      - "4000:4000"
+      - "${PORT:-4000}:${PORT:-4000}"
     volumes:
-      # EDIT THIS LINE: replace /your/music/directory with your actual music path.
-      - /your/music/directory:/music
-    # VAAPI hardware acceleration (Intel/AMD x86 with integrated graphics).
-    # Uncomment below and set FFMPEG_HWACCEL=vaapi in your .env file.
+      # Bind-mount your music library folder here.
+      # Change the left side to the absolute path of your music directory, e.g.:
+      #   - /home/pi/Music:/music
+      - ${MUSIC_DIR:-./music}:/music
+    # VAAPI hardware acceleration (Intel/AMD integrated graphics on Linux x86).
+    # Uncomment the devices block below and set FFMPEG_HWACCEL=vaapi in your
+    # .env file to enable GPU-accelerated transcoding.
     # devices:
     #   - /dev/dri/renderD128:/dev/dri/renderD128
 
