@@ -83,7 +83,7 @@ COPY --from=builder /build/artifacts/api-server/dist/ artifacts/api-server/dist/
 COPY --from=builder /build/artifacts/web-client/dist/ artifacts/web-client/dist/
 
 # Default mount point for the music/video library
-RUN mkdir -p /music
+RUN mkdir -p /cascadeMedia
 
 EXPOSE 4000
 
