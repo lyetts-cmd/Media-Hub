@@ -4,7 +4,7 @@ import {
   Library, Music2, Disc3, Mic2, FolderTree, Settings, Heart, ListMusic, Plus,
   Film, Folder, ChevronRight, ChevronDown,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Player from "./player";
 import SearchBar from "./search-bar";
 import { clsx, type ClassValue } from "clsx";
@@ -218,16 +218,42 @@ function PlaylistsSidebar() {
   );
 }
 
+function useActiveLibraryType() {
+  const [location] = useLocation();
+  const { data } = useListLibraries();
+  const libraries = data?.libraries ?? [];
+
+  const match = location.match(/^\/library\/(\d+)/);
+  if (!match) return null;
+
+  const libId = parseInt(match[1], 10);
+  const lib = libraries.find((l) => l.id === libId);
+  return lib?.type ?? null;
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const activeLibraryType = useActiveLibraryType();
+  const LogoIcon = activeLibraryType === LibraryType.video ? Film : Music2;
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden flex-col md:flex-row">
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-card border-r border-border flex flex-col shrink-0 z-20 hidden md:flex">
         <div className="p-6 flex items-center gap-3 border-b border-border/50">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/25">
-            <Music2 className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden">
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={activeLibraryType ?? "music"}
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <LogoIcon className="w-5 h-5 text-white" />
+              </motion.div>
+            </AnimatePresence>
           </div>
           <h1 className="text-xl font-display font-bold text-gradient">Cadence</h1>
         </div>
@@ -268,7 +294,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Mobile Header */}
         <header className="md:hidden flex items-center gap-3 p-3 border-b border-border bg-card shrink-0">
           <div className="flex items-center gap-2 shrink-0">
-            <Music2 className="w-5 h-5 text-primary" />
+            <div className="relative w-5 h-5">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={activeLibraryType ?? "music"}
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.6 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <LogoIcon className="w-5 h-5 text-primary" />
+                </motion.div>
+              </AnimatePresence>
+            </div>
             <h1 className="text-base font-display font-bold">Cadence</h1>
           </div>
           <div className="flex-1 min-w-0">

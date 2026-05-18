@@ -1,7 +1,7 @@
 import { pool } from "@workspace/db";
 
 async function migrate() {
-  console.log("Running Cadence Music database migrations...\n");
+  console.log("Running Cadence database migrations...\n");
 
   const client = await pool.connect();
   try {
