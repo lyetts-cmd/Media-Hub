@@ -82,13 +82,14 @@ router.get("/stream/:id", async (req, res) => {
   }
 
   const video = videos[0];
+  const forceNative = req.query.native === "1";
 
-  if (video.transcodingStatus === "done" && video.transcodedPath) {
+  if (video.transcodingStatus === "done" && video.transcodedPath && !forceNative) {
     await streamRange(video.transcodedPath, "video/mp4", req, res);
     return;
   }
 
-  if (video.transcodingStatus === "none") {
+  if (video.transcodingStatus === "none" || (video.transcodingStatus === "done" && forceNative)) {
     await streamRange(video.filePath, video.mimeType, req, res);
     return;
   }

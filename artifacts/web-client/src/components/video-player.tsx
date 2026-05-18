@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Play, Pause, Volume2, VolumeX, Maximize, Minimize,
-  Subtitles, ChevronDown, Zap,
+  Subtitles, ChevronDown, Zap, Loader2, AlertCircle, RefreshCw, Settings2,
 } from "lucide-react";
 import { usePlayer } from "@/hooks/use-player";
 import { getStreamVideoUrl, getGetSubtitlesUrl, TranscodingStatus, SubtitleTrack } from "@workspace/api-client-react";
@@ -16,18 +16,33 @@ function fmt(s: number) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-function QualityBadge({ status }: { status: TranscodingStatus }) {
-  if (status === TranscodingStatus.none) {
+type QualityMode = "auto" | "native" | "transcoded";
+
+function buildStreamUrl(id: number, mode: QualityMode): string {
+  const base = getStreamVideoUrl(id);
+  if (mode === "native") return `${base}?native=1`;
+  return base;
+}
+
+function QualityBadge({ status, mode }: { status: TranscodingStatus; mode: QualityMode }) {
+  if (status === TranscodingStatus.done && mode === "native") {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
         Native
       </span>
     );
   }
-  if (status === TranscodingStatus.done) {
+  if (status === TranscodingStatus.done && mode !== "native") {
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
         <Zap className="w-3 h-3" /> Transcoded
+      </span>
+    );
+  }
+  if (status === TranscodingStatus.none) {
+    return (
+      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+        Native
       </span>
     );
   }
@@ -42,6 +57,66 @@ function QualityBadge({ status }: { status: TranscodingStatus }) {
     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-muted text-muted-foreground">
       Pending
     </span>
+  );
+}
+
+interface QualityPickerProps {
+  mode: QualityMode;
+  onSelect: (mode: QualityMode) => void;
+}
+
+function QualityPicker({ mode, onSelect }: QualityPickerProps) {
+  const [open, setOpen] = useState(false);
+
+  const options: { value: QualityMode; label: string; sub: string }[] = [
+    { value: "auto",       label: "Auto",       sub: "Transcoded (browser-safe)"  },
+    { value: "transcoded", label: "Transcoded",  sub: "Re-encoded for compatibility" },
+    { value: "native",     label: "Native",      sub: "Original file, best quality"  },
+  ];
+
+  const current = options.find((o) => o.value === mode)!;
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium bg-white/10 text-white/70 hover:bg-white/20 hover:text-white transition-colors"
+        title="Quality"
+      >
+        <Settings2 className="w-4 h-4" />
+        <span className="hidden sm:inline">{current.label}</span>
+        <ChevronDown className={`w-3 h-3 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.97 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 6, scale: 0.97 }}
+            transition={{ duration: 0.15 }}
+            className="absolute bottom-full mb-2 right-0 min-w-[210px] bg-black/90 backdrop-blur-sm border border-white/10 rounded-xl shadow-2xl overflow-hidden z-10"
+          >
+            <div className="p-1">
+              {options.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => { onSelect(opt.value); setOpen(false); }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                    mode === opt.value
+                      ? "bg-primary/20 text-primary font-medium"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  <div>{opt.label}</div>
+                  <div className="text-xs text-white/40 font-normal">{opt.sub}</div>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -112,11 +187,21 @@ function SubtitlePicker({ tracks, selectedTrackId, onSelect }: SubtitlePickerPro
   );
 }
 
+type VideoErrorKind = "transcoding" | "generic";
+
+interface VideoError {
+  kind: VideoErrorKind;
+  message: string;
+}
+
 export default function VideoPlayer() {
   const { currentVideo, dismissVideo, volume, setVolume } = usePlayer();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const controlsTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const volumeRef = useRef(volume);
+  useEffect(() => { volumeRef.current = volume; }, [volume]);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -125,6 +210,9 @@ export default function VideoPlayer() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedSubtitleId, setSelectedSubtitleId] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(true);
+  const [videoError, setVideoError] = useState<VideoError | null>(null);
+  const [qualityMode, setQualityMode] = useState<QualityMode>("auto");
 
   const resetControlsTimer = useCallback(() => {
     setShowControls(true);
@@ -134,17 +222,39 @@ export default function VideoPlayer() {
     }, 3000);
   }, [isPlaying]);
 
-  useEffect(() => {
-    setSelectedSubtitleId(null);
-    if (!currentVideo) return;
+  const loadVideo = useCallback((videoId: number, vol: number, mode: QualityMode) => {
     const video = videoRef.current;
     if (!video) return;
+    clearTimeout(retryTimerRef.current);
+    setVideoError(null);
+    setIsBuffering(true);
+    setCurrentTime(0);
+    setDuration(0);
+    video.src = buildStreamUrl(videoId, mode);
+    video.volume = vol;
+    video.load();
+    video.play().catch(() => {});
+  }, []);
 
-    const streamUrl = getStreamVideoUrl(currentVideo.id);
-    video.src = streamUrl;
-    video.volume = volume;
-    video.play().catch(console.error);
+  useEffect(() => {
+    setSelectedSubtitleId(null);
+    setQualityMode("auto");
+    if (!currentVideo) return;
+    loadVideo(currentVideo.id, volumeRef.current, "auto");
   }, [currentVideo?.id]);
+
+  useEffect(() => {
+    if (!currentVideo) return;
+    const savedTime = videoRef.current?.currentTime ?? 0;
+    loadVideo(currentVideo.id, volumeRef.current, qualityMode);
+    if (savedTime > 0 && videoRef.current) {
+      const onLoaded = () => {
+        if (videoRef.current) videoRef.current.currentTime = savedTime;
+        videoRef.current?.removeEventListener("loadedmetadata", onLoaded);
+      };
+      videoRef.current.addEventListener("loadedmetadata", onLoaded);
+    }
+  }, [qualityMode]);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -156,26 +266,73 @@ export default function VideoPlayer() {
     const video = videoRef.current;
     if (!video) return;
 
-    const onTimeUpdate = () => setCurrentTime(video.currentTime);
-    const onDuration = () => setDuration(video.duration);
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => { setIsPlaying(false); dismissVideo(); };
+    const onTimeUpdate  = () => setCurrentTime(video.currentTime);
+    const onDuration    = () => setDuration(video.duration);
+    const onPlay        = () => { setIsPlaying(true); setIsBuffering(false); };
+    const onPause       = () => setIsPlaying(false);
+    const onEnded       = () => { setIsPlaying(false); dismissVideo(); };
+    const onWaiting     = () => setIsBuffering(true);
+    const onCanPlay     = () => setIsBuffering(false);
+    const onPlaying     = () => setIsBuffering(false);
 
-    video.addEventListener("timeupdate", onTimeUpdate);
+    const onError = () => {
+      const currentVideoId = Number(video.dataset.videoId);
+      if (!currentVideoId) return;
+
+      fetch(getStreamVideoUrl(currentVideoId), { method: "HEAD" })
+        .then((res) => {
+          if (res.status === 503) {
+            setVideoError({
+              kind: "transcoding",
+              message: "This video is being prepared for playback. It will be ready shortly.",
+            });
+            retryTimerRef.current = setTimeout(() => {
+              if (videoRef.current?.dataset.videoId) {
+                loadVideo(
+                  Number(videoRef.current.dataset.videoId),
+                  volumeRef.current,
+                  qualityModeRef.current,
+                );
+              }
+            }, 5000);
+          } else {
+            setVideoError({
+              kind: "generic",
+              message: "Failed to load video. The file may be missing or unsupported.",
+            });
+          }
+        })
+        .catch(() => {
+          setVideoError({
+            kind: "generic",
+            message: "Failed to load video. Check your connection and try again.",
+          });
+        });
+      setIsBuffering(false);
+    };
+
+    video.addEventListener("timeupdate",     onTimeUpdate);
     video.addEventListener("durationchange", onDuration);
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-    video.addEventListener("ended", onEnded);
+    video.addEventListener("play",           onPlay);
+    video.addEventListener("pause",          onPause);
+    video.addEventListener("ended",          onEnded);
+    video.addEventListener("waiting",        onWaiting);
+    video.addEventListener("canplay",        onCanPlay);
+    video.addEventListener("playing",        onPlaying);
+    video.addEventListener("error",          onError);
 
     return () => {
-      video.removeEventListener("timeupdate", onTimeUpdate);
+      video.removeEventListener("timeupdate",     onTimeUpdate);
       video.removeEventListener("durationchange", onDuration);
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
-      video.removeEventListener("ended", onEnded);
+      video.removeEventListener("play",           onPlay);
+      video.removeEventListener("pause",          onPause);
+      video.removeEventListener("ended",          onEnded);
+      video.removeEventListener("waiting",        onWaiting);
+      video.removeEventListener("canplay",        onCanPlay);
+      video.removeEventListener("playing",        onPlaying);
+      video.removeEventListener("error",          onError);
     };
-  }, [dismissVideo]);
+  }, [dismissVideo, loadVideo]);
 
   useEffect(() => {
     const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
@@ -186,12 +343,39 @@ export default function VideoPlayer() {
   useEffect(() => {
     return () => {
       clearTimeout(controlsTimerRef.current);
+      clearTimeout(retryTimerRef.current);
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.src = "";
       }
     };
   }, []);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (currentVideo) {
+      video.dataset.videoId = String(currentVideo.id);
+    }
+  }, [currentVideo?.id]);
+
+  const qualityModeRef = useRef(qualityMode);
+  useEffect(() => { qualityModeRef.current = qualityMode; }, [qualityMode]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !currentVideo) return;
+    const apiTracks = currentVideo.subtitleTracks ?? [];
+    const htmlTracks = video.textTracks;
+    for (let i = 0; i < htmlTracks.length; i++) {
+      const t = htmlTracks[i];
+      const byId = (t as TextTrack & { id?: string }).id;
+      const isSelected = byId
+        ? byId === selectedSubtitleId
+        : apiTracks[i]?.id === selectedSubtitleId;
+      t.mode = isSelected ? "showing" : "hidden";
+    }
+  }, [selectedSubtitleId, currentVideo]);
 
   if (!currentVideo) return null;
 
@@ -218,12 +402,13 @@ export default function VideoPlayer() {
     }
   };
 
-  const subtitlesUrl = selectedSubtitleId
-    ? getGetSubtitlesUrl(currentVideo.id, selectedSubtitleId)
-    : null;
+  const handleQualityChange = (mode: QualityMode) => {
+    setQualityMode(mode);
+  };
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
   const hasSubtitles = currentVideo.subtitleTracks && currentVideo.subtitleTracks.length > 0;
+  const canPickQuality = currentVideo.transcodingStatus === TranscodingStatus.done;
 
   return (
     <AnimatePresence>
@@ -254,19 +439,88 @@ export default function VideoPlayer() {
           onClick={(e) => { e.stopPropagation(); togglePlayPause(); resetControlsTimer(); }}
           style={{ cursor: showControls ? "default" : "none" }}
         >
-          {subtitlesUrl && (
+          {currentVideo.subtitleTracks?.map((track) => (
             <track
-              key={selectedSubtitleId}
-              src={subtitlesUrl}
+              key={track.id}
+              id={track.id}
+              src={getGetSubtitlesUrl(currentVideo.id, track.id)}
               kind="subtitles"
-              default
+              label={track.label}
+              srcLang={track.language ?? undefined}
             />
-          )}
+          ))}
         </video>
+
+        {/* Buffering spinner */}
+        <AnimatePresence>
+          {isBuffering && !videoError && (
+            <motion.div
+              key="buffering"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+            >
+              <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Error overlay */}
+        <AnimatePresence>
+          {videoError && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="absolute inset-0 flex items-center justify-center pointer-events-auto"
+            >
+              <div className="max-w-sm w-full mx-4 bg-black/80 backdrop-blur-sm border border-white/10 rounded-2xl p-6 flex flex-col items-center gap-4 text-center">
+                {videoError.kind === "transcoding" ? (
+                  <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-blue-300 animate-pulse" />
+                  </div>
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                    <AlertCircle className="w-6 h-6 text-red-300" />
+                  </div>
+                )}
+                <div>
+                  <p className="text-white font-semibold mb-1">
+                    {videoError.kind === "transcoding" ? "Preparing video…" : "Playback error"}
+                  </p>
+                  <p className="text-white/60 text-sm">{videoError.message}</p>
+                  {videoError.kind === "transcoding" && (
+                    <p className="text-white/40 text-xs mt-2">Retrying automatically…</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => loadVideo(currentVideo.id, volumeRef.current, qualityModeRef.current)}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm font-medium rounded-lg transition-colors"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Retry now
+                  </button>
+                  <button
+                    onClick={dismissVideo}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white/70 text-sm font-medium rounded-lg transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Controls overlay */}
         <AnimatePresence>
-          {showControls && (
+          {showControls && !videoError && (
             <motion.div
               key="controls"
               initial={{ opacity: 0 }}
@@ -277,7 +531,8 @@ export default function VideoPlayer() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Top bar */}
-              <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between pointer-events-auto"
+              <div
+                className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between pointer-events-auto"
                 style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)" }}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -289,13 +544,14 @@ export default function VideoPlayer() {
                   </button>
                   <h2 className="text-white font-semibold text-lg truncate">{currentVideo.title}</h2>
                 </div>
-                <div className="shrink-0">
-                  <QualityBadge status={currentVideo.transcodingStatus} />
+                <div className="flex items-center gap-2 shrink-0">
+                  <QualityBadge status={currentVideo.transcodingStatus} mode={qualityMode} />
                 </div>
               </div>
 
               {/* Bottom controls */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto"
+              <div
+                className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto"
                 style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)" }}
               >
                 {/* Seek bar */}
@@ -354,8 +610,11 @@ export default function VideoPlayer() {
                     </div>
                   </div>
 
-                  {/* Right: subtitles + fullscreen */}
+                  {/* Right: quality + subtitles + fullscreen */}
                   <div className="flex items-center gap-2">
+                    {canPickQuality && (
+                      <QualityPicker mode={qualityMode} onSelect={handleQualityChange} />
+                    )}
                     {hasSubtitles && (
                       <SubtitlePicker
                         tracks={currentVideo.subtitleTracks ?? []}
@@ -377,9 +636,21 @@ export default function VideoPlayer() {
           )}
         </AnimatePresence>
 
+        {/* Close button always visible when error is shown */}
+        {videoError && (
+          <div className="absolute top-4 left-4 z-10 pointer-events-auto">
+            <button
+              onClick={dismissVideo}
+              className="p-2 rounded-full bg-black/40 hover:bg-black/60 text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {/* Center play/pause indicator on click */}
         <AnimatePresence>
-          {!showControls && !isPlaying && (
+          {!showControls && !isPlaying && !isBuffering && !videoError && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
