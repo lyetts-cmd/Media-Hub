@@ -54,10 +54,13 @@ function RawFolderEntry({
 export default function VideoFolderPage() {
   const [, params] = useRoute("/library/:id/video-folder");
   const libraryId = params?.id ? Number(params.id) : undefined;
+  const isGlobalMode = libraryId === undefined;
   const { data: libData } = useListLibraries();
   const library = libData?.libraries?.find((l) => l.id === libraryId);
 
-  const [currentPath, setCurrentPath] = useState<string | null>(null);
+  // In global mode start at filesystem root immediately; in library mode wait
+  // for the library record so we can initialize at the library's path.
+  const [currentPath, setCurrentPath] = useState<string | null>(isGlobalMode ? "/" : null);
   const browsePath = currentPath ?? "/";
 
   useEffect(() => {
@@ -73,15 +76,16 @@ export default function VideoFolderPage() {
   const handleFolderClick = (folderPath: string) => setCurrentPath(folderPath);
 
   const handleBack = () => {
-    if (!currentPath || !libraryRoot) return;
-    if (currentPath === libraryRoot) return;
+    if (!currentPath) return;
+    if (libraryRoot && currentPath === libraryRoot) return;
+    if (isGlobalMode && currentPath === "/") return;
     const parts = currentPath.split("/").filter(Boolean);
     parts.pop();
-    const parent = "/" + parts.join("/");
-    if (!parent.startsWith(libraryRoot.replace(/\/$/, ""))) {
+    const parent = "/" + parts.join("/") || "/";
+    if (libraryRoot && !parent.startsWith(libraryRoot.replace(/\/$/, ""))) {
       setCurrentPath(libraryRoot);
     } else {
-      setCurrentPath(parent || libraryRoot);
+      setCurrentPath(parent || (libraryRoot ?? "/"));
     }
   };
 
@@ -92,7 +96,8 @@ export default function VideoFolderPage() {
   const hasEntries = entries.length > 0;
   const noLibraries = !isLoading && !isError && browsePath === "/" && !hasEntries && data?.noLibraries === true;
 
-  if (currentPath === null && !library) {
+  // Only show spinner in library mode while waiting for the library record
+  if (!isGlobalMode && currentPath === null && !library) {
     return (
       <div className="flex justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -156,7 +161,7 @@ export default function VideoFolderPage() {
           </div>
         ) : hasEntries ? (
           <div className="flex flex-col divide-y divide-border/50">
-            {currentPath !== libraryRoot && (
+            {(isGlobalMode ? currentPath !== "/" : currentPath !== libraryRoot) && (
               <div
                 onClick={handleBack}
                 className="flex items-center gap-3 p-4 hover:bg-secondary cursor-pointer transition-colors text-muted-foreground"

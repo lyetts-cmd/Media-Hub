@@ -94,6 +94,53 @@ function AllMusicSection() {
   );
 }
 
+function AllVideosSection() {
+  const [location] = useLocation();
+  const [open, setOpen] = useState(true);
+
+  const items = [
+    { href: "/videos", label: "All Videos", icon: Film },
+    { href: "/video-genres", label: "Genres", icon: Film },
+    { href: "/video-folder", label: "Browse Files", icon: Folder },
+  ];
+
+  const isActive = items.some((i) => location.startsWith(i.href));
+
+  return (
+    <div className="mb-1">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-colors",
+          isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+        )}
+      >
+        <Film className="w-4 h-4 shrink-0" />
+        <span className="flex-1 text-left truncate">All Videos</span>
+        {open ? (
+          <ChevronDown className="w-3.5 h-3.5 shrink-0" />
+        ) : (
+          <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+        )}
+      </button>
+      {open && (
+        <div className="mt-0.5 space-y-0.5">
+          {items.map((item) => (
+            <NavLink
+              key={item.href}
+              href={item.href}
+              icon={item.icon}
+              label={item.label}
+              active={location.startsWith(item.href)}
+              indent
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LibrariesSection() {
   const [location] = useLocation();
   const { data } = useListLibraries();
@@ -273,6 +320,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <LibrariesSection />
             {/* All Music shortcut */}
             <AllMusicSection />
+            {/* All Videos shortcut */}
+            <AllVideosSection />
           </div>
 
           {/* Playlists */}

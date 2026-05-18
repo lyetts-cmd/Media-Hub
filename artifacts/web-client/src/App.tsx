@@ -66,6 +66,11 @@ function Router() {
       <Route path="/library/:id/video-genres" component={VideoGenresPage} />
       <Route path="/library/:id/video-folder" component={VideoFolderPage} />
 
+      {/* Global video browse — no library scope */}
+      <Route path="/videos" component={VideoListPage} />
+      <Route path="/video-genres" component={VideoGenresPage} />
+      <Route path="/video-folder" component={VideoFolderPage} />
+
       {/* Global video genre browse */}
       <Route path="/video-genres/:genre" component={VideoListPage} />
 
