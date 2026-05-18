@@ -23772,7 +23772,7 @@ var db = drizzle(pool, { schema: schema_exports });
 
 // src/migrate.ts
 async function migrate() {
-  console.log("Running Cadence Music database migrations...\n");
+  console.log("Running Cadence database migrations...\n");
   const client = await pool.connect();
   try {
     await client.query(`
