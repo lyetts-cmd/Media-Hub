@@ -15,17 +15,14 @@ services:
       retries: 5
 
   app:
-    # ── Option A (default): pull the pre-built image from GitHub Container Registry ──
-    # This is the fastest way to get started — no compilation required.
+    # Option A: pull the pre-built image from GitHub Container Registry (fastest).
     # Replace "latest" with a specific version tag (e.g. "1.2.0") to pin a release.
-    image: ${CADENCE_IMAGE:-ghcr.io/lyetts-cmd/media-hub:latest}
+    # image: ${CADENCE_IMAGE:-ghcr.io/lyetts-cmd/media-hub:latest}
 
-    # ── Option B: build the image from source ──
-    # Uncomment the block below (and comment out the `image:` line above) if you
-    # want to build from your local checkout instead of pulling a pre-built image.
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
+    # Option B: build the image from source (uncomment below, comment out Option A above).
+    build:
+      context: .
+      dockerfile: Dockerfile
 
     restart: unless-stopped
     depends_on:
@@ -36,7 +33,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: ${DATABASE_URL:-postgres://cadence:changeme@db:5432/cadence_music}
       MUSIC_DIR: ${MUSIC_DIR:-/music}
-      # Transcoding performance tuning — set these in your .env file.
+      # Transcoding performance tuning -- set these in your .env file.
       # See install/config.example.env for recommended values per hardware tier.
       TRANSCODE_WORKERS: ${TRANSCODE_WORKERS:-1}
       FFMPEG_THREADS: ${FFMPEG_THREADS:-0}
@@ -46,7 +43,7 @@ services:
       - "${PORT:-4000}:${PORT:-4000}"
     volumes:
       # Bind-mount your music library folder here.
-      # Change ./music to the absolute path of your music directory, e.g.:
+      # Change the left side to the absolute path of your music directory, e.g.:
       #   - /home/pi/Music:/music
       - ${MUSIC_DIR:-./music}:/music
     # VAAPI hardware acceleration (Intel/AMD integrated graphics on Linux x86).

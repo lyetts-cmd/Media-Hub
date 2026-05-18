@@ -76646,7 +76646,7 @@ router7.get("/browse", async (req, res) => {
     if (entry.name.startsWith(".")) continue;
     const fullPath = path3.join(browsePath, entry.name);
     if (entry.isDirectory()) {
-      result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null, title: null, artist: null, album: null, albumId: null });
+      result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null, title: null, artist: null, album: null, albumId: null, trackNumber: null, discNumber: null });
     } else if (entry.isFile()) {
       const ext = path3.extname(entry.name).toLowerCase();
       if (AUDIO_EXTENSIONS2.has(ext)) {
@@ -76660,7 +76660,9 @@ router7.get("/browse", async (req, res) => {
           title: null,
           artist: null,
           album: null,
-          albumId: null
+          albumId: null,
+          trackNumber: null,
+          discNumber: null
         });
       }
     }
@@ -76672,6 +76674,8 @@ router7.get("/browse", async (req, res) => {
         filePath: tracksTable.filePath,
         title: tracksTable.title,
         albumId: tracksTable.albumId,
+        trackNumber: tracksTable.trackNumber,
+        discNumber: tracksTable.discNumber,
         artistName: artistsTable.name,
         albumTitle: albumsTable.title
       }).from(tracksTable).leftJoin(artistsTable, eq(tracksTable.artistId, artistsTable.id)).leftJoin(albumsTable, eq(tracksTable.albumId, albumsTable.id)).where(inArray(tracksTable.filePath, audioFiles));
@@ -76683,6 +76687,8 @@ router7.get("/browse", async (req, res) => {
             entry.trackId = track.id;
             entry.title = track.title;
             entry.albumId = track.albumId ?? null;
+            entry.trackNumber = track.trackNumber ?? null;
+            entry.discNumber = track.discNumber ?? null;
             entry.artist = track.artistName ?? null;
             entry.album = track.albumTitle ?? null;
           }
@@ -76691,8 +76697,19 @@ router7.get("/browse", async (req, res) => {
     } catch {
     }
   }
+  const fileEntries = result.filter((e) => e.type === "file");
+  const albumIds = new Set(fileEntries.map((e) => e.albumId));
+  const isSingleAlbum = fileEntries.length > 0 && albumIds.size === 1 && !albumIds.has(null);
   result.sort((a, b) => {
     if (a.type !== b.type) return a.type === "directory" ? -1 : 1;
+    if (isSingleAlbum && a.type === "file" && b.type === "file") {
+      const da = a.discNumber ?? Infinity;
+      const db_ = b.discNumber ?? Infinity;
+      if (da !== db_) return da - db_;
+      const ta = a.trackNumber ?? Infinity;
+      const tb = b.trackNumber ?? Infinity;
+      if (ta !== tb) return ta - tb;
+    }
     return a.name.localeCompare(b.name);
   });
   res.json({ path: browsePath, entries: result });
