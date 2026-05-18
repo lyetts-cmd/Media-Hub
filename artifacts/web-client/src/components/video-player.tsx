@@ -484,18 +484,22 @@ export default function VideoPlayer() {
             className="fixed bottom-6 right-6 z-[80] flex flex-col gap-2 px-4 py-3 rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 shadow-2xl min-w-[260px]"
           >
             <div className="flex items-center gap-3">
-              {pipThumbnail ? (
-                <img
-                  src={pipThumbnail}
-                  alt=""
-                  width={48}
-                  height={28}
-                  className="rounded-md object-cover shrink-0 bg-white/10"
-                  style={{ width: 48, height: 28 }}
-                />
-              ) : (
-                <div className="rounded-md bg-white/10 shrink-0" style={{ width: 48, height: 28 }} />
-              )}
+              <div className="relative rounded-md bg-white/10 shrink-0 overflow-hidden" style={{ width: 48, height: 28 }}>
+                <AnimatePresence>
+                  {pipThumbnail && (
+                    <motion.img
+                      key={pipThumbnail}
+                      src={pipThumbnail}
+                      alt=""
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  )}
+                </AnimatePresence>
+              </div>
               <div className="flex flex-col min-w-0 flex-1">
                 <span className="text-white text-sm font-semibold truncate max-w-[160px]">{currentVideo.title}</span>
                 <span className="text-white/50 text-xs">Picture-in-picture</span>
