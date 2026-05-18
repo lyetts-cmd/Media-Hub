@@ -145,7 +145,7 @@ For transcoding performance tuning (`TRANSCODE_WORKERS`, `FFMPEG_THREADS`, `FFMP
 
 ### Enabling hardware-accelerated transcoding (x86 with Intel/AMD iGPU)
 
-If your Linux machine has an Intel or AMD integrated GPU, you can enable VAAPI hardware acceleration to reduce CPU load during transcoding. In `docker-compose.yml`, uncomment the `/dev/dri` device passthrough block (clearly marked inside the file), then add `FFMPEG_HWACCEL=vaapi` to your `.env`.
+ror If your Linux machine has an Intel or AMD integrated GPU, you can enable VAAPI hardware acceleration to reduce CPU load during transcoding. In `docker-compose.yml`, uncomment the `/dev/dri` device passthrough block (clearly marked inside the file), then add `FFMPEG_HWACCEL=vaapi` to your `.env`.
 
 ---
 
