@@ -50941,7 +50941,11 @@ var BrowseFolderResponse = objectType({
       path: stringType(),
       type: enumType(["directory", "file"]),
       trackId: numberType().nullish(),
-      mimeType: stringType().nullish()
+      mimeType: stringType().nullish(),
+      title: stringType().nullish(),
+      artist: stringType().nullish(),
+      album: stringType().nullish(),
+      albumId: numberType().nullish()
     })
   ),
   noLibraries: booleanType().optional().describe(
@@ -76642,7 +76646,7 @@ router7.get("/browse", async (req, res) => {
     if (entry.name.startsWith(".")) continue;
     const fullPath = path3.join(browsePath, entry.name);
     if (entry.isDirectory()) {
-      result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null });
+      result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null, title: null, artist: null, album: null, albumId: null });
     } else if (entry.isFile()) {
       const ext = path3.extname(entry.name).toLowerCase();
       if (AUDIO_EXTENSIONS2.has(ext)) {
@@ -76652,18 +76656,36 @@ router7.get("/browse", async (req, res) => {
           path: fullPath,
           type: "file",
           trackId: null,
-          mimeType: getMimeType2(ext)
+          mimeType: getMimeType2(ext),
+          title: null,
+          artist: null,
+          album: null,
+          albumId: null
         });
       }
     }
   }
   if (audioFiles.length > 0) {
     try {
-      const trackRows = await db.select({ id: tracksTable.id, filePath: tracksTable.filePath }).from(tracksTable).where(inArray(tracksTable.filePath, audioFiles));
-      const trackMap = new Map(trackRows.map((t) => [t.filePath, t.id]));
+      const trackRows = await db.select({
+        id: tracksTable.id,
+        filePath: tracksTable.filePath,
+        title: tracksTable.title,
+        albumId: tracksTable.albumId,
+        artistName: artistsTable.name,
+        albumTitle: albumsTable.title
+      }).from(tracksTable).leftJoin(artistsTable, eq(tracksTable.artistId, artistsTable.id)).leftJoin(albumsTable, eq(tracksTable.albumId, albumsTable.id)).where(inArray(tracksTable.filePath, audioFiles));
+      const trackMap = new Map(trackRows.map((t) => [t.filePath, t]));
       for (const entry of result) {
         if (entry.type === "file") {
-          entry.trackId = trackMap.get(entry.path) ?? null;
+          const track = trackMap.get(entry.path);
+          if (track) {
+            entry.trackId = track.id;
+            entry.title = track.title;
+            entry.albumId = track.albumId ?? null;
+            entry.artist = track.artistName ?? null;
+            entry.album = track.albumTitle ?? null;
+          }
         }
       }
     } catch {

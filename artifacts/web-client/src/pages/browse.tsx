@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useRoute } from "wouter";
-import { useBrowseFolder, useListLibraries, FolderEntry } from "@workspace/api-client-react";
-import { Loader2, Folder, FileAudio, ChevronRight, Home, Play, ListMusic, Settings } from "lucide-react";
+import { useBrowseFolder, useListLibraries, FolderEntry, getGetAlbumArtUrl } from "@workspace/api-client-react";
+import { Loader2, Folder, FileAudio, ChevronRight, Home, Play, ListMusic, Settings, Music } from "lucide-react";
 import { usePlayer } from "@/hooks/use-player";
 import { Track } from "@workspace/api-client-react";
 
@@ -11,10 +11,12 @@ function makeTrackFromEntry(entry: FolderEntry): PlayableTrack {
   if (entry.trackId) {
     return {
       id: entry.trackId,
-      title: entry.name.replace(/\.[^.]+$/, ""),
+      title: entry.title ?? entry.name.replace(/\.[^.]+$/, ""),
+      artistName: entry.artist ?? undefined,
+      albumId: entry.albumId ?? undefined,
       filePath: entry.path,
       mimeType: entry.mimeType ?? "audio/mpeg",
-      hasArt: false,
+      hasArt: !!entry.albumId,
       liked: false,
     };
   }
@@ -35,6 +37,27 @@ function hashCode(str: string): number {
     h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
   }
   return h || -1;
+}
+
+function TrackThumbnail({ albumId }: { albumId?: number | null }) {
+  const [errored, setErrored] = useState(false);
+
+  if (albumId && !errored) {
+    return (
+      <img
+        src={getGetAlbumArtUrl(albumId)}
+        alt=""
+        className="w-10 h-10 rounded object-cover shrink-0 bg-secondary"
+        onError={() => setErrored(true)}
+      />
+    );
+  }
+
+  return (
+    <div className="w-10 h-10 rounded shrink-0 bg-secondary flex items-center justify-center">
+      <Music className="w-5 h-5 text-muted-foreground/50" />
+    </div>
+  );
 }
 
 export default function BrowsePage() {
@@ -190,11 +213,31 @@ export default function BrowsePage() {
               <div
                 key={file.path}
                 onClick={() => handleFileClick(file)}
-                className="flex items-center justify-between p-4 hover:bg-secondary cursor-pointer transition-colors group"
+                className="flex items-center justify-between p-3 hover:bg-secondary cursor-pointer transition-colors group"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <FileAudio className="w-5 h-5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span className="text-sm text-foreground truncate">{file.name}</span>
+                  {file.title ? (
+                    <TrackThumbnail albumId={file.albumId} />
+                  ) : (
+                    <div className="w-10 h-10 rounded shrink-0 bg-secondary flex items-center justify-center">
+                      <FileAudio className="w-5 h-5 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex flex-col">
+                    {file.title ? (
+                      <>
+                        <span className="text-sm font-medium text-foreground truncate">
+                          {file.title}
+                          {file.artist && (
+                            <span className="text-muted-foreground font-normal"> · {file.artist}</span>
+                          )}
+                        </span>
+                        <span className="text-xs text-muted-foreground/70 truncate">{file.name}</span>
+                      </>
+                    ) : (
+                      <span className="text-sm text-foreground truncate">{file.name}</span>
+                    )}
+                  </div>
                 </div>
                 <Play className="w-4 h-4 shrink-0 text-primary opacity-0 group-hover:opacity-100 transition-opacity ml-2" />
               </div>

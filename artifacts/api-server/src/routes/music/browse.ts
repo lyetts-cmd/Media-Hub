@@ -3,8 +3,8 @@ import { createReadStream } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { db } from "@workspace/db";
-import { librariesTable, tracksTable } from "@workspace/db/schema";
-import { inArray } from "drizzle-orm";
+import { albumsTable, artistsTable, librariesTable, tracksTable } from "@workspace/db/schema";
+import { eq, inArray } from "drizzle-orm";
 
 const router: IRouter = Router();
 
@@ -169,13 +169,17 @@ router.get("/browse", async (req, res) => {
     type: "directory" | "file";
     trackId: number | null;
     mimeType: string | null;
+    title: string | null;
+    artist: string | null;
+    album: string | null;
+    albumId: number | null;
   }> = [];
 
   for (const entry of entries) {
     if (entry.name.startsWith(".")) continue;
     const fullPath = path.join(browsePath, entry.name);
     if (entry.isDirectory()) {
-      result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null });
+      result.push({ name: entry.name, path: fullPath, type: "directory", trackId: null, mimeType: null, title: null, artist: null, album: null, albumId: null });
     } else if (entry.isFile()) {
       const ext = path.extname(entry.name).toLowerCase();
       if (AUDIO_EXTENSIONS.has(ext)) {
@@ -186,6 +190,10 @@ router.get("/browse", async (req, res) => {
           type: "file",
           trackId: null,
           mimeType: getMimeType(ext),
+          title: null,
+          artist: null,
+          album: null,
+          albumId: null,
         });
       }
     }
@@ -194,18 +202,34 @@ router.get("/browse", async (req, res) => {
   if (audioFiles.length > 0) {
     try {
       const trackRows = await db
-        .select({ id: tracksTable.id, filePath: tracksTable.filePath })
+        .select({
+          id: tracksTable.id,
+          filePath: tracksTable.filePath,
+          title: tracksTable.title,
+          albumId: tracksTable.albumId,
+          artistName: artistsTable.name,
+          albumTitle: albumsTable.title,
+        })
         .from(tracksTable)
+        .leftJoin(artistsTable, eq(tracksTable.artistId, artistsTable.id))
+        .leftJoin(albumsTable, eq(tracksTable.albumId, albumsTable.id))
         .where(inArray(tracksTable.filePath, audioFiles));
 
-      const trackMap = new Map(trackRows.map((t) => [t.filePath, t.id]));
+      const trackMap = new Map(trackRows.map((t) => [t.filePath, t]));
       for (const entry of result) {
         if (entry.type === "file") {
-          entry.trackId = trackMap.get(entry.path) ?? null;
+          const track = trackMap.get(entry.path);
+          if (track) {
+            entry.trackId = track.id;
+            entry.title = track.title;
+            entry.albumId = track.albumId ?? null;
+            entry.artist = track.artistName ?? null;
+            entry.album = track.albumTitle ?? null;
+          }
         }
       }
     } catch {
-      // Non-fatal: trackIds just won't be resolved; files still appear and stream via path
+      // Non-fatal: metadata just won't be resolved; files still appear and stream via path
     }
   }
 

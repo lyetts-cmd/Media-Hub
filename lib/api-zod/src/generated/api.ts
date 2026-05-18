@@ -378,6 +378,10 @@ export const BrowseFolderResponse = zod.object({
       type: zod.enum(["directory", "file"]),
       trackId: zod.number().nullish(),
       mimeType: zod.string().nullish(),
+      title: zod.string().nullish(),
+      artist: zod.string().nullish(),
+      album: zod.string().nullish(),
+      albumId: zod.number().nullish(),
     }),
   ),
   noLibraries: zod

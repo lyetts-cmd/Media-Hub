@@ -13,4 +13,8 @@ export interface FolderEntry {
   type: FolderEntryType;
   trackId?: number | null;
   mimeType?: string | null;
+  title?: string | null;
+  artist?: string | null;
+  album?: string | null;
+  albumId?: number | null;
 }
