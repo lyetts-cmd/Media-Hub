@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X, Play, Pause, Volume2, VolumeX, Maximize, Minimize,
-  Subtitles, ChevronDown, Zap, Loader2, AlertCircle, RefreshCw, Settings2,
+  Subtitles, ChevronDown, Zap, Loader2, AlertCircle, RefreshCw, Settings2, PictureInPicture2,
 } from "lucide-react";
 import { usePlayer } from "@/hooks/use-player";
 import { getStreamVideoUrl, getGetSubtitlesUrl, TranscodingStatus, SubtitleTrack } from "@workspace/api-client-react";
@@ -208,6 +208,7 @@ export default function VideoPlayer() {
   const [duration, setDuration] = useState(0);
   const [showControls, setShowControls] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPiP, setIsPiP] = useState(false);
   const [selectedSubtitleId, setSelectedSubtitleId] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [isBuffering, setIsBuffering] = useState(true);
@@ -341,6 +342,19 @@ export default function VideoPlayer() {
   }, []);
 
   useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const onEnterPiP = () => setIsPiP(true);
+    const onLeavePiP = () => setIsPiP(false);
+    video.addEventListener("enterpictureinpicture", onEnterPiP);
+    video.addEventListener("leavepictureinpicture", onLeavePiP);
+    return () => {
+      video.removeEventListener("enterpictureinpicture", onEnterPiP);
+      video.removeEventListener("leavepictureinpicture", onLeavePiP);
+    };
+  }, []);
+
+  useEffect(() => {
     return () => {
       clearTimeout(controlsTimerRef.current);
       clearTimeout(retryTimerRef.current);
@@ -399,6 +413,16 @@ export default function VideoPlayer() {
       el.requestFullscreen().catch(console.error);
     } else {
       document.exitFullscreen().catch(console.error);
+    }
+  };
+
+  const togglePiP = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture().catch(console.error);
+    } else {
+      video.requestPictureInPicture().catch(console.error);
     }
   };
 
@@ -621,6 +645,15 @@ export default function VideoPlayer() {
                         selectedTrackId={selectedSubtitleId}
                         onSelect={setSelectedSubtitleId}
                       />
+                    )}
+                    {document.pictureInPictureEnabled && (
+                      <button
+                        onClick={togglePiP}
+                        className={`p-2 transition-colors ${isPiP ? "text-primary" : "text-white/70 hover:text-white"}`}
+                        title={isPiP ? "Exit picture-in-picture" : "Picture-in-picture"}
+                      >
+                        <PictureInPicture2 className="w-5 h-5" />
+                      </button>
                     )}
                     <button
                       onClick={toggleFullscreen}
