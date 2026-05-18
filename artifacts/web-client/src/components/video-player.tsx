@@ -435,6 +435,42 @@ export default function VideoPlayer() {
   const canPickQuality = currentVideo.transcodingStatus === TranscodingStatus.done;
 
   return (
+    <>
+      {/* Mini card shown while PiP is active — floats over the library */}
+      <AnimatePresence>
+        {isPiP && (
+          <motion.div
+            key="pip-card"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-6 right-6 z-[80] flex items-center gap-3 px-4 py-3 rounded-2xl bg-black/80 backdrop-blur-md border border-white/10 shadow-2xl"
+          >
+            <div className="flex flex-col min-w-0">
+              <span className="text-white text-sm font-semibold truncate max-w-[160px]">{currentVideo.title}</span>
+              <span className="text-white/50 text-xs">Playing in picture-in-picture</span>
+            </div>
+            <button
+              onClick={togglePiP}
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
+              title="Exit picture-in-picture"
+            >
+              <PictureInPicture2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={dismissVideo}
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white/70 hover:text-white transition-colors shrink-0"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Full-screen player — always mounted to preserve the video element,
+          ref bindings, and event listeners; hidden via CSS when PiP is active */}
     <AnimatePresence>
       <motion.div
         key="video-player"
@@ -443,7 +479,7 @@ export default function VideoPlayer() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         ref={containerRef}
-        className="fixed inset-0 z-[70] bg-black flex flex-col"
+        className={`fixed inset-0 z-[70] bg-black flex flex-col${isPiP ? " invisible pointer-events-none" : ""}`}
         onMouseMove={resetControlsTimer}
         onTouchStart={resetControlsTimer}
         onClick={(e) => {
@@ -698,5 +734,6 @@ export default function VideoPlayer() {
         </AnimatePresence>
       </motion.div>
     </AnimatePresence>
+    </>
   );
 }
