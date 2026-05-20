@@ -75,7 +75,9 @@ interface CollectResult {
   directoryErrors: number;
 }
 
-const BATCH_SIZE = 8;
+const BATCH_SIZE = 4;
+// Small pause between batches to avoid saturating Pi storage I/O.
+const BATCH_PAUSE_MS = 50;
 
 async function collectAudioFiles(dirPath: string, isRoot = false): Promise<CollectResult> {
   let directoryErrors = 0;
@@ -349,17 +351,24 @@ export async function scanLibrary(libraryId: number): Promise<void> {
 
     const fileSet = new Set(files);
 
-    for (const filePath of files) {
-      try {
-        const result = await processFile(filePath, libraryId);
-        scanState.tracksScanned++;
-        if (result === "added") scanState.tracksAdded++;
-        if (result === "updated") scanState.tracksUpdated++;
-      } catch (err) {
-        logger.warn({ err, filePath }, "Error processing file");
-        scanState.hadErrors = true;
-        scanState.errorCount++;
-      }
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+      const batch = files.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (filePath) => {
+          try {
+            const result = await processFile(filePath, libraryId);
+            scanState.tracksScanned++;
+            if (result === "added") scanState.tracksAdded++;
+            if (result === "updated") scanState.tracksUpdated++;
+          } catch (err) {
+            logger.warn({ err, filePath }, "Error processing file");
+            scanState.hadErrors = true;
+            scanState.errorCount++;
+          }
+        }),
+      );
+      // Yield briefly between batches to avoid saturating Pi storage I/O.
+      await new Promise((r) => setTimeout(r, BATCH_PAUSE_MS));
     }
 
     if (directoryErrors === 0) {
