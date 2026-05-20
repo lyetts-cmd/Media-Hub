@@ -239,16 +239,67 @@ docker compose up -d
 docker compose exec app node artifacts/api-server/dist/migrate.mjs
 ```
 
-### Option B — Build from source
-
-Updating is a single command:
+### Option B1 — Build from source with git
 
 ```bash
 cd Media-Hub
-bash update.sh
+git pull
+docker compose up -d --build
+docker compose exec app node artifacts/api-server/dist/migrate.mjs
 ```
 
-The script pulls the latest code, rebuilds the image from source, restarts the stack, and runs any pending database migrations.
+### Option B2 — Update via tar (no git required)
+
+Use this when git is not installed on the Pi, or you prefer to transfer files directly.
+
+**1. On your build machine, create a fresh archive** (from inside the project folder):
+
+```bash
+tar -czf cadence-update.tar.gz \
+  --exclude='.git' \
+  --exclude='node_modules' \
+  --exclude='.cache' \
+  --exclude='.local' \
+  --exclude='*/dist' \
+  --exclude='*.log' \
+  .
+```
+
+**2. Copy the archive to the Pi:**
+
+```bash
+scp cadence-update.tar.gz pi@plex:/tmp/cadence-update.tar.gz
+```
+
+**3. On the Pi, extract over the existing installation** (your `.env` and `docker-compose.yml` edits are preserved because you extract selectively):
+
+```bash
+cd ~/Media-Hub
+tar -xzf /tmp/cadence-update.tar.gz \
+  --exclude='docker-compose.yml' \
+  --exclude='.env' \
+  --exclude='.env.example'
+```
+
+> Excluding `docker-compose.yml` and `.env` keeps your local volume path, password, and port settings intact. If the update includes important compose file changes, review the release notes and merge them manually with `nano docker-compose.yml`.
+
+**4. Rebuild the image and restart:**
+
+```bash
+docker compose up -d --build
+```
+
+**5. Run migrations** (safe to run on every update — it only applies changes that are new):
+
+```bash
+docker compose exec app node artifacts/api-server/dist/migrate.mjs
+```
+
+**6. Clean up the archive:**
+
+```bash
+rm /tmp/cadence-update.tar.gz
+```
 
 ---
 
