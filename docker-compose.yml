@@ -39,8 +39,10 @@ services:
       - /your/media/directory:/cascadeMedia
     # Memory limit: prevents an OOM condition from taking down the whole Pi.
     # The app container is capped at 512 MB; raise to 768m on a Pi 5 / 8 GB model.
-    mem_limit: 512m
-    memswap_limit: 512m
+    deploy:
+      resources:
+        limits:
+          memory: 512m
     # VAAPI hardware acceleration (Intel/AMD integrated graphics on Linux x86).
     # Uncomment below and set FFMPEG_HWACCEL=vaapi in your .env file.
     # devices:
