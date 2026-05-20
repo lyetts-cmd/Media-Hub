@@ -19,6 +19,14 @@ const AUDIO_EXTENSIONS = new Set([
   ".mp3", ".flac", ".ogg", ".m4a", ".aac", ".wav", ".wma", ".opus", ".ape",
 ]);
 
+// PostgreSQL rejects null bytes (0x00) in UTF-8 strings.
+// Some ID3 tags embed them as padding — strip them from all metadata values.
+function sanitize(value: string | null | undefined): string | null {
+  if (value == null) return null;
+  const clean = value.replace(/\0/g, "").trim();
+  return clean.length > 0 ? clean : null;
+}
+
 function getMimeType(ext: string): string {
   const map: Record<string, string> = {
     ".mp3": "audio/mpeg",
@@ -226,16 +234,16 @@ async function processFile(filePath: string, libraryId: number): Promise<"added"
 
   const { common, format } = metadata;
 
-  const titleRaw = common.title ?? path.basename(filePath, path.extname(filePath));
-  const artistName = common.albumartist || common.artist;
-  const albumTitle = common.album;
+  const titleRaw = sanitize(common.title) ?? path.basename(filePath, path.extname(filePath));
+  const artistName = sanitize(common.albumartist || common.artist);
+  const albumTitle = sanitize(common.album);
 
   let artistId: number | null = null;
   if (artistName) {
     artistId = await upsertArtist(artistName);
   }
 
-  const genreName = common.genre?.[0] ?? null;
+  const genreName = sanitize(common.genre?.[0]);
   let genreId: number | null = null;
   if (genreName) {
     genreId = await upsertGenre(genreName);

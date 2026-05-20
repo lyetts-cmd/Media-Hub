@@ -108,7 +108,7 @@ export async function transcodeVideo(videoId: number): Promise<void> {
                   .output(outputPath)
                   .format("mp4")
                   .on("error", rej2)
-                  .on("end", res2)
+                  .on("end", () => res2())
                   .run();
               });
               resolve();
