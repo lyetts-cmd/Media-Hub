@@ -1,0 +1,51 @@
+root@cadence:/opt/cadence-music# sudo journalctl -u cadence-music -n 50 --no-pager
+Jun 05 22:22:06 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:22:06 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:22:06 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:22:06 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75751:21
+Jun 05 22:23:18 cadence node[457]: Error: Failed query: select "id", "name", "path", "type", "created_at", "last_scanned_at" from "libraries" order by "libraries"."created_at"
+Jun 05 22:23:18 cadence node[457]: params:
+Jun 05 22:23:18 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:23:18 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:23:18 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:23:18 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75728:21
+Jun 05 22:23:18 cadence node[457]: Error: Failed query: select "playlists"."id", "playlists"."name", cast(count("playlist_tracks"."id") as int), (
+Jun 05 22:23:18 cadence node[457]:         select t.album_id
+Jun 05 22:23:18 cadence node[457]:         from playlist_tracks pt
+Jun 05 22:23:18 cadence node[457]:         join tracks t on t.id = pt.track_id
+Jun 05 22:23:18 cadence node[457]:         join albums a on a.id = t.album_id
+Jun 05 22:23:18 cadence node[457]:         where pt.playlist_id = "playlists"."id" and a.has_art = true
+Jun 05 22:23:18 cadence node[457]:         order by pt.position asc
+Jun 05 22:23:18 cadence node[457]:         limit 1
+Jun 05 22:23:18 cadence node[457]:       ), cast(sum("tracks"."duration_seconds") as real), "playlists"."created_at", "playlists"."updated_at" from "playlists" left join "playlist_tracks" on "playlist_tracks"."playlist_id" = "playlists"."id" left join "tracks" on "tracks"."id" = "playlist_tracks"."track_id" group by "playlists"."id" order by "playlists"."name" asc
+Jun 05 22:23:18 cadence node[457]: params:
+Jun 05 22:23:18 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:23:18 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:23:18 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:23:18 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:76942:21
+Jun 05 22:23:19 cadence node[457]: Error: Failed query: select "id", "name", "path", "type", "created_at", "last_scanned_at" from "libraries" order by "libraries"."created_at"
+Jun 05 22:23:19 cadence node[457]: params:
+Jun 05 22:23:19 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:23:19 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:23:19 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:23:19 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75728:21
+Jun 05 22:23:19 cadence node[457]: Error: Failed query: select "playlists"."id", "playlists"."name", cast(count("playlist_tracks"."id") as int), (
+Jun 05 22:23:19 cadence node[457]:         select t.album_id
+Jun 05 22:23:19 cadence node[457]:         from playlist_tracks pt
+Jun 05 22:23:19 cadence node[457]:         join tracks t on t.id = pt.track_id
+Jun 05 22:23:19 cadence node[457]:         join albums a on a.id = t.album_id
+Jun 05 22:23:19 cadence node[457]:         where pt.playlist_id = "playlists"."id" and a.has_art = true
+Jun 05 22:23:19 cadence node[457]:         order by pt.position asc
+Jun 05 22:23:19 cadence node[457]:         limit 1
+Jun 05 22:23:19 cadence node[457]:       ), cast(sum("tracks"."duration_seconds") as real), "playlists"."created_at", "playlists"."updated_at" from "playlists" left join "playlist_tracks" on "playlist_tracks"."playlist_id" = "playlists"."id" left join "tracks" on "tracks"."id" = "playlist_tracks"."track_id" group by "playlists"."id" order by "playlists"."name" asc
+Jun 05 22:23:19 cadence node[457]: params:
+Jun 05 22:23:19 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:23:19 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:23:19 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:23:19 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:76942:21
+Jun 05 22:23:37 cadence node[457]: Error: Failed query: insert into "libraries" ("id", "name", "path", "type", "created_at", "last_scanned_at") values (default, $1, $2, $3, default, default) on conflict do nothing returning "id", "name", "path", "type", "created_at", "last_scanned_at"
+Jun 05 22:23:37 cadence node[457]: params: Music,/mnt/media/Music,music
+Jun 05 22:23:37 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:23:37 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:23:37 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:23:37 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75751:21
