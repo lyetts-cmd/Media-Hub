@@ -75186,6 +75186,11 @@ var AUDIO_EXTENSIONS = /* @__PURE__ */ new Set([
   ".opus",
   ".ape"
 ]);
+function sanitize(value) {
+  if (value == null) return null;
+  const clean = value.replace(/\0/g, "").trim();
+  return clean.length > 0 ? clean : null;
+}
 function getMimeType(ext) {
   const map2 = {
     ".mp3": "audio/mpeg",
@@ -75214,7 +75219,8 @@ var scanState = {
 function getScanStatus() {
   return { ...scanState };
 }
-var BATCH_SIZE = 8;
+var BATCH_SIZE = 4;
+var BATCH_PAUSE_MS = 50;
 async function collectAudioFiles(dirPath, isRoot = false) {
   let directoryErrors = 0;
   const files = [];
@@ -75311,14 +75317,14 @@ async function processFile(filePath, libraryId) {
     return "skipped";
   }
   const { common, format } = metadata;
-  const titleRaw = common.title ?? path.basename(filePath, path.extname(filePath));
-  const artistName = common.albumartist || common.artist;
-  const albumTitle = common.album;
+  const titleRaw = sanitize(common.title) ?? path.basename(filePath, path.extname(filePath));
+  const artistName = sanitize(common.albumartist || common.artist);
+  const albumTitle = sanitize(common.album);
   let artistId = null;
   if (artistName) {
     artistId = await upsertArtist(artistName);
   }
-  const genreName = common.genre?.[0] ?? null;
+  const genreName = sanitize(common.genre?.[0]);
   let genreId = null;
   if (genreName) {
     genreId = await upsertGenre(genreName);
@@ -75401,17 +75407,23 @@ async function scanLibrary(libraryId) {
       logger.warn({ directoryErrors, libraryId }, "Scan encountered subdirectory errors; deletion pass will be skipped");
     }
     const fileSet = new Set(files);
-    for (const filePath of files) {
-      try {
-        const result = await processFile(filePath, libraryId);
-        scanState.tracksScanned++;
-        if (result === "added") scanState.tracksAdded++;
-        if (result === "updated") scanState.tracksUpdated++;
-      } catch (err) {
-        logger.warn({ err, filePath }, "Error processing file");
-        scanState.hadErrors = true;
-        scanState.errorCount++;
-      }
+    for (let i = 0; i < files.length; i += BATCH_SIZE) {
+      const batch = files.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (filePath) => {
+          try {
+            const result = await processFile(filePath, libraryId);
+            scanState.tracksScanned++;
+            if (result === "added") scanState.tracksAdded++;
+            if (result === "updated") scanState.tracksUpdated++;
+          } catch (err) {
+            logger.warn({ err, filePath }, "Error processing file");
+            scanState.hadErrors = true;
+            scanState.errorCount++;
+          }
+        })
+      );
+      await new Promise((r) => setTimeout(r, BATCH_PAUSE_MS));
     }
     if (directoryErrors === 0) {
       const existingTracks = await db.select({ id: tracksTable.id, filePath: tracksTable.filePath }).from(tracksTable).where(eq(tracksTable.libraryId, libraryId));
@@ -77288,7 +77300,7 @@ async function transcodeVideo(videoId) {
                 `-movflags +faststart`,
                 `-b:a 192k`,
                 `-threads ${ffmpegThreads}`
-              ]).output(outputPath).format("mp4").on("error", rej2).on("end", res2).run();
+              ]).output(outputPath).format("mp4").on("error", rej2).on("end", () => res2()).run();
             });
             resolve();
           } catch (softErr) {
