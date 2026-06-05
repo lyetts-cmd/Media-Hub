@@ -1,0 +1,34 @@
+root@cadence:/mnt/media# sudo journalctl -u cadence-music -f
+
+Jun 05 22:13:36 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:13:36 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:13:36 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:13:36 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75751:21
+Jun 05 22:13:42 cadence node[457]: Error: Failed query: insert into "libraries" ("id", "name", "path", "type", "created_at", "last_scanned_at") values (default, $1, $2, $3, default, default) on conflict do nothing returning "id", "name", "path", "type", "created_at", "last_scanned_at"
+Jun 05 22:13:42 cadence node[457]: params: Music,/mnt/media/Music/,music
+Jun 05 22:13:42 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:13:42 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:13:42 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:13:42 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75751:21
+Jun 05 22:15:21 cadence node[457]: Error: Failed query: insert into "libraries" ("id", "name", "path", "type", "created_at", "last_scanned_at") values (default, $1, $2, $3, default, default) on conflict do nothing returning "id", "name", "path", "type", "created_at", "last_scanned_at"
+Jun 05 22:15:21 cadence node[457]: params: Music,/mnt/media/Music/,music
+Jun 05 22:15:21 cadence node[457]:     at NodePgPreparedQuery.queryWithCache (file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58015:15)
+Jun 05 22:15:21 cadence node[457]:     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+Jun 05 22:15:21 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:58248:22
+Jun 05 22:15:21 cadence node[457]:     at async file:///opt/cadence-music/artifacts/api-server/dist/index.mjs:75751:21
+root@cadence:/mnt/media# sudo -u postgres psql -d cadence_music -c "\d libraries"
+
+Did not find any relation named "libraries".
+root@cadence:/mnt/media# sudo -u cadence node /opt/cadence-music/artifacts/api-server/dist/migrate.mjs
+
+file:///opt/cadence-music/artifacts/api-server/dist/migrate.mjs:23766
+  throw new Error(
+        ^
+
+Error: DATABASE_URL must be set. Did you forget to provision a database?
+    at file:///opt/cadence-music/artifacts/api-server/dist/migrate.mjs:23766:9
+    at ModuleJob.run (node:internal/modules/esm/module_job:325:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:606:24)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v20.20.2
