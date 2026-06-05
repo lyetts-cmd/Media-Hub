@@ -8,6 +8,26 @@
 import * as zod from "zod";
 
 /**
+ * @summary Browse server filesystem directories
+ */
+export const FsBrowseQueryParams = zod.object({
+  path: zod.coerce
+    .string()
+    .optional()
+    .describe("Absolute directory path to list (defaults to \/)"),
+});
+
+export const FsBrowseResponse = zod.object({
+  path: zod.string(),
+  entries: zod.array(
+    zod.object({
+      name: zod.string(),
+      path: zod.string(),
+    }),
+  ),
+});
+
+/**
  * Returns server health status
  * @summary Health check
  */
@@ -382,6 +402,8 @@ export const BrowseFolderResponse = zod.object({
       artist: zod.string().nullish(),
       album: zod.string().nullish(),
       albumId: zod.number().nullish(),
+      trackNumber: zod.number().nullish(),
+      discNumber: zod.number().nullish(),
     }),
   ),
   noLibraries: zod

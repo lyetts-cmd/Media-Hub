@@ -11,6 +11,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FolderPlus, Trash2, RefreshCw, Server, AlertCircle, Music2, Film } from "lucide-react";
+import { DirectoryPicker } from "@/components/directory-picker";
 import { useToast } from "@/hooks/use-toast";
 
 const addLibrarySchema = z.object({
@@ -156,11 +157,17 @@ export default function SettingsPage() {
                 {form.formState.errors.name && <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>}
               </div>
               <div className="flex-[2] w-full space-y-1">
-                <input 
-                  {...form.register("path")}
-                  placeholder="Absolute Path (e.g. /home/user/Music)" 
-                  className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
-                />
+                <div className="flex gap-2 items-stretch">
+                  <input 
+                    {...form.register("path")}
+                    placeholder="Absolute Path (e.g. /home/user/Music)" 
+                    className="flex-1 min-w-0 bg-background border border-border rounded-lg px-4 py-2.5 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  />
+                  <DirectoryPicker
+                    value={form.watch("path")}
+                    onChange={(path) => form.setValue("path", path, { shouldValidate: true })}
+                  />
+                </div>
                 {form.formState.errors.path && <p className="text-xs text-destructive">{form.formState.errors.path.message}</p>}
               </div>
               <button 

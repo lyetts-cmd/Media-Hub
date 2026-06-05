@@ -26,7 +26,35 @@ tags:
     description: Playlist management and liked songs
   - name: video
     description: Video library browsing and streaming
+  - name: fs
+    description: Filesystem utilities
 paths:
+  /fs/browse:
+    get:
+      operationId: fsBrowse
+      tags: [fs]
+      summary: Browse server filesystem directories
+      parameters:
+        - name: path
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Absolute directory path to list (defaults to /)
+      responses:
+        "200":
+          description: Directory listing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FsBrowseResponse"
+        "400":
+          description: Invalid or inaccessible path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /healthz:
     get:
       operationId: healthCheck
@@ -1641,6 +1669,30 @@ components:
         noLibraries:
           type: boolean
           description: True when no video libraries are configured and the root was requested
+      required:
+        - path
+        - entries
+
+    FsDirectoryEntry:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+      required:
+        - name
+        - path
+
+    FsBrowseResponse:
+      type: object
+      properties:
+        path:
+          type: string
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/FsDirectoryEntry"
       required:
         - path
         - entries
