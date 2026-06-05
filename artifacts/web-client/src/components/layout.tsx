@@ -46,18 +46,22 @@ function NavLink({
   );
 }
 
-function AllMusicSection() {
+type LibraryItem = { id: number; name: string; type: LibraryType };
+
+function MusicSection({ libraries }: { libraries: LibraryItem[] }) {
   const [location] = useLocation();
   const [open, setOpen] = useState(true);
 
-  const items = [
+  const browseItems = [
     { href: "/albums", label: "Albums", icon: Disc3 },
     { href: "/artists", label: "Artists", icon: Mic2 },
     { href: "/genres", label: "Genres", icon: Music2 },
     { href: "/browse", label: "Browse Files", icon: FolderTree },
   ];
 
-  const isActive = items.some((i) => location.startsWith(i.href));
+  const isActive =
+    browseItems.some((i) => location.startsWith(i.href)) ||
+    libraries.some((l) => location.startsWith(`/library/${l.id}`));
 
   return (
     <div className="mb-1">
@@ -69,7 +73,7 @@ function AllMusicSection() {
         )}
       >
         <Music2 className="w-4 h-4 shrink-0" />
-        <span className="flex-1 text-left truncate">All Music</span>
+        <span className="flex-1 text-left truncate">Music</span>
         {open ? (
           <ChevronDown className="w-3.5 h-3.5 shrink-0" />
         ) : (
@@ -78,7 +82,7 @@ function AllMusicSection() {
       </button>
       {open && (
         <div className="mt-0.5 space-y-0.5">
-          {items.map((item) => (
+          {browseItems.map((item) => (
             <NavLink
               key={item.href}
               href={item.href}
@@ -88,23 +92,45 @@ function AllMusicSection() {
               indent
             />
           ))}
+          {libraries.length > 0 && (
+            <>
+              <div className="px-3 pt-2 pb-1 flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
+                  Libraries
+                </span>
+                <div className="flex-1 h-px bg-border/40" />
+              </div>
+              {libraries.map((lib) => (
+                <NavLink
+                  key={lib.id}
+                  href={`/library/${lib.id}`}
+                  icon={Music2}
+                  label={lib.name}
+                  active={location.startsWith(`/library/${lib.id}`)}
+                  indent
+                />
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-function AllVideosSection() {
+function VideoSection({ libraries }: { libraries: LibraryItem[] }) {
   const [location] = useLocation();
   const [open, setOpen] = useState(true);
 
-  const items = [
+  const browseItems = [
     { href: "/videos", label: "All Videos", icon: Film },
     { href: "/video-genres", label: "Genres", icon: Film },
     { href: "/video-folder", label: "Browse Files", icon: Folder },
   ];
 
-  const isActive = items.some((i) => location.startsWith(i.href));
+  const isActive =
+    browseItems.some((i) => location.startsWith(i.href)) ||
+    libraries.some((l) => location.startsWith(`/library/${l.id}`));
 
   return (
     <div className="mb-1">
@@ -116,7 +142,7 @@ function AllVideosSection() {
         )}
       >
         <Film className="w-4 h-4 shrink-0" />
-        <span className="flex-1 text-left truncate">All Videos</span>
+        <span className="flex-1 text-left truncate">Video</span>
         {open ? (
           <ChevronDown className="w-3.5 h-3.5 shrink-0" />
         ) : (
@@ -125,7 +151,7 @@ function AllVideosSection() {
       </button>
       {open && (
         <div className="mt-0.5 space-y-0.5">
-          {items.map((item) => (
+          {browseItems.map((item) => (
             <NavLink
               key={item.href}
               href={item.href}
@@ -135,57 +161,29 @@ function AllVideosSection() {
               indent
             />
           ))}
+          {libraries.length > 0 && (
+            <>
+              <div className="px-3 pt-2 pb-1 flex items-center gap-2">
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50 font-semibold">
+                  Libraries
+                </span>
+                <div className="flex-1 h-px bg-border/40" />
+              </div>
+              {libraries.map((lib) => (
+                <NavLink
+                  key={lib.id}
+                  href={`/library/${lib.id}`}
+                  icon={Film}
+                  label={lib.name}
+                  active={location.startsWith(`/library/${lib.id}`)}
+                  indent
+                />
+              ))}
+            </>
+          )}
         </div>
       )}
     </div>
-  );
-}
-
-function LibrariesSection() {
-  const [location] = useLocation();
-  const { data } = useListLibraries();
-  const libraries = data?.libraries ?? [];
-
-  const musicLibs = libraries.filter((l) => l.type === LibraryType.music);
-  const videoLibs = libraries.filter((l) => l.type === LibraryType.video);
-
-  if (libraries.length === 0) return null;
-
-  return (
-    <>
-      {musicLibs.length > 0 && (
-        <div className="mb-3">
-          <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold px-3 mb-1">
-            Music
-          </h3>
-          {musicLibs.map((lib) => (
-            <NavLink
-              key={lib.id}
-              href={`/library/${lib.id}`}
-              icon={Music2}
-              label={lib.name}
-              active={location.startsWith(`/library/${lib.id}`)}
-            />
-          ))}
-        </div>
-      )}
-      {videoLibs.length > 0 && (
-        <div className="mb-3">
-          <h3 className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-semibold px-3 mb-1">
-            Video
-          </h3>
-          {videoLibs.map((lib) => (
-            <NavLink
-              key={lib.id}
-              href={`/library/${lib.id}`}
-              icon={Film}
-              label={lib.name}
-              active={location.startsWith(`/library/${lib.id}`)}
-            />
-          ))}
-        </div>
-      )}
-    </>
   );
 }
 
@@ -282,6 +280,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const activeLibraryType = useActiveLibraryType();
   const LogoIcon = activeLibraryType === LibraryType.video ? Film : Music2;
+  const { data: librariesData } = useListLibraries();
+  const allLibraries = librariesData?.libraries ?? [];
+  const musicLibraries = allLibraries.filter((l) => l.type === LibraryType.music);
+  const videoLibraries = allLibraries.filter((l) => l.type === LibraryType.video);
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden flex-col md:flex-row">
@@ -316,12 +318,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <h2 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3 px-3">
               Library
             </h2>
-            {/* Dynamic per-library nav */}
-            <LibrariesSection />
-            {/* All Music shortcut */}
-            <AllMusicSection />
-            {/* All Videos shortcut */}
-            <AllVideosSection />
+            <MusicSection libraries={musicLibraries} />
+            <VideoSection libraries={videoLibraries} />
           </div>
 
           {/* Playlists */}
