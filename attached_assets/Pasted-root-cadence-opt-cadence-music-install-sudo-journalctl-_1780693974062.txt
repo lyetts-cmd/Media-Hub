@@ -1,0 +1,76 @@
+root@cadence:/opt/cadence-music/install# sudo journalctl -u cadence-music -n 50 --no-pager
+
+Jun 05 21:12:05 cadence systemd[1]: cadence-music.service: Main process exited, code=exited, status=1/FAILURE
+Jun 05 21:12:05 cadence systemd[1]: cadence-music.service: Failed with result 'exit-code'.
+Jun 05 21:12:10 cadence systemd[1]: cadence-music.service: Scheduled restart job, restart counter is at 11.
+Jun 05 21:12:10 cadence systemd[1]: Started cadence-music.service - Cadence Music Server.
+Jun 05 21:12:10 cadence node[6979]: node:internal/modules/cjs/loader:1210
+Jun 05 21:12:10 cadence node[6979]:   throw err;
+Jun 05 21:12:10 cadence node[6979]:   ^
+Jun 05 21:12:10 cadence node[6979]: Error: Cannot find module '/opt/cadence-music/artifacts/api-server/dist/index.mjs'
+Jun 05 21:12:10 cadence node[6979]:     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+Jun 05 21:12:10 cadence node[6979]:     at Module._load (node:internal/modules/cjs/loader:1038:27)
+Jun 05 21:12:10 cadence node[6979]:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+Jun 05 21:12:10 cadence node[6979]:     at node:internal/main/run_main_module:28:49 {
+Jun 05 21:12:10 cadence node[6979]:   code: 'MODULE_NOT_FOUND',
+Jun 05 21:12:10 cadence node[6979]:   requireStack: []
+Jun 05 21:12:10 cadence node[6979]: }
+Jun 05 21:12:10 cadence node[6979]: Node.js v20.20.2
+Jun 05 21:12:10 cadence systemd[1]: cadence-music.service: Main process exited, code=exited, status=1/FAILURE
+Jun 05 21:12:10 cadence systemd[1]: cadence-music.service: Failed with result 'exit-code'.
+Jun 05 21:12:15 cadence systemd[1]: cadence-music.service: Scheduled restart job, restart counter is at 12.
+Jun 05 21:12:15 cadence systemd[1]: Started cadence-music.service - Cadence Music Server.
+Jun 05 21:12:15 cadence node[6988]: node:internal/modules/cjs/loader:1210
+Jun 05 21:12:15 cadence node[6988]:   throw err;
+Jun 05 21:12:15 cadence node[6988]:   ^
+Jun 05 21:12:15 cadence node[6988]: Error: Cannot find module '/opt/cadence-music/artifacts/api-server/dist/index.mjs'
+Jun 05 21:12:15 cadence node[6988]:     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+Jun 05 21:12:15 cadence node[6988]:     at Module._load (node:internal/modules/cjs/loader:1038:27)
+Jun 05 21:12:15 cadence node[6988]:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+Jun 05 21:12:15 cadence node[6988]:     at node:internal/main/run_main_module:28:49 {
+Jun 05 21:12:15 cadence node[6988]:   code: 'MODULE_NOT_FOUND',
+Jun 05 21:12:15 cadence node[6988]:   requireStack: []
+Jun 05 21:12:15 cadence node[6988]: }
+Jun 05 21:12:15 cadence node[6988]: Node.js v20.20.2
+Jun 05 21:12:15 cadence systemd[1]: cadence-music.service: Main process exited, code=exited, status=1/FAILURE
+Jun 05 21:12:15 cadence systemd[1]: cadence-music.service: Failed with result 'exit-code'.
+Jun 05 21:12:20 cadence systemd[1]: cadence-music.service: Scheduled restart job, restart counter is at 13.
+Jun 05 21:12:20 cadence systemd[1]: Started cadence-music.service - Cadence Music Server.
+Jun 05 21:12:20 cadence node[6996]: node:internal/modules/cjs/loader:1210
+Jun 05 21:12:20 cadence node[6996]:   throw err;
+Jun 05 21:12:20 cadence node[6996]:   ^
+Jun 05 21:12:20 cadence node[6996]: Error: Cannot find module '/opt/cadence-music/artifacts/api-server/dist/index.mjs'
+Jun 05 21:12:20 cadence node[6996]:     at Module._resolveFilename (node:internal/modules/cjs/loader:1207:15)
+Jun 05 21:12:20 cadence node[6996]:     at Module._load (node:internal/modules/cjs/loader:1038:27)
+Jun 05 21:12:20 cadence node[6996]:     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+Jun 05 21:12:20 cadence node[6996]:     at node:internal/main/run_main_module:28:49 {
+Jun 05 21:12:20 cadence node[6996]:   code: 'MODULE_NOT_FOUND',
+Jun 05 21:12:20 cadence node[6996]:   requireStack: []
+Jun 05 21:12:20 cadence node[6996]: }
+Jun 05 21:12:20 cadence node[6996]: Node.js v20.20.2
+Jun 05 21:12:20 cadence systemd[1]: cadence-music.service: Main process exited, code=exited, status=1/FAILURE
+Jun 05 21:12:20 cadence systemd[1]: cadence-music.service: Failed with result 'exit-code'.
+root@cadence:/opt/cadence-music/install# cat /etc/systemd/system/cadence-music.service
+
+[Unit]
+Description=Cadence Music Server
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+# Run as a dedicated system user with no login shell.
+# Create with: sudo useradd --system --no-create-home --shell /usr/sbin/nologin cadence
+User=cadence
+# Default install path. Change if you cloned to a different location.
+WorkingDirectory=/opt/cadence-music
+EnvironmentFile=/opt/cadence-music/.env
+ExecStart=/usr/bin/node artifacts/api-server/dist/index.mjs
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+root@cadence:/opt/cadence-music/install# ls /opt/cadence-music/artifacts/api-server/dist/index.mjs
+
+ls: cannot access '/opt/cadence-music/artifacts/api-server/dist/index.mjs': No such file or directory
